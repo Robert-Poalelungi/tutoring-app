@@ -87,11 +87,52 @@ Frontend-ul gestionează:
 Backend-ul este organizat în structura **MVC** (Models — Controllers — Routes) și gestionează:
 
 - Autentificarea utilizatorilor (Google OAuth 2.0 via Passport.js).
-- Sesiuni și autorizare prin JWT stocat în httpOnly cookie.
+- Sesiuni și autorizare prin JWT stocat în httpOnly cookie (expiră după 5 ore).
 - Gestionarea rolurilor (RBAC) prin middleware (`isAuthenticated`, `hasRole`).
 - Gestionarea consultațiilor (CRUD complet).
 - Gestionarea materiilor și atribuirea lor profesorilor.
 - Detecția automată a anului de studiu din emailul instituțional.
+
+#### Fluxul complet de autentificare și autorizare
+
+```
+1. Utilizatorul apasă "Login cu Google"
+       ↓
+2. Redirect → Google OAuth 2.0 (orice cont Google funcționează)
+       ↓
+3. Google returnează profilul (email, nume) → callback backend
+       ↓
+4. Backend verifică dacă emailul există în DB:
+   • NU există → Crează cont nou (rol implicit: "student")
+   • EXISTĂ → Returnează contul existent
+       ↓
+5. Backend generează JWT (conține: id, email, rol) și îl setează ca httpOnly cookie
+       ↓
+6. Redirect pe baza stării contului:
+   • Profil incomplet → /onboarding
+   • Student → /student/dashboard
+   • Profesor → /professor/dashboard
+   • Admin → /admin
+```
+
+**Important:** Orice cont Google poate fi utilizat pentru autentificare — nu este obligatoriu să fie un email instituțional. Emailul instituțional (`XX@stud.ase.ro`) este **recomandat** deoarece permite detecția automată a anului de studiu, dar nu este o cerință.
+
+#### Cum se atribuie rolurile
+
+- **Student** — rolul implicit la crearea oricărui cont nou prin Google OAuth.
+- **Profesor** — un administrator schimbă rolul unui utilizator existent din `student` în `professor` prin ruta `PUT /api/admin/users/:id/role`.
+- **Admin** — un administrator existent promovează un alt utilizator la rol de `admin` prin aceeași rută.
+
+Nu există auto-înregistrare ca profesor sau admin. Primul admin trebuie creat manual în baza de date.
+
+#### Cum funcționează protecția rutelor (RBAC)
+
+Fiecare request către o rută protejată trece prin două middleware-uri:
+
+1. **`isAuthenticated`** — extrage JWT-ul din cookie-ul `access_token`, îl verifică cu `JWT_SECRET`, și atașează utilizatorul la `req.user`. Dacă token-ul lipsește sau este invalid → `401 Unauthorized`.
+2. **`hasRole(...roles)`** — verifică dacă `req.user.role` se află în lista de roluri permise. Dacă nu → `403 Forbidden`.
+
+Exemplu: ruta `POST /api/consultations/create` folosește `isAuthenticated, hasRole("professor", "admin")` — doar profesorii și adminii pot crea consultații.
 
 **Structura backend-ului:**
 
@@ -126,16 +167,25 @@ back-end/
 
 ### 3.3 Detecția Automată a Anului de Studiu
 
-Aplicația detectează automat anul de studiu din emailul instituțional al studentului:
+Această funcționalitate este disponibilă **doar pentru emailurile instituționale** cu formatul `XX@stud.ase.ro`. Dacă utilizatorul s-a autentificat cu un email personal (ex: `@gmail.com`), anul de studiu nu va fi detectat automat și va trebui setat manual la onboarding.
 
-- `poalelungirobert23@stud.ase.ro` → `23` → a început în 2023 → **Anul 3** (în 2026).
+**Cum funcționează:**
+
+- `poalelungirobert23@stud.ase.ro` → extrage `23` → a început în 2023 → **Anul 3** (în 2026).
 - Formula: `anul_curent - (2000 + cifre_din_email)`, cu ajustare pentru luna curentă (anul universitar începe în octombrie).
 - Dacă rezultatul este în afara intervalului 1–4, se consideră absolvent (`null`).
 - Anul detectat este setat automat la crearea contului și trimis ca `detectedStudyYear` spre frontend la onboarding, unde studentul poate modifica manual dacă repetă anul.
 
+**Email instituțional vs. email personal:**
+
+| Tip email | Login | Detecție an | Exemplu |
+|---|---|---|---|
+| Instituțional (`@stud.ase.ro`) | ✅ Funcționează | ✅ Automat | `poalelungirobert23@stud.ase.ro` |
+| Personal (`@gmail.com`, etc.) | ✅ Funcționează | ❌ Manual la onboarding | `robert.poalelungi@gmail.com` |
+
 ### 3.4 Integrare Servicii Externe
 
-- **Google Authentication** — autentificare cu contul instituțional (OAuth 2.0 via Passport.js).
+- **Google Authentication** — autentificare cu orice cont Google (OAuth 2.0 via Passport.js). Emailul instituțional este recomandat dar nu obligatoriu.
 - **Google Drive** — stocare și partajare de materiale pentru consultații.
 - **Zoom / Google Meet** — link-uri pentru sesiunile de consultație online.
 
@@ -198,15 +248,23 @@ Pagina de login reprezintă punctul de intrare în aplicație pentru utilizatori
 **Elemente:**
 
 - Logo-ul aplicației.
-- Buton de autentificare cu Google (cont instituțional).
+- Buton de autentificare cu Google (orice cont Google — instituțional sau personal).
 
-După autentificare, aplicația verifică rolul utilizatorului și îl redirecționează:
+**Ce se întâmplă la click pe butonul de login:**
 
-- `student` → Student Dashboard
-- `professor` → Professor Dashboard
-- `admin` → Admin Panel
+1. Utilizatorul este redirecționat către pagina de consimțământ Google OAuth.
+2. După autorizare, Google trimite datele profilului (email, nume, prenume) către backend.
+3. Backend-ul caută emailul în baza de date:
+   - **Cont nou** → se creează automat cu rolul `student`. Dacă emailul este instituțional (`XX@stud.ase.ro`), anul de studiu este detectat automat.
+   - **Cont existent** → se folosește contul deja existent, cu rolul atribuit anterior.
+4. Se generează un **JWT** (JSON Web Token) care conține ID-ul, emailul și rolul utilizatorului. Token-ul este stocat într-un cookie `httpOnly` (nu este accesibil din JavaScript, protejând împotriva XSS).
+5. Utilizatorul este redirecționat în funcție de starea contului:
+   - Profil incomplet (`isProfileCompleted: false`) → **Onboarding**
+   - `student` → **Student Dashboard**
+   - `professor` → **Professor Dashboard**
+   - `admin` → **Admin Panel**
 
-Dacă utilizatorul este nou (profilul nu este completat), este direcționat către procesul de **Onboarding**.
+**Notă:** Nu există un formular clasic de login (email + parolă). Singura metodă de autentificare este prin Google OAuth 2.0.
 
 ---
 
@@ -567,9 +625,17 @@ Tabel de legătură care definește relația student — consultație (la ce con
 
 | Metodă | Endpoint | Descriere |
 |---|---|---|
-| `GET` | `/api/auth/google` | Inițiază autentificarea Google OAuth 2.0. |
-| `GET` | `/api/auth/google/callback` | Callback OAuth — creează JWT, redirecționează pe baza rolului. |
-| `GET` | `/api/auth/logout` | Logout — șterge cookie-ul și redirecționează. |
+| `GET` | `/api/auth/google` | Inițiază autentificarea Google OAuth 2.0. Redirect către Google cu scope `profile` + `email`. |
+| `GET` | `/api/auth/google/callback` | Callback OAuth — primește profilul de la Google, creează/găsește user în DB, generează JWT, setează cookie `access_token`, redirecționează pe baza rolului și `isProfileCompleted`. |
+| `GET` | `/api/auth/logout` | Logout — șterge cookie-ul `access_token` și redirecționează către `ORIGIN_SITE`. |
+
+**Detalii callback (`/api/auth/google/callback`):**
+
+- Dacă utilizatorul nu există → creează cont cu `role: "student"`, `isProfileCompleted: false`, și `studyYear` detectat automat (dacă email instituțional).
+- Dacă utilizatorul există dar nu are `studyYear` → îl detectează și actualizează automat.
+- Generează JWT cu payload: `{ id, email, role }`, expiră în 5 ore.
+- Cookie `access_token`: `httpOnly: true`, `maxAge: 5h`. În producție: `secure: true`, `sameSite: "none"`.
+- Redirecționare: dacă `isProfileCompleted === false` → `/onboarding`. Altfel, pe baza rolului → `/student/dashboard`, `/professor/dashboard`, sau `/admin`.
 
 ### 7.2 Utilizator (`/api/user`)
 
@@ -632,7 +698,7 @@ Toate rutele de admin necesită autentificare + rol `admin`.
 | **Backend** | Node.js + Express.js | Runtime JavaScript server-side + framework HTTP |
 | **Backend** | Sequelize | ORM pentru MySQL — modele, relații, migrări |
 | **Backend** | MySQL | Baza de date relațională |
-| **Auth** | Google OAuth 2.0 | Autentificare cu cont instituțional (via Passport.js) |
+| **Auth** | Google OAuth 2.0 | Autentificare cu orice cont Google (via Passport.js). Email instituțional recomandat, nu obligatoriu. |
 | **Auth** | JWT | Token de sesiune stocat în httpOnly cookie (5h expiry) |
 | **Storage** | Google Drive | Materiale și documente pentru consultații |
 | **Meeting** | Zoom / Google Meet | Sesiuni de consultație online |
@@ -657,7 +723,6 @@ tutoring-app/
 │   ├── package.json
 │   └── vite.config.js
 ├── README.md
-├── README_Tutoring_App.md
 ├── COMPONENTS.md
 └── DATABASE_STRUCTURE.md
 ```
