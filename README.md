@@ -1,4 +1,4 @@
-# Tutoring App — Documentație Completă
+# Tutoring App — Documentație
 
 ---
 
@@ -15,9 +15,10 @@
    - [3.6 Structura Bazei de Date](#36-structura-bazei-de-date)
    - [3.7 API Endpoints](#37-api-endpoints)
    - [3.8 Integrare Google Calendar](#38-integrare-google-calendar)
-   - [3.9 Structura Proiectului](#39-structura-proiectului)
-   - [3.10 Tehnologii](#310-tehnologii)
-   - [3.11 Setup & Development](#311-setup--development)
+   - [3.9 Sistem de Notificări](#39-sistem-de-notificări)
+   - [3.10 Structura Proiectului](#310-structura-proiectului)
+   - [3.11 Tehnologii](#311-tehnologii)
+   - [3.12 Setup & Development](#312-setup--development)
 4. [Front-end](#4-front-end)
    - [4.1 Arhitectura](#41-arhitectura)
    - [4.2 Fluxuri și Pagini](#42-fluxuri-și-pagini)
@@ -262,7 +263,7 @@ O consultație nu este un simplu obiect CRUD — ea trece prin mai multe stări 
 | Anulare consultație | `status` devine `cancelled`. `cancelled_at` și `cancellation_reason` sunt completate. Notificare studenți. Ștergere evenimente Google Calendar. |
 | Finalizare consultație | `status` devine `completed`. `completed_at` este completat. Consultația trece în istoric. |
 
-#### Reguli de business
+#### Reguli funcționale
 
 - Consultațiile cu `status = draft` sunt vizibile doar pentru profesor și admin.
 - Studentul vede doar consultațiile cu status `published`, `updated`, `cancelled` sau `completed`.
@@ -285,6 +286,8 @@ users ──< user_consultations >── consultations ──> courses
   └──< google_calendar_connections
   │
   └──< consultation_calendar_syncs >── consultations
+  │
+  └──< notifications
 
 calendar_sessions (singleton — configurare sesiuni calendar)
 ```
@@ -306,6 +309,7 @@ Stochează informațiile despre toți utilizatorii aplicației (studenți, profe
 | `specialization` | varchar | Specializarea |
 | `study_year` | integer | Anul de studiu (relevant pentru studenți) |
 | `is_profile_completed` | boolean | Indică dacă utilizatorul a finalizat procesul de onboarding |
+| `email_notifications_enabled` | boolean | Indică dacă utilizatorul dorește să primească notificări pe email (implicit `true`). Poate fi dezactivat din pagina de profil. |
 | `created_at` | timestamp | Data și ora creării contului |
 
 ---
@@ -426,6 +430,31 @@ Tabel singleton care stochează configurarea sesiunilor de calendar ale aplicaț
 
 ---
 
+#### 3.6.10 Tabela `notifications`
+
+Stochează notificările trimise către utilizatori. Fiecare notificare este asociată unui utilizator și poate fi legată de o entitate din sistem (consultație, sync etc.).
+
+| Câmp | Tip | Descriere |
+|---|---|---|
+| `id` | integer (PK) | ID unic |
+| `user_id` | integer (FK → `users.id`) | Utilizatorul destinatar al notificării |
+| `type` | enum(`consultation_created`, `consultation_updated`, `consultation_cancelled`, `consultation_reminder`, `enrollment_confirmed`, `calendar_sync_failed`) | Tipul notificării |
+| `title` | varchar | Titlul notificării |
+| `message` | text | Conținutul notificării |
+| `is_read` | boolean | Indică dacă notificarea a fost citită (implicit `false`) |
+| `is_important` | boolean | Notificare importantă — modificare, anulare, eșec sync (implicit `false`) |
+| `related_entity_type` | varchar | Tipul entității asociate (ex: `consultation`, `calendar_sync`) |
+| `related_entity_id` | integer | ID-ul entității asociate |
+| `email_sent` | boolean | Indică dacă notificarea a fost trimisă și pe email (implicit `false`) |
+| `created_at` | timestamp | Data și ora creării notificării |
+
+**Reguli:**
+- Notificările importante (`consultation_updated`, `consultation_cancelled`, `calendar_sync_failed`) sunt trimise și pe email dacă utilizatorul are `email_notifications_enabled = true`.
+- Notificările informative (`consultation_created`, `enrollment_confirmed`) sunt afișate doar în aplicație.
+- Reminderele (`consultation_reminder`) sunt trimise pe email cu un interval configurabil înainte de consultație.
+
+---
+
 ### 3.7 API Endpoints
 
 #### 3.7.1 Autentificare (`/api/auth`)
@@ -450,7 +479,8 @@ Tabel singleton care stochează configurarea sesiunilor de calendar ale aplicaț
 |---|---|---|---|
 | `GET` | `/api/user/me` | Public | Returnează datele utilizatorului autentificat + `detectedStudyYear`. |
 | `PUT` | `/api/user/complete-profile` | Autentificat | Completarea profilului (onboarding). |
-| `PUT` | `/api/user/update-profile` | Autentificat | Actualizare profil. |
+| `PUT` | `/api/user/update-profile` | Autentificat | Actualizare profil (nume, prenume, an, facultate, specializare). |
+| `PUT` | `/api/user/email-notifications` | Autentificat | Activează sau dezactivează notificările pe email. Body: `{ enabled: true/false }`. |
 
 #### 3.7.3 Materii (`/api/courses`)
 
@@ -511,6 +541,17 @@ Toate rutele necesită autentificare (`isAuthenticated`). Rutele de conectare ș
 | `GET` | `/api/google-calendar/status` | Student | Verifică starea conexiunii Google Calendar a studentului autentificat. Returnează `{ connected: true/false, googleEmail, lastSyncedAt }`. |
 | `POST` | `/api/google-calendar/disconnect` | Student | Deconectează calendarul: revocă token-urile Google, șterge evenimentele sincronizate, marchează conexiunea ca inactivă. |
 | `POST` | `/api/google-calendar/sync` | Student | Forțează re-sincronizarea tuturor consultațiilor studentului cu Google Calendar (util dacă au apărut erori anterioare). |
+
+#### 3.7.8 Notificări (`/api/notifications`)
+
+Toate rutele necesită autentificare (`isAuthenticated`).
+
+| Metodă | Endpoint | Acces | Descriere |
+|---|---|---|---|
+| `GET` | `/api/notifications` | Autentificat | Returnează notificările utilizatorului autentificat, ordonate descrescător după dată. Suportă paginare (`?page=1&limit=20`). |
+| `GET` | `/api/notifications/unread-count` | Autentificat | Returnează numărul de notificări necitite. Folosit de badge-ul din navbar. |
+| `PUT` | `/api/notifications/:id/read` | Autentificat | Marchează o notificare ca citită. |
+| `PUT` | `/api/notifications/read-all` | Autentificat | Marchează toate notificările ca citite. |
 
 ---
 
@@ -616,7 +657,7 @@ Fiecare eveniment creat în Google Calendar conține:
 | **Description** | Numele profesorului, tipul consultației, link materiale, link către consultație în platformă |
 | **Extended Properties** | `consultationId` — identificator intern pentru mapare |
 
-#### 3.8.8 Situații de Business și Tratarea Erorilor
+#### 3.8.8 Scenarii și Tratarea Erorilor și Tratarea Erorilor
 
 Integrarea tratează explicit următoarele scenarii:
 
@@ -648,7 +689,88 @@ Integrarea tratează explicit următoarele scenarii:
 
 ---
 
-### 3.9 Structura Proiectului
+### 3.9 Sistem de Notificări
+
+#### 3.9.1 Descriere Generală
+
+Platforma oferă un sistem de notificări care informează utilizatorii despre evenimentele importante din sistem. Notificările sunt afișate în aplicație (dropdown în navbar) și, opțional, trimise pe email.
+
+**Studentul poate dezactiva notificările pe email** din pagina de profil. Când opțiunea este dezactivată, studentul primește doar notificări în aplicație.
+
+#### 3.9.2 Canale de Notificare
+
+| Canal | Descriere | Dezactivabil |
+|---|---|---|
+| **In-app** | Notificări afișate în dropdown-ul din navbar + badge cu număr necitite | Nu — întotdeauna activ |
+| **Email** | Notificări trimise pe adresa de email a utilizatorului via Nodemailer | Da — toggle din pagina de profil |
+
+#### 3.9.3 Tipuri de Notificări și Canale
+
+| Tip | Descriere | In-app | Email |
+|---|---|---|---|
+| `consultation_created` | Consultație nouă relevantă publicată | Da | Nu |
+| `consultation_updated` | Consultație modificată (dată, oră, locație) | Da | Da |
+| `consultation_cancelled` | Consultație anulată | Da | Da |
+| `consultation_reminder` | Reminder — consultația are loc în curând | Da | Da |
+| `enrollment_confirmed` | Confirmare înscriere la consultație | Da | Nu |
+| `calendar_sync_failed` | Sincronizarea cu Google Calendar a eșuat | Da | Da |
+
+#### 3.9.4 Destinatari per Tip
+
+| Eveniment | Destinatari |
+|---|---|
+| Consultație publicată | Studenții cu profil academic relevant (an + specializare) |
+| Consultație modificată | Studenții înscriși la consultație |
+| Consultație anulată | Studenții înscriși la consultație |
+| Reminder consultație | Studenții înscriși la consultație |
+| Înscriere student | Profesorul care ține consultația |
+| Retragere student | Profesorul care ține consultația |
+| Sync eșuat | Studentul afectat |
+
+#### 3.9.5 Serviciul de Email
+
+Trimiterea notificărilor pe email este gestionată de un serviciu dedicat (`emailService.js`) care folosește **Nodemailer** cu un cont SMTP configurat prin variabile de mediu.
+
+**Fluxul de trimitere:**
+
+1. Un eveniment declanșator apare (ex: consultație modificată).
+2. Serviciul de notificări creează notificarea in-app în tabela `notifications`.
+3. Verifică dacă utilizatorul are `email_notifications_enabled = true`.
+4. Dacă da și tipul notificării suportă email → trimite emailul prin `emailService.js`.
+5. Marchează `email_sent = true` în înregistrarea notificării.
+
+**Reguli:**
+- Emailurile sunt trimise **asincron** — nu blochează operația principală.
+- Erorile de trimitere sunt loguite fără a afecta notificarea in-app.
+- Notificările duplicate sunt evitate — sistemul verifică dacă o notificare similară a fost deja creată recent.
+
+#### 3.9.6 Arhitectura
+
+```
+back-end/
+├── services/
+│   ├── notificationService.js   # Creare notificări, logica de dispatch
+│   └── emailService.js          # Trimitere email via Nodemailer
+├── controllers/
+│   └── notification.js          # Endpoint-uri pentru listare, marcare citit
+├── routes/
+│   └── notification.js          # Rute /api/notifications
+└── models/
+    └── notification.js          # Model Sequelize
+```
+
+**Separarea Responsabilităților:**
+
+| Strat | Responsabilitate |
+|---|---|
+| **`notificationService.js`** | Creare notificări in-app, decizia de trimitere email, evitare duplicate |
+| **`emailService.js`** | Conectare SMTP, formatare email, trimitere efectivă |
+| **Controller** | Gestionarea request-urilor HTTP: listare, paginare, marcare citit |
+| **Model** | Schema tabelei `notifications` |
+
+---
+
+### 3.10 Structura Proiectului
 
 ```
 back-end/
@@ -665,15 +787,19 @@ back-end/
 │   ├── userConsultation.js# Join: student ↔ consultație
 │   ├── googleCalendarConnection.js    # Conexiuni Google Calendar per student
 │   ├── consultationCalendarSync.js    # Mapare consultație ↔ eveniment Google
-│   └── calendarSessions.js           # Configurare sesiuni calendar
+│   ├── calendarSessions.js           # Configurare sesiuni calendar
+│   └── notification.js               # Notificări utilizatori
 ├── services/
-│   └── googleCalendarService.js       # Logica de sincronizare cu Google API
+│   ├── googleCalendarService.js       # Logica de sincronizare cu Google API
+│   ├── notificationService.js         # Creare notificări, logica de dispatch
+│   └── emailService.js               # Trimitere email via Nodemailer
 ├── controllers/
 │   ├── user.js            # Profil, onboarding, detectStudyYear
 │   ├── course.js          # Materii (listare, filtrare)
 │   ├── consultation.js    # CRUD consultații + enroll/unenroll
 │   ├── admin.js           # CRUD users, courses, assign courses
-│   └── googleCalendar.js  # Endpoint-uri conectare/deconectare calendar
+│   ├── googleCalendar.js  # Endpoint-uri conectare/deconectare calendar
+│   └── notification.js    # Listare, marcare citit notificări
 ├── routes/
 │   ├── index.js           # Montează toate sub-rutele pe /api
 │   ├── auth.js            # /api/auth — Google OAuth
@@ -682,6 +808,7 @@ back-end/
 │   ├── consultation.js    # /api/consultations — consultații
 │   ├── admin.js           # /api/admin — administrare
 │   ├── googleCalendar.js  # /api/google-calendar — sincronizare calendar
+│   ├── notification.js    # /api/notifications — notificări
 │   └── settings.js        # /api/settings — setări publice (sesiune activă)
 └── middleware/
     └── auth.js            # isAuthenticated + hasRole(...)
@@ -689,7 +816,7 @@ back-end/
 
 ---
 
-### 3.10 Tehnologii
+### 3.11 Tehnologii
 
 | Tehnologie | Detalii |
 |---|---|
@@ -700,10 +827,11 @@ back-end/
 | JWT | Token de sesiune stocat în httpOnly cookie (5h expiry) |
 | Google Calendar API v3 | Sincronizare automată consultații (via `googleapis`) |
 | Google Drive | Materiale și documente pentru consultații |
+| Nodemailer | Trimitere notificări pe email via SMTP |
 
 ---
 
-### 3.11 Setup & Development
+### 3.12 Setup & Development
 
 ```bash
 cd back-end
@@ -738,6 +866,11 @@ npm run dev
 | `GOOGLE_CALENDAR_CLIENT_SECRET` | Client Secret pentru Google Calendar API |
 | `GOOGLE_CALENDAR_REDIRECT_URI` | URL callback OAuth Calendar (ex: `http://localhost:5000/api/google-calendar/callback`) |
 | `GOOGLE_TOKEN_ENCRYPTION_KEY` | Cheie de criptare pentru token-urile stocate în baza de date |
+| `SMTP_HOST` | Host-ul serverului SMTP (ex: `smtp.gmail.com`) |
+| `SMTP_PORT` | Portul SMTP (ex: `587`) |
+| `SMTP_USER` | Email-ul contului SMTP folosit pentru trimitere |
+| `SMTP_PASS` | Parola sau App Password-ul contului SMTP |
+| `EMAIL_FROM` | Adresa afișată ca expeditor (ex: `Tutoring App <noreply@tutoringapp.ro>`) |
 
 **Prerequisite:** MySQL activ (Laragon sau alt server MySQL pe localhost:3306). Baza de date se creează automat la prima pornire (`sequelize.sync({ alter: true })`).
 
@@ -1041,7 +1174,37 @@ Studentul poate adăuga manual aceste consultații în dashboard. Consultațiile
 
 ---
 
-#### 4.2.5 Profesor Dashboard
+#### 4.2.5 Pagina de Profil
+
+Pagina de profil este accesibilă oricărui utilizator autentificat și afișează toate datele asociate contului său. De aici, utilizatorul își poate edita informațiile și gestiona preferințele.
+
+**Date afișate:**
+
+- **Email** — adresa de email asociată contului (read-only).
+- **Nume** — câmp editabil.
+- **Prenume** — câmp editabil.
+- **Rol** — `student`, `professor` sau `admin` (read-only).
+- **Facultate** — câmp editabil (dropdown).
+- **Specializare** — câmp editabil (dropdown).
+- **An de studiu** — câmp editabil (doar pentru studenți).
+
+**Secțiunea Notificări Email:**
+
+- Toggle **„Primește notificări pe email"** — activat implicit.
+- Când este dezactivat, utilizatorul primește doar notificări in-app (dropdown navbar).
+- Când este activat, notificările importante (modificare, anulare consultație, reminder, sync eșuat) sunt trimise și pe email.
+- Modificarea se face prin `PUT /api/user/email-notifications`.
+
+**Secțiunea Google Calendar (doar pentru studenți):**
+
+- Dacă calendarul este conectat: afișează email-ul Google conectat, data ultimei sincronizări, buton **Deconectează**, buton **Re-sincronizează**.
+- Dacă calendarul nu este conectat: buton **Conectează Google Calendar** cu mesaj informativ.
+
+**Buton Salvare:** Salvează modificările de profil prin `PUT /api/user/update-profile`.
+
+---
+
+#### 4.2.6 Professor Dashboard
 
 Profesorul poate:
 
@@ -1060,7 +1223,7 @@ Profesorul poate:
 
 ---
 
-#### 4.2.6 Admin Panel
+#### 4.2.7 Admin Panel
 
 Adminul gestionează întregul sistem prin mai multe secțiuni:
 
@@ -1124,6 +1287,11 @@ App
 │   ├── CreateConsultationForm
 │   └── ConsultationList
 │
+├── ProfilePage
+│   ├── ProfileForm
+│   ├── EmailNotificationsToggle
+│   └── GoogleCalendarSection
+│
 ├── AdminPanel
 │   ├── UsersTable
 │   ├── AddUserModal
@@ -1133,6 +1301,7 @@ App
 │
 └── Layout
     ├── Navbar
+    │   └── NotificationsDropdown
     ├── Sidebar
     └── DashboardLayout
 ```
@@ -1149,6 +1318,7 @@ App
 | `OnboardingProfile` | Completarea datelor personale (email, nume, prenume, an, specializare). |
 | `OnboardingInterests` | Selectarea disciplinelor de interes suplimentare (opțional). |
 | `StudentDashboard` | Pagina principală a studentului — consultații an curent + recuperări. |
+| `ProfilePage` | Pagina de profil — afișare și editare date utilizator, toggle notificări email, secțiune Google Calendar. |
 | `ProfessorDashboard` | Pagina principală a profesorului — materii, creare și gestionare consultații. |
 | `AdminPanel` | Panoul de administrare — utilizatori, materii, profesori, consultații. |
 
@@ -1200,11 +1370,29 @@ App
 
 ---
 
-#### 4.3.7 Componente Layout
+#### 4.3.7 Componente Profil
 
 | Componentă | Descriere |
 |---|---|
-| `Navbar` | Navigare principală (header). |
+| `ProfileForm` | Formular cu datele utilizatorului (email read-only, nume, prenume, facultate, specializare, an de studiu). Buton salvare. |
+| `EmailNotificationsToggle` | Toggle pentru activarea/dezactivarea notificărilor pe email. Apelează `PUT /api/user/email-notifications`. |
+| `GoogleCalendarSection` | Afișează starea conexiunii Google Calendar (doar pentru studenți): email conectat, ultima sincronizare, butoane conectare/deconectare/re-sincronizare. |
+
+---
+
+#### 4.3.8 Componente Notificări
+
+| Componentă | Descriere |
+|---|---|
+| `NotificationsDropdown` | Dropdown în navbar — afișează notificările recente, badge cu numărul de necitite, buton „Marchează toate ca citite". |
+
+---
+
+#### 4.3.9 Componente Layout
+
+| Componentă | Descriere |
+|---|---|
+| `Navbar` | Navigare principală (header). Include `NotificationsDropdown` și link către pagina de profil. |
 | `Sidebar` | Meniu lateral pentru navigare rapidă între secțiuni. |
 | `DashboardLayout` | Layout comun care include Navbar + Sidebar + conținutul paginii. |
 
@@ -1254,6 +1442,12 @@ front-end/
 │   │   │   ├── ProfessorCoursesManager.jsx
 │   │   │   ├── ConsultationsManager.jsx
 │   │   │   └── SessionSettings.jsx
+│   │   ├── profile/
+│   │   │   ├── ProfileForm.jsx
+│   │   │   ├── EmailNotificationsToggle.jsx
+│   │   │   └── GoogleCalendarSection.jsx
+│   │   ├── notifications/
+│   │   │   └── NotificationsDropdown.jsx
 │   │   └── layout/
 │   │       ├── Navbar.jsx
 │   │       ├── Sidebar.jsx
@@ -1265,6 +1459,7 @@ front-end/
 │   │   ├── OnboardingProfile.jsx
 │   │   ├── OnboardingInterests.jsx
 │   │   ├── StudentDashboard.jsx
+│   │   ├── ProfilePage.jsx
 │   │   ├── ProfessorDashboard.jsx
 │   │   └── AdminPanel.jsx
 │   ├── App.jsx
