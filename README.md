@@ -19,7 +19,7 @@
 
 ## 1. Descriere Generală
 
-Tutoring App este o aplicație web destinată studenților  care facilitează gestionarea și participarea la sesiuni de tutoring sau consultații organizate de cadrele didactice.
+Tutoring App este o aplicație web dedicată organizării consultațiilor universitare, concepută pentru a facilita interacțiunea dintre studenți și cadre didactice. Platforma centralizează informațiile relevante despre sesiunile de tutoring și oferă un cadru unitar pentru planificarea, accesarea și administrarea acestora.
 
 Aplicația permite:
 
@@ -27,7 +27,7 @@ Aplicația permite:
 - **Profesorilor** să organizeze consultații pentru materiile pe care le predau, să le editeze și să adauge materiale.
 - **Administratorilor** să gestioneze utilizatorii, materiile și consultațiile la nivelul întregului sistem.
 
-Scopul aplicației este de a centraliza informațiile despre consultații și de a oferi un mod simplu și organizat prin care studenții pot afla când au loc acestea și cum pot participa.
+Scopul aplicației este de a îmbunătăți organizarea activităților de tutoring, de a crește accesibilitatea informațiilor și de a susține o desfășurare mai eficientă a procesului educațional.
 
 ---
 
@@ -181,7 +181,7 @@ Această funcționalitate este disponibilă **doar pentru emailurile instituțio
 | Tip email | Login | Detecție an | Exemplu |
 |---|---|---|---|
 | Instituțional (`@stud.ase.ro`) | ✅ Funcționează | ✅ Automat | `poalelungirobert23@stud.ase.ro` |
-| Personal (`@gmail.com`, etc.) | ✅ Funcționează | ❌ Manual la onboarding | `robert.poalelungi@gmail.com` |
+| Personal (`@gmail.com`, etc.) | ✅ Funcționează | ❌ Manual la onboarding | `robertpoalelungi@gmail.com` |
 
 ### 3.4 Integrare Servicii Externe
 
@@ -278,7 +278,19 @@ Prima etapă constă în selectarea facultății din cadrul universității.
 
 **Interfață:**
 
-- 12 cartonașe (cards), câte unul pentru fiecare facultate.
+- 12 cartonașe (cards), câte unul pentru fiecare facultate:
+  1. Administrarea Afacerilor, cu predare în limbi străine (FABIZ)
+  2. Administrație și Management Public (AMP)
+  3. Business și Turism (BT)
+  4. Cibernetică, Statistică și Informatică Economică (CSIE)
+  5. Contabilitate și Informatică de Gestiune (CIG)
+  6. Drept
+  7. Economie și Comunicare în Afaceri (ECA)
+  8. Economie Agroalimentară și a Mediului (EAM)
+  9. Finanțe, Asigurări, Bănci și Burse de Valori (FABBV)
+  10. Management (MAN)
+  11. Marketing (MK)
+  12. Relații Economice Internaționale (REI)
 - Fiecare cartonaș conține numele facultății.
 - Buton pentru confirmarea selecției.
 
@@ -544,7 +556,7 @@ users ──< user_consultations >── consultations ──> courses
 
 ---
 
-### 6.2 Tabelul `users`
+### 6.2 Tabela `users`
 
 Stochează informațiile despre toți utilizatorii aplicației (studenți, profesori, admini).
 
@@ -563,7 +575,7 @@ Stochează informațiile despre toți utilizatorii aplicației (studenți, profe
 
 ---
 
-### 6.3 Tabelul `courses`
+### 6.3 Tabela `courses`
 
 Conține toate disciplinele disponibile în aplicație.
 
@@ -576,7 +588,7 @@ Conține toate disciplinele disponibile în aplicație.
 
 ---
 
-### 6.4 Tabelul `professor_courses`
+### 6.4 Tabela `professor_courses`
 
 Tabel de legătură care definește ce materii sunt atribuite fiecărui profesor.
 
@@ -588,7 +600,7 @@ Tabel de legătură care definește ce materii sunt atribuite fiecărui profesor
 
 ---
 
-### 6.5 Tabelul `consultations`
+### 6.5 Tabela `consultations`
 
 Stochează toate consultațiile create în aplicație.
 
@@ -606,7 +618,7 @@ Stochează toate consultațiile create în aplicație.
 
 ---
 
-### 6.6 Tabelul `user_consultations`
+### 6.6 Tabela `user_consultations`
 
 Tabel de legătură care definește relația student — consultație (la ce consultații participă fiecare student).
 
