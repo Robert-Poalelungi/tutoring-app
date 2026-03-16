@@ -1,0 +1,15 @@
+.consultations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.consultations-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #aaa;
+  font-size: 14px;
+  background: #fafafa;
+  border-radius: 10px;
+  border: 1px dashed #ddd;
+}

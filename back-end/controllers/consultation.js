@@ -65,7 +65,7 @@ const getConsultationById = async (req, res) => {
 // Creează o consultație (profesor / admin)
 const createConsultation = async (req, res) => {
   try {
-    const { courseId, date, time, duration, type, room, meetingLink, materialsLink, status } = req.body;
+    const { courseId, date, time, duration, type, room, meetingLink, materialsLink, status, serie } = req.body;
 
     if (!courseId || !date || !time || !type) {
       return res.status(400).json({ message: "Câmpurile courseId, date, time și type sunt obligatorii." });
@@ -100,6 +100,7 @@ const createConsultation = async (req, res) => {
       room: room || null,
       meetingLink: meetingLink || null,
       materialsLink: materialsLink || null,
+      serie: serie || "Toate",
       status: consultationStatus,
       publishedAt: consultationStatus === "published" ? new Date() : null,
     });
@@ -132,7 +133,7 @@ const updateConsultation = async (req, res) => {
       return res.status(400).json({ message: "Nu poți edita o consultație anulată sau finalizată." });
     }
 
-    const { date, time, duration, type, room, meetingLink, materialsLink } = req.body;
+    const { date, time, duration, type, room, meetingLink, materialsLink, serie } = req.body;
 
     if (date) consultation.date = date;
     if (time) consultation.time = time;
@@ -148,6 +149,7 @@ const updateConsultation = async (req, res) => {
       }
     }
     if (materialsLink !== undefined) consultation.materialsLink = materialsLink;
+    if (serie !== undefined) consultation.serie = serie;
 
     await consultation.save();
 
@@ -347,9 +349,14 @@ const getStudentConsultations = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id);
 
-    // Consultațiile automate — pe baza anului și specializării
+    // Filtru serie: "Toate" include toți studenții; o serie specifică include doar studenții din acea serie
+    const serieFilter = user.serie
+      ? { [Op.or]: [{ serie: "Toate" }, { serie: user.serie }] }
+      : { serie: "Toate" };
+
+    // Consultațiile automate — pe baza anului, specializării și seriei
     const autoConsultations = await Consultation.findAll({
-      where: { status: { [Op.in]: ["published", "cancelled", "completed"] } },
+      where: { status: { [Op.in]: ["published", "cancelled", "completed"] }, ...serieFilter },
       include: [
         {
           model: Course,

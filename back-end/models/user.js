@@ -37,6 +37,10 @@ const User = sequelize.define("User", {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
+  serie: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   isProfileCompleted: {
     type: DataTypes.BOOLEAN,
     allowNull: false,

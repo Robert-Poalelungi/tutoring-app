@@ -1,0 +1,68 @@
+.calendar-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #eee;
+}
+
+.calendar-filters__group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendar-filters__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+}
+
+.filter-btn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+  transition: all 0.15s;
+}
+
+.filter-btn:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.filter-btn--active {
+  background: #667eea;
+  border-color: #667eea;
+  color: #fff;
+}
+
+.filter-btn--reset {
+  color: #e74c3c;
+  border-color: #e74c3c;
+}
+
+.filter-btn--reset:hover {
+  background: #e74c3c;
+  color: #fff;
+}
+
+.filter-select {
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  font-size: 13px;
+  color: #555;
+  background: #fff;
+  outline: none;
+}
+
+.filter-select:focus {
+  border-color: #667eea;
+}

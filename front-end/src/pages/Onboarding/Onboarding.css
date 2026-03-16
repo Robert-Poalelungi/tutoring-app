@@ -1,0 +1,136 @@
+.onboarding-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.onboarding-card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 560px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.onboarding-card__step {
+  font-size: 12px;
+  font-weight: 700;
+  color: #667eea;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.onboarding-card__title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #222;
+  margin-bottom: 8px;
+}
+
+.onboarding-card__subtitle {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 28px;
+}
+
+.onboarding-card__actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 28px;
+}
+
+.onboarding-btn {
+  padding: 12px 28px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.onboarding-btn--primary {
+  background: #667eea;
+  color: white;
+}
+
+.onboarding-btn--primary:hover {
+  background: #5a6fd6;
+}
+
+.onboarding-btn--secondary {
+  background: #f5f6fa;
+  color: #555;
+}
+
+.onboarding-btn--secondary:hover {
+  background: #eee;
+}
+
+.onboarding-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.progress-dots {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ddd;
+  transition: all 0.2s;
+}
+
+.progress-dot--active {
+  background: #667eea;
+  width: 24px;
+  border-radius: 4px;
+}
+
+.progress-dot--done {
+  background: #667eea;
+  opacity: 0.4;
+}
+
+.onboarding-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.onboarding-form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.onboarding-form-group input,
+.onboarding-form-group select {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: Montserrat, sans-serif;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.onboarding-form-group input:focus,
+.onboarding-form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+}

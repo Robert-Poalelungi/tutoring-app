@@ -1,35 +1,76 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
-function App() {
-  const [count, setCount] = useState(0)
+import CalendarPage from "./pages/CalendarPage/CalendarPage";
+import LoginPage from "./pages/LoginPage/LoginPage";
+import OnboardingFaculty from "./pages/Onboarding/OnboardingFaculty";
+import OnboardingProfile from "./pages/Onboarding/OnboardingProfile";
+import OnboardingInterests from "./pages/Onboarding/OnboardingInterests";
+import StudentDashboard from "./pages/StudentDashboard/StudentDashboard";
+import ProfessorDashboard from "./pages/ProfessorDashboard/ProfessorDashboard";
+import ProfilePage from "./pages/ProfilePage/ProfilePage";
+import AdminPanel from "./pages/AdminPanel/AdminPanel";
+
+const ProtectedRoute = ({ children, roles }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" />;
+  if (!user.isProfileCompleted) return <Navigate to="/onboarding" />;
+  if (roles && !roles.includes(user.role)) return <Navigate to="/" />;
+
+  return children;
+};
+
+const App = () => {
+  const { loading } = useAuth();
+
+  if (loading) return null;
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <Routes>
+      <Route path="/" element={<CalendarPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/onboarding" element={<OnboardingFaculty />} />
+      <Route path="/onboarding/profile" element={<OnboardingProfile />} />
+      <Route path="/onboarding/interests" element={<OnboardingInterests />} />
 
-export default App
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute roles={["student"]}>
+            <StudentDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/professor"
+        element={
+          <ProtectedRoute roles={["professor"]}>
+            <ProfessorDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute roles={["admin"]}>
+            <AdminPanel />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+  );
+};
+
+export default App;

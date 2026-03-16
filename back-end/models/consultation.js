@@ -36,6 +36,11 @@ const Consultation = sequelize.define("Consultation", {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  serie: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: "Toate",
+  },
   status: {
     type: DataTypes.ENUM("draft", "published", "cancelled", "completed"),
     allowNull: false,

@@ -127,8 +127,8 @@ Backend-ul este organizat în structura **MVC** (Models — Controllers — Rout
        ↓
 6. Redirect pe baza stării contului:
    • Profil incomplet → /onboarding
-   • Student → /student/dashboard
-   • Profesor → /professor/dashboard
+   • Student → /dashboard
+   • Profesor → /professor
    • Admin → /admin
 ```
 
@@ -179,7 +179,7 @@ Platforma folosește două tipuri de asociere între student și consultație, d
 
 #### Consultații automate (`source: auto`)
 
-Consultațiile relevante pentru profilul academic al studentului sunt generate automat pe baza facultății, specializării și anului de studiu. Acestea apar implicit în dashboard fără intervenția studentului.
+Consultațiile relevante pentru profilul academic al studentului sunt generate automat pe baza specializării, anului de studiu și seriei. Acestea apar implicit în dashboard fără intervenția studentului.
 
 **Reguli:**
 
@@ -187,6 +187,12 @@ Consultațiile relevante pentru profilul academic al studentului sunt generate a
 - Consultațiile automate sunt recalculate dacă studentul își modifică profilul academic (an de studiu, facultate, specializare).
 - Sistemul evită duplicarea — dacă o consultație este deja asociată studentului, nu se creează o a doua înregistrare.
 - Consultațiile automate nu pot fi eliminate manual de student din dashboard.
+
+**Filtrare pe serie:**
+
+- Consultațiile cu `serie = Toate` sunt vizibile și atribuite automat tuturor studenților care corespund anului și specializării, indiferent de serie.
+- Consultațiile cu o serie specifică (ex: `serie = A`) sunt atribuite automat doar studenților din acea serie.
+- Dacă studentul nu are seria completată în profil, vede doar consultațiile cu `serie = Toate`.
 
 #### Consultații manuale (`source: manual`)
 
@@ -332,6 +338,7 @@ Stochează informațiile despre toți utilizatorii aplicației (studenți, profe
 | `faculty_id` | integer (FK → `faculties.id`) | Facultatea utilizatorului |
 | `specialization_id` | integer (FK → `specializations.id`) | Specializarea utilizatorului |
 | `study_year` | integer | Anul de studiu (relevant pentru studenți) |
+| `serie` | varchar | Seria studentului (ex: „A", „B", „C1"). Folosită pentru filtrarea consultațiilor destinate unei serii specifice. Opțional — dacă nu este setat, studentul vede doar consultațiile cu `serie = Toate`. |
 | `is_profile_completed` | boolean | Indică dacă utilizatorul a finalizat procesul de onboarding |
 | `email_notifications_enabled` | boolean | Indică dacă studentul dorește să primească notificări pe email: reminder-e și anulări de consultații (implicit `true`). Poate fi dezactivat din pagina de profil. |
 | `created_at` | timestamp | Data și ora creării contului |
@@ -381,6 +388,7 @@ Stochează toate consultațiile create în aplicație.
 | `room` | varchar | Numărul sălii (pentru consultații fizice) |
 | `meeting_link` | varchar | Link Zoom / Google Meet (pentru consultații online) |
 | `materials_link` | varchar | Link către folderul Google Drive cu materiale |
+| `serie` | varchar | Seria pentru care este destinată consultația (implicit `Toate`). Dacă este setată o valoare specifică (ex: „A", „B"), doar studenții din acea serie sunt înscriși automat. |
 | `status` | enum(`draft`, `published`, `cancelled`, `completed`) | Starea curentă a consultației (implicit `published`) |
 | `published_at` | timestamp | Data și ora publicării consultației |
 | `cancelled_at` | timestamp | Data și ora anulării (dacă este cazul) |
@@ -478,7 +486,7 @@ Tabel singleton care stochează configurarea sesiunilor de calendar ale aplicaț
 - Dacă utilizatorul există dar nu are `studyYear` → îl detectează și actualizează automat.
 - Generează JWT cu payload: `{ id, email, role }`, expiră în 5 ore.
 - Cookie `access_token`: `httpOnly: true`, `maxAge: 5h`. În producție: `secure: true`, `sameSite: "none"`.
-- Redirecționare: dacă `isProfileCompleted === false` → `/onboarding`. Altfel, pe baza rolului → `/student/dashboard`, `/professor/dashboard`, sau `/admin`.
+- Redirecționare: dacă `isProfileCompleted === false` → `/onboarding`. Altfel, pe baza rolului → `/dashboard` (student), `/professor` (profesor), sau `/admin` (admin).
 
 #### 3.7.2 Utilizator (`/api/user`)
 
@@ -521,9 +529,11 @@ Tabel singleton care stochează configurarea sesiunilor de calendar ale aplicaț
 | `POST` | `/api/consultations/student/enroll` | Student | Înscriere la o consultație pentru recuperare (sursa: `manual`). |
 | `DELETE` | `/api/consultations/student/unenroll/:id` | Student | Eliminare consultație manuală din lista studentului. |
 | `GET` | `/api/consultations/professor/my` | Profesor / Admin | Consultațiile create de profesorul autentificat. |
-| `POST` | `/api/consultations/create` | Profesor / Admin | Creează o consultație nouă (validare: link obligatoriu dacă online, sală dacă fizic). |
-| `PUT` | `/api/consultations/update/:id` | Profesor / Admin | Editează o consultație (profesorul poate edita doar consultațiile proprii). |
-| `DELETE` | `/api/consultations/delete/:id` | Profesor / Admin | Șterge o consultație. |
+| `POST` | `/api/consultations/create` | Profesor / Admin | Creează o consultație nouă. Body: `courseId`, `date`, `time`, `type`, opțional: `duration`, `room`, `meetingLink`, `materialsLink`, `serie`, `status`. |
+| `PUT` | `/api/consultations/update/:id` | Profesor / Admin | Editează o consultație (profesorul poate edita doar consultațiile proprii). Câmpuri editabile: `date`, `time`, `duration`, `type`, `room`, `meetingLink`, `materialsLink`, `serie`. |
+| `PUT` | `/api/consultations/cancel/:id` | Profesor / Admin | Anulează o consultație publicată. Body opțional: `cancellationReason`. Trimite email de anulare studenților înscriși și șterge evenimentele din Google Calendar. |
+| `PUT` | `/api/consultations/complete/:id` | Profesor / Admin | Marchează o consultație publicată ca finalizată. |
+| `DELETE` | `/api/consultations/delete/:id` | Profesor / Admin | Șterge permanent o consultație din baza de date. Șterge și evenimentele din Google Calendar înainte de ștergere. |
 
 #### 3.7.7 Admin (`/api/admin`)
 
@@ -644,9 +654,10 @@ back-end/
 1. **`createEvent(userId, consultationId)`** — Creează un eveniment în calendarul studentului pentru o consultație.
 2. **`updateEvent(userId, consultationId)`** — Actualizează un eveniment existent după modificarea consultației.
 3. **`deleteEvent(userId, consultationId)`** — Șterge un eveniment (la anulare consultație sau retragere student).
-4. **`syncAllForConsultation(consultationId)`** — Sincronizează toți studenții conectați pentru o consultație (apelat la update/delete consultație de către profesor).
-5. **`refreshAccessToken(connectionId)`** — Reîmprospătează token-ul de acces expirat folosind refresh token-ul.
-6. **`revokeConnection(userId)`** — Revocă accesul și șterge token-urile stocate.
+4. **`syncAllForConsultation(consultationId, action)`** — Sincronizează toți studenții conectați pentru o consultație (apelat la update/cancel/delete consultație de către profesor). `action` poate fi `"update"` sau `"delete"`.
+5. **`revokeConnection(userId)`** — Revocă accesul la Google Calendar, șterge toate evenimentele sincronizate și marchează conexiunea ca inactivă.
+
+**Reîmprospătarea token-ului** este gestionată automat intern de clientul OAuth2 prin evenimentul `tokens` — nu există o funcție separată exportată pentru aceasta.
 
 #### 3.8.6 Integrarea cu Controller-ul de Consultații Existent
 
@@ -690,7 +701,7 @@ Integrarea tratează explicit următoarele scenarii:
 
 #### 3.8.9 Considerații de Securitate
 
-1. **Token-urile Google** (access + refresh) sunt criptate înainte de stocare în baza de date.
+1. **Token-urile Google** (access + refresh) sunt stocate în baza de date în câmpuri de tip `TEXT`. Accesul la baza de date trebuie securizat corespunzător la nivel de infrastructură.
 2. **Refresh token-urile** nu sunt expuse niciodată prin API — rămân exclusiv pe server.
 3. **Endpoint-urile** de integrare sunt accesibile doar utilizatorului autentificat, pentru propriul cont.
 4. **Erorile** sunt loguite fără a expune token-uri sau date sensibile.
@@ -801,8 +812,11 @@ back-end/
 │   ├── user.js            # Profil, onboarding
 │   ├── course.js          # Materii (listare, filtrare)
 │   ├── consultation.js    # CRUD consultații + enroll/unenroll
-│   ├── admin.js           # CRUD users, faculties, specializations, courses, assign courses
-│   └── googleCalendar.js  # Endpoint-uri conectare/deconectare calendar
+│   ├── faculty.js         # Listare facultăți (public)
+│   ├── specialization.js  # Listare specializări cu filtru facultate (public)
+│   ├── admin.js           # CRUD users, faculties, specializations, courses, assign courses, settings
+│   ├── googleCalendar.js  # Endpoint-uri conectare/deconectare calendar
+│   └── settings.js        # Sesiunea activă (public)
 ├── validators/
 │   ├── consultationValidator.js  # Validare date, oră, durată, tip consultație
 │   └── userValidator.js          # Validare date profil și onboarding
@@ -877,7 +891,6 @@ npm run dev
 | `GOOGLE_CALENDAR_CLIENT_ID` | Client ID pentru Google Calendar API (poate fi același cu `CLIENT_ID`) |
 | `GOOGLE_CALENDAR_CLIENT_SECRET` | Client Secret pentru Google Calendar API |
 | `GOOGLE_CALENDAR_REDIRECT_URI` | URL callback OAuth Calendar (ex: `http://localhost:5000/api/google-calendar/callback`) |
-| `GOOGLE_TOKEN_ENCRYPTION_KEY` | Cheie de criptare pentru token-urile stocate în baza de date |
 | `SMTP_HOST` | Host-ul serverului SMTP (ex: `smtp.gmail.com`) |
 | `SMTP_PORT` | Portul SMTP (ex: `587`) |
 | `SMTP_USER` | Email-ul contului SMTP folosit pentru trimitere |
@@ -1120,6 +1133,7 @@ Această informație este utilizată ulterior pentru filtrarea consultațiilor.
 - **Prenume** — câmp editabil.
 - **Anul de studiu** — detectat automat pe baza emailului instituțional; poate fi modificat manual în cazul repetării anului.
 - **Specializarea** — câmp editabil (dropdown, populat din tabela `specializations` pe baza facultății selectate).
+- **Seria** — câmp editabil, opțional (ex: „A", „B", „C1"). Determină la ce consultații specifice unei serii este înscris automat studentul.
 
 Scopul acestei pagini este verificarea și completarea informațiilor academice.
 
@@ -1212,6 +1226,7 @@ Pagina de profil este accesibilă oricărui utilizator autentificat și afișeaz
 - **Facultate** — câmp editabil (dropdown, populat din tabela `faculties`).
 - **Specializare** — câmp editabil (dropdown, populat din tabela `specializations` pe baza facultății selectate).
 - **An de studiu** — câmp editabil (doar pentru studenți).
+- **Serie** — câmp editabil, opțional (doar pentru studenți; ex: „A", „B", „C1").
 
 **Secțiunea Notificări Email:**
 
@@ -1246,6 +1261,7 @@ Profesorul poate:
 - Tip consultație (online / fizic).
 - Sală (dacă fizic) sau link meeting (dacă online).
 - Link materiale (Google Drive).
+- Seria (opțional — implicit „Toate"; dacă este specificată, doar studenții din acea serie sunt înscriși automat).
 
 ---
 

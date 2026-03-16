@@ -1,0 +1,74 @@
+.consultation-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #eee;
+  border-left: 4px solid var(--card-color, #667eea);
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.consultation-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.consultation-card__course {
+  font-size: 15px;
+  font-weight: 700;
+  color: #222;
+}
+
+.consultation-card__professor {
+  font-size: 13px;
+  color: #777;
+}
+
+.consultation-card__time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #555;
+}
+
+.consultation-card__badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.badge--online {
+  background: #eef0ff;
+  color: #667eea;
+}
+
+.badge--fizic {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badge--cancelled {
+  background: #ffe0e0;
+  color: #c0392b;
+}
+
+.badge--completed {
+  background: #d4edda;
+  color: #27ae60;
+}
+
+.badge--published {
+  background: #fff8e1;
+  color: #f39c12;
+}

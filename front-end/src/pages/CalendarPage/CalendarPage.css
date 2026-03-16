@@ -1,0 +1,30 @@
+.calendar-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f5f6fa;
+}
+
+.calendar-page__inner {
+  flex: 1;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.calendar-page__body {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.calendar-page__right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

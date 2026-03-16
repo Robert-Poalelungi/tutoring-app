@@ -1,0 +1,41 @@
+.student-dashboard {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.student-dashboard__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.student-dashboard__greeting {
+  font-size: 24px;
+  font-weight: 700;
+  color: #222;
+}
+
+.student-dashboard__subtext {
+  font-size: 14px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.student-dashboard__section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.student-dashboard__section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #444;
+  border-left: 3px solid #667eea;
+  padding-left: 10px;
+}

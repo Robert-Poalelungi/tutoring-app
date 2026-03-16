@@ -1,0 +1,48 @@
+.faculty-onboarding-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.faculty-onboarding-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+}
+
+.faculty-onboarding-card:hover {
+  border-color: #667eea;
+  background: #f0f2ff;
+}
+
+.faculty-onboarding-card--selected {
+  border-color: #667eea;
+  background: #667eea;
+}
+
+.faculty-onboarding-card--selected .faculty-onboarding-card__abbr,
+.faculty-onboarding-card--selected .faculty-onboarding-card__name {
+  color: white;
+}
+
+.faculty-onboarding-card__abbr {
+  font-size: 13px;
+  font-weight: 700;
+  color: #667eea;
+}
+
+.faculty-onboarding-card__name {
+  font-size: 11px;
+  color: #777;
+  line-height: 1.3;
+}

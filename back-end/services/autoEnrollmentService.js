@@ -1,11 +1,20 @@
-const { Consultation, Course, UserConsultation } = require("../models");
+const { Consultation, Course, UserConsultation, User } = require("../models");
 const { Op } = require("sequelize");
 
 // Înscrie automat un student la consultațiile care corespund profilului său
 const enrollStudentInMatchingConsultations = async (userId, specializationId, studyYear) => {
+  // Obține seria studentului pentru filtrare
+  const user = await User.findByPk(userId, { attributes: ["serie"] });
+  const userSerie = user ? user.serie : null;
+
+  // Filtru serie: consultațiile "Toate" sunt valabile oricui; cele specifice doar studentilor cu seria respectivă
+  const serieFilter = userSerie
+    ? { [Op.or]: [{ serie: "Toate" }, { serie: userSerie }] }
+    : { serie: "Toate" };
+
   // Găsește toate consultațiile publicate pentru cursurile care se potrivesc
   const matchingConsultations = await Consultation.findAll({
-    where: { status: "published" },
+    where: { status: "published", ...serieFilter },
     include: [
       {
         model: Course,
@@ -51,9 +60,17 @@ const enrollStudentInMatchingConsultations = async (userId, specializationId, st
 
 // Recalculează auto-enrollment-urile după schimbarea profilului
 const recalculateAutoEnrollments = async (userId, specializationId, studyYear) => {
+  // Obține seria actualizată a studentului
+  const user = await User.findByPk(userId, { attributes: ["serie"] });
+  const userSerie = user ? user.serie : null;
+
+  const serieFilter = userSerie
+    ? { [Op.or]: [{ serie: "Toate" }, { serie: userSerie }] }
+    : { serie: "Toate" };
+
   // Găsește consultațiile care ar trebui să fie auto-enrolled
   const matchingConsultations = await Consultation.findAll({
-    where: { status: "published" },
+    where: { status: "published", ...serieFilter },
     include: [
       {
         model: Course,
@@ -108,21 +125,31 @@ const recalculateAutoEnrollments = async (userId, specializationId, studyYear) =
 
 // Înscrie automat studenții relevanți la o consultație nou creată
 const enrollMatchingStudentsInConsultation = async (consultationId, courseId) => {
+  const consultation = await Consultation.findByPk(consultationId, {
+    attributes: ["serie"],
+  });
+
   const course = await Course.findByPk(courseId, {
     attributes: ["specializationId", "studyYear"],
   });
 
   if (!course) return;
 
+  // Filtrare pe serie: dacă consultația e pentru o serie specifică, înscrie doar studenții din acea serie
+  const studentWhere = {
+    role: "student",
+    isProfileCompleted: true,
+    specializationId: course.specializationId,
+    studyYear: course.studyYear,
+  };
+
+  if (consultation && consultation.serie && consultation.serie !== "Toate") {
+    studentWhere.serie = consultation.serie;
+  }
+
   // Găsește studenții cu profil completat care se potrivesc
-  const { User } = require("../models");
   const matchingStudents = await User.findAll({
-    where: {
-      role: "student",
-      isProfileCompleted: true,
-      specializationId: course.specializationId,
-      studyYear: course.studyYear,
-    },
+    where: studentWhere,
     attributes: ["id"],
   });
 

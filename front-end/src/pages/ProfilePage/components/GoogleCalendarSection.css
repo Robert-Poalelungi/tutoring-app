@@ -1,0 +1,80 @@
+.gcal-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.gcal-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gcal-card__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #222;
+}
+
+.gcal-badge--connected {
+  font-size: 11px;
+  font-weight: 700;
+  background: #d4edda;
+  color: #27ae60;
+  padding: 2px 10px;
+  border-radius: 20px;
+}
+
+.gcal-card__desc {
+  font-size: 13px;
+  color: #888;
+}
+
+.gcal-card__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.gcal-btn {
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.gcal-btn--connect {
+  background: #667eea;
+  color: white;
+}
+
+.gcal-btn--connect:hover {
+  background: #5a6fd6;
+}
+
+.gcal-btn--sync {
+  background: #f0f2ff;
+  color: #667eea;
+  border: 1px solid #667eea;
+}
+
+.gcal-btn--sync:hover {
+  background: #e6e9ff;
+}
+
+.gcal-btn--disconnect {
+  background: #fff0f0;
+  color: #c0392b;
+  border: 1px solid #f5c6cb;
+}
+
+.gcal-btn--disconnect:hover {
+  background: #ffe0e0;
+}

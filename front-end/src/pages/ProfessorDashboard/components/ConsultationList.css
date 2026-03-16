@@ -1,0 +1,142 @@
+.consultation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.consultation-list__empty {
+  text-align: center;
+  padding: 40px;
+  color: #aaa;
+  font-size: 14px;
+  background: #fafafa;
+  border-radius: 10px;
+  border: 1px dashed #ddd;
+}
+
+.consultation-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.consultation-group__date {
+  font-size: 13px;
+  font-weight: 700;
+  color: #667eea;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #eef0ff;
+}
+
+.consultation-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  padding: 12px 16px;
+  transition: all 0.15s;
+}
+
+.consultation-row:hover {
+  border-color: #ddd;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.consultation-row__time {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  min-width: 110px;
+}
+
+.consultation-row__course {
+  font-size: 14px;
+  color: #444;
+  flex: 1;
+}
+
+.consultation-row__badges {
+  display: flex;
+  gap: 6px;
+}
+
+.consultation-row__actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.action-btn {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: #555;
+}
+
+.action-btn:hover {
+  background: #f5f6fa;
+}
+
+.action-btn--danger {
+  color: #c0392b;
+  border-color: #f5c6cb;
+}
+
+.action-btn--danger:hover {
+  background: #ffe0e0;
+}
+
+.action-btn--success {
+  color: #27ae60;
+  border-color: #c3e6cb;
+}
+
+.action-btn--success:hover {
+  background: #d4edda;
+}
+
+/* Badge base */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* Type badges */
+.badge--online {
+  background: #eef2ff;
+  color: #667eea;
+}
+
+.badge--fizic {
+  background: #fef3e2;
+  color: #e67e22;
+}
+
+/* Status badges */
+.badge--published {
+  background: #e8f5e9;
+  color: #27ae60;
+}
+
+.badge--cancelled {
+  background: #fdecea;
+  color: #c0392b;
+}
+
+.badge--completed {
+  background: #f0f0f0;
+  color: #888;
+}
