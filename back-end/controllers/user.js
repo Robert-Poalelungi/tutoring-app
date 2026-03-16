@@ -1,26 +1,7 @@
 const jwt = require("jsonwebtoken");
-const { User } = require("../models");
-
-// Detectează anul de studiu din emailul instituțional
-// poalelungirobert23@stud.ase.ro → 23 → 2023 → anul 3 (în 2026)
-const detectStudyYear = (email) => {
-  const match = email.match(/(\d{2})@stud\./);
-  if (!match) return null;
-
-  const startYear = 2000 + parseInt(match[1]);
-  const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth() + 1; // 1-12
-
-  // Anul universitar începe în octombrie
-  let studyYear = currentYear - startYear;
-  if (currentMonth >= 10) studyYear += 1;
-
-  // Dacă e în afara intervalului 1-4, returnăm null (absolvent sau invalid)
-  if (studyYear < 1 || studyYear > 4) return null;
-
-  return studyYear;
-};
+const { User, Faculty, Specialization } = require("../models");
+const detectStudyYear = require("../utils/detectStudyYear");
+const { enrollStudentInMatchingConsultations, recalculateAutoEnrollments } = require("../services/autoEnrollmentService");
 
 // Returnează datele utilizatorului autentificat
 const getCurrentUser = async (req, res) => {
@@ -32,7 +13,12 @@ const getCurrentUser = async (req, res) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findByPk(decoded.id);
+    const user = await User.findByPk(decoded.id, {
+      include: [
+        { model: Faculty, as: "faculty" },
+        { model: Specialization, as: "specialization" },
+      ],
+    });
 
     if (!user) {
       return res.status(404).json({ message: "Utilizatorul nu a fost găsit." });
@@ -56,9 +42,9 @@ const completeProfile = async (req, res) => {
       return res.status(404).json({ message: "Utilizatorul nu a fost găsit." });
     }
 
-    const { firstName, lastName, faculty, specialization, studyYear } = req.body;
+    const { firstName, lastName, facultyId, specializationId, studyYear } = req.body;
 
-    if (!firstName || !lastName || !faculty || !specialization || !studyYear) {
+    if (!firstName || !lastName || !facultyId || !specializationId || !studyYear) {
       return res.status(400).json({ message: "Toate câmpurile sunt obligatorii." });
     }
 
@@ -74,12 +60,17 @@ const completeProfile = async (req, res) => {
 
     user.firstName = firstName;
     user.lastName = lastName;
-    user.faculty = faculty;
-    user.specialization = specialization;
+    user.facultyId = facultyId;
+    user.specializationId = specializationId;
     user.studyYear = studyYear;
     user.isProfileCompleted = true;
 
     await user.save();
+
+    // Auto-enrollment: înscrie studentul la consultațiile care se potrivesc
+    if (user.role === "student") {
+      await enrollStudentInMatchingConsultations(user.id, specializationId, studyYear);
+    }
 
     return res.status(200).json({ message: "Profil completat cu succes.", user });
   } catch (error) {
@@ -96,7 +87,7 @@ const updateProfile = async (req, res) => {
       return res.status(404).json({ message: "Utilizatorul nu a fost găsit." });
     }
 
-    const { firstName, lastName, faculty, specialization, studyYear } = req.body;
+    const { firstName, lastName, facultyId, specializationId, studyYear } = req.body;
     const nameRegex = /^[A-Za-zĂăÂâÎîȘșȚț\s-]+$/;
 
     if (firstName) {
@@ -113,13 +104,45 @@ const updateProfile = async (req, res) => {
       user.lastName = lastName;
     }
 
-    if (faculty) user.faculty = faculty;
-    if (specialization) user.specialization = specialization;
+    const profileChanged = (specializationId && specializationId !== user.specializationId) ||
+      (studyYear && studyYear !== user.studyYear);
+
+    if (facultyId) user.facultyId = facultyId;
+    if (specializationId) user.specializationId = specializationId;
     if (studyYear) user.studyYear = studyYear;
 
     await user.save();
 
+    // Recalculare auto-enrollment dacă s-au schimbat specializarea sau anul
+    if (user.role === "student" && profileChanged) {
+      await recalculateAutoEnrollments(user.id, user.specializationId, user.studyYear);
+    }
+
     return res.status(200).json({ message: "Profil actualizat cu succes.", user });
+  } catch (error) {
+    return res.status(500).json({ message: "Eroare server.", error: error.message });
+  }
+};
+
+// Activează/dezactivează notificările pe email
+const toggleEmailNotifications = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "Utilizatorul nu a fost găsit." });
+    }
+
+    const { enabled } = req.body;
+
+    if (typeof enabled !== "boolean") {
+      return res.status(400).json({ message: "Câmpul 'enabled' trebuie să fie true sau false." });
+    }
+
+    user.emailNotificationsEnabled = enabled;
+    await user.save();
+
+    return res.status(200).json({ message: "Preferință notificări actualizată.", emailNotificationsEnabled: user.emailNotificationsEnabled });
   } catch (error) {
     return res.status(500).json({ message: "Eroare server.", error: error.message });
   }
@@ -152,6 +175,6 @@ module.exports = {
   getCurrentUser,
   completeProfile,
   updateProfile,
+  toggleEmailNotifications,
   setAuthCookie,
-  detectStudyYear,
 };

@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 const passport = require("./config/auth");
 const sequelize = require("./config/db");
 const routes = require("./routes");
+const { startEmailScheduler } = require("./services/emailNotificationService");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -45,6 +46,7 @@ sequelize
   .sync({ alter: true })
   .then(() => {
     console.log("Baza de date sincronizată.");
+    startEmailScheduler();
     app.listen(port, () => {
       console.log(`Serverul rulează la: http://localhost:${port}`);
     });

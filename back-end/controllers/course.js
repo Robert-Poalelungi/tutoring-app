@@ -1,4 +1,4 @@
-const { Course, User } = require("../models");
+const { Course, User, Faculty, Specialization } = require("../models");
 
 // Returnează toate materiile
 const getAllCourses = async (req, res) => {
@@ -35,13 +35,19 @@ const getCourseById = async (req, res) => {
 // Returnează materiile filtrate pe an și specializare
 const getCoursesByFilter = async (req, res) => {
   try {
-    const { studyYear, specialization } = req.query;
+    const { studyYear, specializationId } = req.query;
     const where = {};
 
     if (studyYear) where.studyYear = studyYear;
-    if (specialization) where.specialization = specialization;
+    if (specializationId) where.specializationId = specializationId;
 
-    const courses = await Course.findAll({ where });
+    const courses = await Course.findAll({
+      where,
+      include: [
+        { model: Faculty, as: "faculty" },
+        { model: Specialization, as: "specialization" },
+      ],
+    });
 
     return res.status(200).json(courses);
   } catch (error) {

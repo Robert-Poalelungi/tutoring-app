@@ -25,12 +25,12 @@ const User = sequelize.define("User", {
     allowNull: false,
     defaultValue: "student",
   },
-  faculty: {
-    type: DataTypes.STRING,
+  facultyId: {
+    type: DataTypes.INTEGER,
     allowNull: true,
   },
-  specialization: {
-    type: DataTypes.STRING,
+  specializationId: {
+    type: DataTypes.INTEGER,
     allowNull: true,
   },
   studyYear: {
@@ -41,6 +41,11 @@ const User = sequelize.define("User", {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: false,
+  },
+  emailNotificationsEnabled: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
   },
 });
 

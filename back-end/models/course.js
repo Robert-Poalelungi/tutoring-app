@@ -11,10 +11,6 @@ const Course = sequelize.define("Course", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  specialization: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
   studyYear: {
     type: DataTypes.INTEGER,
     allowNull: false,

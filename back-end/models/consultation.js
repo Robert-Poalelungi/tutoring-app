@@ -15,6 +15,11 @@ const Consultation = sequelize.define("Consultation", {
     type: DataTypes.TIME,
     allowNull: false,
   },
+  duration: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 120,
+  },
   type: {
     type: DataTypes.ENUM("online", "fizic"),
     allowNull: false,
@@ -29,6 +34,27 @@ const Consultation = sequelize.define("Consultation", {
   },
   materialsLink: {
     type: DataTypes.STRING,
+    allowNull: true,
+  },
+  status: {
+    type: DataTypes.ENUM("draft", "published", "cancelled", "completed"),
+    allowNull: false,
+    defaultValue: "published",
+  },
+  publishedAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  cancelledAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  completedAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  cancellationReason: {
+    type: DataTypes.TEXT,
     allowNull: true,
   },
 });

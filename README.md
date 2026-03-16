@@ -798,11 +798,17 @@ back-end/
 │   ├── emailNotificationService.js    # Scheduler (cron) pentru reminder-e email
 │   └── emailService.js               # Trimitere email via Nodemailer
 ├── controllers/
-│   ├── user.js            # Profil, onboarding, detectStudyYear
+│   ├── user.js            # Profil, onboarding
 │   ├── course.js          # Materii (listare, filtrare)
 │   ├── consultation.js    # CRUD consultații + enroll/unenroll
 │   ├── admin.js           # CRUD users, faculties, specializations, courses, assign courses
 │   └── googleCalendar.js  # Endpoint-uri conectare/deconectare calendar
+├── validators/
+│   ├── consultationValidator.js  # Validare date, oră, durată, tip consultație
+│   └── userValidator.js          # Validare date profil și onboarding
+├── utils/
+│   ├── detectStudyYear.js        # Logica de detecție automată a anului de studiu
+│   └── dateHelpers.js            # Funcții helper pentru calcule cu date (scheduler, calendar)
 ├── routes/
 │   ├── index.js           # Montează toate sub-rutele pe /api
 │   ├── auth.js            # /api/auth — Google OAuth
@@ -814,8 +820,9 @@ back-end/
 │   ├── admin.js           # /api/admin — administrare
 │   ├── googleCalendar.js  # /api/google-calendar — sincronizare calendar
 │   └── settings.js        # /api/settings — setări publice (sesiune activă)
-└── middleware/
-    └── auth.js            # isAuthenticated + hasRole(...)
+├── middleware/
+│   └── auth.js            # isAuthenticated + hasRole(...)
+└── .env.example               # Exemplu variabile de mediu (fără valori reale)
 ```
 
 ---
@@ -1447,50 +1454,76 @@ Interfața de Google Calendar este prezentă în două locuri, cu niveluri difer
 ```
 front-end/
 ├── src/
+│   ├── pages/
+│   │   ├── CalendarPage/
+│   │   │   ├── CalendarPage.jsx
+│   │   │   ├── CalendarPage.css
+│   │   │   └── components/
+│   │   │       ├── CalendarFilters.jsx
+│   │   │       ├── CalendarGrid.jsx
+│   │   │       ├── DayConsultationsPanel.jsx
+│   │   │       ├��─ ConsultationDetailsModal.jsx
+│   │   │       ├── ConsultationLegend.jsx
+│   │   │       └── FacultySelectModal.jsx
+│   │   ├── LoginPage/
+│   │   │   ├── LoginPage.jsx
+│   │   │   └── LoginPage.css
+│   │   ├── Onboarding/
+│   │   │   ├── OnboardingFaculty.jsx
+│   │   │   ├── OnboardingProfile.jsx
+│   │   │   ├── OnboardingInterests.jsx
+│   │   │   └── Onboarding.css
+│   │   ├── StudentDashboard/
+│   │   │   ├── StudentDashboard.jsx
+│   │   │   ├── StudentDashboard.css
+│   │   │   └── components/
+│   │   │       ├── GoogleCalendarButton.jsx
+│   │   │       ├── ConsultationsContainer.jsx
+│   │   │       ├── ConsultationCard.jsx
+│   │   │       ├── ConsultationDetailsModal.jsx
+│   │   │       └── RecoveryConsultationsContainer.jsx
+│   │   ├── ProfessorDashboard/
+│   │   │   ├── ProfessorDashboard.jsx
+│   │   │   ├── ProfessorDashboard.css
+│   │   │   └── components/
+│   │   │       ├── ProfessorCourses.jsx
+│   │   │       ├���─ CreateConsultationForm.jsx
+│   │   │       └── ConsultationList.jsx
+│   │   ├── ProfilePage/
+│   │   │   ├── ProfilePage.jsx
+│   │   │   ├── ProfilePage.css
+│   │   │   └── components/
+│   │   │       ├── ProfileForm.jsx
+│   │   │       ├── EmailNotificationsToggle.jsx
+│   │   │       └── GoogleCalendarSection.jsx
+│   │   └── AdminPanel/
+│   │       ├── AdminPanel.jsx
+│   │       ├── AdminPanel.css
+│   │       └── components/
+│   │           ├── UsersTable.jsx
+│   │           ├── AddUserModal.jsx
+│   │           ├── FacultiesManager.jsx
+│   │           ├── SpecializationsManager.jsx
+│   │           ├── ProfessorCoursesManager.jsx
+│   │           ├── ConsultationsManager.jsx
+│   │           └── SessionSettings.jsx
 │   ├── components/
-│   │   ├── calendar/
-│   │   │   ├── CalendarFilters.jsx
-│   │   │   ├── CalendarGrid.jsx
-│   │   │   ├── DayConsultationsPanel.jsx
-│   │   │   ├── ConsultationDetailsModal.jsx
-│   │   │   ├── ConsultationLegend.jsx
-│   │   │   └── FacultySelectModal.jsx
-│   │   ├── student/
-│   │   │   ├── GoogleCalendarButton.jsx
-│   │   │   ├── ConsultationsContainer.jsx
-│   │   │   ├── ConsultationCard.jsx
-│   │   │   ├── ConsultationDetailsModal.jsx
-│   │   │   └── RecoveryConsultationsContainer.jsx
-│   │   ├── professor/
-│   │   │   ├── ProfessorCourses.jsx
-│   │   │   ├── CreateConsultationForm.jsx
-│   │   │   └── ConsultationList.jsx
-│   │   ├── admin/
-│   │   │   ├── UsersTable.jsx
-│   │   │   ├── AddUserModal.jsx
-│   │   │   ├── FacultiesManager.jsx
-│   │   │   ├── SpecializationsManager.jsx
-│   │   │   ├── ProfessorCoursesManager.jsx
-│   │   │   ├── ConsultationsManager.jsx
-│   │   │   └── SessionSettings.jsx
-│   │   ├── profile/
-│   │   │   ├── ProfileForm.jsx
-│   │   │   ├── EmailNotificationsToggle.jsx
-│   │   │   └── GoogleCalendarSection.jsx
-│   │   └── layout/
+│   │   └── shared/
 │   │       ├── Navbar.jsx
 │   │       ├── Sidebar.jsx
 │   │       └── DashboardLayout.jsx
-│   ├── pages/
-│   │   ├── CalendarPage.jsx
-│   │   ├── LoginPage.jsx
-│   │   ├── OnboardingFaculty.jsx
-│   │   ├── OnboardingProfile.jsx
-│   │   ├── OnboardingInterests.jsx
-│   │   ├── StudentDashboard.jsx
-│   │   ├── ProfilePage.jsx
-│   │   ├── ProfessorDashboard.jsx
-│   │   └── AdminPanel.jsx
+│   ├── services/
+│   │   ├── axiosInstance.js          # Instanță Axios configurată (base URL, withCredentials)
+│   │   ├── authService.js            # Login, logout, check session
+│   │   ├── userService.js            # Profil, onboarding, email notifications
+│   │   ├── consultationService.js    # CRUD consultații, enroll/unenroll
+│   │   ├── calendarService.js        # Google Calendar connect/disconnect/sync
+│   │   └── adminService.js           # CRUD users, faculties, specializations, courses
+│   ├── context/
+│   │   ├── AuthContext.jsx           # User logat, rol, stare autentificare
+│   │   └── CalendarContext.jsx       # Luna selectată, filtre active CalendarPage
+│   ├── utils/
+│   │   └── formatDate.js             # Formatare date pentru afișare
 │   ├── App.jsx
 │   └── main.jsx
 ├── public/
@@ -1511,6 +1544,8 @@ front-end/
 | Vite | Build tool rapid cu HMR (Hot Module Replacement) |
 | JavaScript | Limbajul de programare principal |
 | CSS | Stilizare componente |
+
+Fontul global folosit în interfața frontend este `Montserrat`, importat din Google Fonts și aplicat din `src/index.css`.
 
 ---
 

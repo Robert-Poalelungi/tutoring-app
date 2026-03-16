@@ -1,4 +1,4 @@
-const { User, Course, ProfessorCourse } = require("../models");
+const { User, Course, ProfessorCourse, Faculty, Specialization, CalendarSessions } = require("../models");
 
 // ─── USERS ───
 
@@ -30,7 +30,7 @@ const getUserById = async (req, res) => {
 // Creează un utilizator nou
 const createUser = async (req, res) => {
   try {
-    const { email, firstName, lastName, role, faculty, specialization, studyYear } = req.body;
+    const { email, firstName, lastName, role, facultyId, specializationId, studyYear } = req.body;
 
     if (!email || !firstName || !lastName || !role) {
       return res.status(400).json({ message: "Email, nume, prenume și rol sunt obligatorii." });
@@ -46,8 +46,8 @@ const createUser = async (req, res) => {
       firstName,
       lastName,
       role,
-      faculty: faculty || null,
-      specialization: specialization || null,
+      facultyId: facultyId || null,
+      specializationId: specializationId || null,
       studyYear: studyYear || null,
       isProfileCompleted: true,
     });
@@ -104,13 +104,13 @@ const deleteUser = async (req, res) => {
 // Creează o materie nouă
 const createCourse = async (req, res) => {
   try {
-    const { name, specialization, studyYear } = req.body;
+    const { name, facultyId, specializationId, studyYear } = req.body;
 
-    if (!name || !specialization || !studyYear) {
-      return res.status(400).json({ message: "Numele, specializarea și anul sunt obligatorii." });
+    if (!name || !facultyId || !specializationId || !studyYear) {
+      return res.status(400).json({ message: "Numele, facultatea, specializarea și anul sunt obligatorii." });
     }
 
-    const course = await Course.create({ name, specialization, studyYear });
+    const course = await Course.create({ name, facultyId, specializationId, studyYear });
 
     return res.status(201).json({ message: "Materie creată cu succes.", course });
   } catch (error) {
@@ -127,10 +127,11 @@ const updateCourse = async (req, res) => {
       return res.status(404).json({ message: "Materia nu a fost găsită." });
     }
 
-    const { name, specialization, studyYear } = req.body;
+    const { name, facultyId, specializationId, studyYear } = req.body;
 
     if (name) course.name = name;
-    if (specialization) course.specialization = specialization;
+    if (facultyId) course.facultyId = facultyId;
+    if (specializationId) course.specializationId = specializationId;
     if (studyYear) course.studyYear = studyYear;
 
     await course.save();
@@ -214,6 +215,195 @@ const unassignCourse = async (req, res) => {
   }
 };
 
+// ─── FACULTIES ───
+
+// Returnează toate facultățile
+const getAllFaculties = async (req, res) => {
+  try {
+    const faculties = await Faculty.findAll({ order: [["name", "ASC"]] });
+    return res.status(200).json(faculties);
+  } catch (error) {
+    return res.status(500).json({ message: "Eroare server.", error: error.message });
+  }
+};
+
+// Creează o facultate nouă
+const createFaculty = async (req, res) => {
+  try {
+    const { name, abbreviation } = req.body;
+
+    if (!name || !abbreviation) {
+      return res.status(400).json({ message: "Numele și abrevierea sunt obligatorii." });
+    }
+
+    const faculty = await Faculty.create({ name, abbreviation });
+    return res.status(201).json({ message: "Facultate creată cu succes.", faculty });
+  } catch (error) {
+    return res.status(500).json({ message: "Eroare server.", error: error.message });
+  }
+};
+
+// Editează o facultate
+const updateFaculty = async (req, res) => {
+  try {
+    const faculty = await Faculty.findByPk(req.params.id);
+
+    if (!faculty) {
+      return res.status(404).json({ message: "Facultatea nu a fost găsită." });
+    }
+
+    const { name, abbreviation } = req.body;
+    if (name) faculty.name = name;
+    if (abbreviation) faculty.abbreviation = abbreviation;
+
+    await faculty.save();
+    return res.status(200).json({ message: "Facultate actualizată cu succes.", faculty });
+  } catch (error) {
+    return res.status(500).json({ message: "Eroare server.", error: error.message });
+  }
+};
+
+// Șterge o facultate
+const deleteFaculty = async (req, res) => {
+  try {
+    const faculty = await Faculty.findByPk(req.params.id);
+
+    if (!faculty) {
+      return res.status(404).json({ message: "Facultatea nu a fost găsită." });
+    }
+
+    await faculty.destroy();
+    return res.status(200).json({ message: "Facultate ștearsă cu succes." });
+  } catch (error) {
+    return res.status(500).json({ message: "Eroare server.", error: error.message });
+  }
+};
+
+// ─── SPECIALIZATIONS ───
+
+// Returnează toate specializările
+const getAllSpecializations = async (req, res) => {
+  try {
+    const specializations = await Specialization.findAll({
+      include: [{ model: Faculty, as: "faculty" }],
+      order: [["name", "ASC"]],
+    });
+    return res.status(200).json(specializations);
+  } catch (error) {
+    return res.status(500).json({ message: "Eroare server.", error: error.message });
+  }
+};
+
+// Creează o specializare nouă
+const createSpecialization = async (req, res) => {
+  try {
+    const { name, facultyId } = req.body;
+
+    if (!name || !facultyId) {
+      return res.status(400).json({ message: "Numele și facultatea sunt obligatorii." });
+    }
+
+    const faculty = await Faculty.findByPk(facultyId);
+    if (!faculty) {
+      return res.status(404).json({ message: "Facultatea nu a fost găsită." });
+    }
+
+    const specialization = await Specialization.create({ name, facultyId });
+    return res.status(201).json({ message: "Specializare creată cu succes.", specialization });
+  } catch (error) {
+    return res.status(500).json({ message: "Eroare server.", error: error.message });
+  }
+};
+
+// Editează o specializare
+const updateSpecialization = async (req, res) => {
+  try {
+    const specialization = await Specialization.findByPk(req.params.id);
+
+    if (!specialization) {
+      return res.status(404).json({ message: "Specializarea nu a fost găsită." });
+    }
+
+    const { name, facultyId } = req.body;
+    if (name) specialization.name = name;
+    if (facultyId) specialization.facultyId = facultyId;
+
+    await specialization.save();
+    return res.status(200).json({ message: "Specializare actualizată cu succes.", specialization });
+  } catch (error) {
+    return res.status(500).json({ message: "Eroare server.", error: error.message });
+  }
+};
+
+// Șterge o specializare
+const deleteSpecialization = async (req, res) => {
+  try {
+    const specialization = await Specialization.findByPk(req.params.id);
+
+    if (!specialization) {
+      return res.status(404).json({ message: "Specializarea nu a fost găsită." });
+    }
+
+    await specialization.destroy();
+    return res.status(200).json({ message: "Specializare ștearsă cu succes." });
+  } catch (error) {
+    return res.status(500).json({ message: "Eroare server.", error: error.message });
+  }
+};
+
+// ─── SETTINGS ───
+
+// Returnează setările aplicației
+const getSettings = async (req, res) => {
+  try {
+    let session = await CalendarSessions.findByPk(1);
+
+    if (!session) {
+      session = await CalendarSessions.create({
+        id: 1,
+        activeSession: "winter",
+        winterMonths: [1, 2],
+        summerMonths: [6, 7],
+      });
+    }
+
+    return res.status(200).json({ session });
+  } catch (error) {
+    return res.status(500).json({ message: "Eroare server.", error: error.message });
+  }
+};
+
+// Schimbă sesiunea activă
+const updateSession = async (req, res) => {
+  try {
+    const { activeSession } = req.body;
+
+    if (!["winter", "summer"].includes(activeSession)) {
+      return res.status(400).json({ message: "Sesiunea trebuie să fie 'winter' sau 'summer'." });
+    }
+
+    let session = await CalendarSessions.findByPk(1);
+
+    if (!session) {
+      session = await CalendarSessions.create({
+        id: 1,
+        activeSession,
+        winterMonths: [1, 2],
+        summerMonths: [6, 7],
+        updatedBy: req.user.id,
+      });
+    } else {
+      session.activeSession = activeSession;
+      session.updatedBy = req.user.id;
+      await session.save();
+    }
+
+    return res.status(200).json({ message: "Sesiune actualizată cu succes.", session });
+  } catch (error) {
+    return res.status(500).json({ message: "Eroare server.", error: error.message });
+  }
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
@@ -225,4 +415,14 @@ module.exports = {
   deleteCourse,
   assignCourse,
   unassignCourse,
+  getAllFaculties,
+  createFaculty,
+  updateFaculty,
+  deleteFaculty,
+  getAllSpecializations,
+  createSpecialization,
+  updateSpecialization,
+  deleteSpecialization,
+  getSettings,
+  updateSession,
 };

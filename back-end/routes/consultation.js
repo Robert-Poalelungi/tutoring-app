@@ -4,6 +4,8 @@ const {
   getConsultationById,
   createConsultation,
   updateConsultation,
+  cancelConsultation,
+  completeConsultation,
   deleteConsultation,
   getMyConsultations,
   enrollConsultation,
@@ -20,7 +22,7 @@ router.get("/student/my", isAuthenticated, hasRole("student"), getStudentConsult
 // POST /api/consultations/student/enroll — student se înscrie la consultație (recuperare)
 router.post("/student/enroll", isAuthenticated, hasRole("student"), enrollConsultation);
 
-// DELETE /api/consultations/student/unenroll/:id — student elimină consultație manuală
+// DELETE /api/consultations/student/unenroll/:id — student se retrage din consultație
 router.delete("/student/unenroll/:id", isAuthenticated, hasRole("student"), unenrollConsultation);
 
 // ─── PROFESOR ───
@@ -34,7 +36,13 @@ router.post("/create", isAuthenticated, hasRole("professor", "admin"), createCon
 // PUT /api/consultations/update/:id — editează consultație
 router.put("/update/:id", isAuthenticated, hasRole("professor", "admin"), updateConsultation);
 
-// DELETE /api/consultations/delete/:id — șterge consultație
+// PUT /api/consultations/cancel/:id — anulează consultație
+router.put("/cancel/:id", isAuthenticated, hasRole("professor", "admin"), cancelConsultation);
+
+// PUT /api/consultations/complete/:id — finalizează consultație
+router.put("/complete/:id", isAuthenticated, hasRole("professor", "admin"), completeConsultation);
+
+// DELETE /api/consultations/delete/:id — șterge consultație (permanent din DB)
 router.delete("/delete/:id", isAuthenticated, hasRole("professor", "admin"), deleteConsultation);
 
 // ─── PUBLIC (la final, /:id nu interceptează rutele de mai sus) ───
