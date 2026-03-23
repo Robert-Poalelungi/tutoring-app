@@ -27,7 +27,7 @@ const ProfileForm = ({ form, setForm, faculties, specializations, onSave, saving
                 <label>An de studiu</label>
                 <select value={form.studyYear} onChange={set("studyYear")}>
                   <option value="">—</option>
-                  {[1,2,3,4].map((y) => <option key={y} value={String(y)}>Anul {y}</option>)}
+                  {[1,2,3].map((y) => <option key={y} value={String(y)}>Anul {y}</option>)}
                 </select>
               </div>
               <div className="form-group">

@@ -63,7 +63,7 @@ const CreateConsultationForm = ({ courses, initialData, onSubmit, onCancel }) =>
           <div className="form-group">
             <label>An de studiu</label>
             <select value={form.studyYear} onChange={set("studyYear")} required>
-              {[1, 2, 3, 4].map((y) => (
+              {[1, 2, 3].map((y) => (
                 <option key={y} value={y}>
                   Anul {y}
                 </option>

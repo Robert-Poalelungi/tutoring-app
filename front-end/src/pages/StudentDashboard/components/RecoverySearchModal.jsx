@@ -4,7 +4,7 @@ import { getAllConsultations, enrollConsultation } from "../../../services/consu
 import { formatDate, formatTime } from "../../../utils/formatDate";
 import "./RecoverySearchModal.css";
 
-const YEARS = [1, 2, 3, 4];
+const YEARS = [1, 2, 3];
 
 const RecoverySearchModal = ({ onClose, onEnrolled }) => {
   const overlayRef = useRef(null);

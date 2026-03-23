@@ -11,7 +11,7 @@ const detectYearFromEmail = (email) => {
   if (match) {
     const yr = parseInt("20" + match[1], 10);
     const diff = new Date().getFullYear() - yr + 1;
-    if (diff >= 1 && diff <= 4) return String(diff);
+    if (diff >= 1 && diff <= 3) return String(diff);
   }
   return null;
 };
@@ -121,7 +121,7 @@ const OnboardingProfile = () => {
             <div className="onboarding-form-group">
               <label>An de studiu</label>
               <select value={form.studyYear} onChange={set("studyYear")} required>
-                {[1, 2, 3, 4].map((y) => (
+                {[1, 2, 3].map((y) => (
                   <option key={y} value={y}>Anul {y}</option>
                 ))}
               </select>

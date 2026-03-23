@@ -4,7 +4,7 @@ import api from "../../../services/axiosInstance";
 import FacultySelectModal from "./FacultySelectModal";
 import "./CalendarFilters.css";
 
-const STUDY_YEARS = [1, 2, 3, 4];
+const STUDY_YEARS = [1, 2, 3];
 const CONSULTATION_TYPES = [
   { value: "online", label: "Online" },
   { value: "fizic", label: "Fizic" },
