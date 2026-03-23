@@ -161,7 +161,7 @@ Această funcționalitate este disponibilă **doar pentru emailurile instituțio
 
 - `poalelungirobert23@stud.ase.ro` → extrage `23` → a început în 2023 → **Anul 3** (în 2026).
 - Formula: `anul_curent - (2000 + cifre_din_email)`, cu ajustare pentru luna curentă (anul universitar începe în octombrie).
-- Dacă rezultatul este în afara intervalului 1–4, se consideră absolvent (`null`).
+- Dacă rezultatul este în afara intervalului 1–3, se consideră absolvent (`null`).
 - Anul detectat este setat automat la crearea contului și trimis ca `detectedStudyYear` spre frontend la onboarding, unde studentul poate modifica manual în caz de repetare a anului universitar.
 
 **Email instituțional vs. email personal:**
@@ -1002,7 +1002,7 @@ Filtrele sunt poziționate deasupra întregii pagini, fără a afecta layout-ul 
 
 Filtre disponibile:
 
-- An de studiu (3 butoane — Anul 1, Anul 2, Anul 3; toggle / radio behaviour).
+- An de studiu (3 butoane — Anul 1, Anul 2, Anul 3; toggle / radio behaviour). <!-- ASE: doar 3 ani de licență -->
 - Facultate (buton care deschide o modală cu facultățile din baza de date; selecția se salvează în cookies).
 - Specializare.
 - Tipul consultației: online sau fizic.
@@ -1107,18 +1107,43 @@ Prima etapă constă în selectarea facultății din cadrul universității.
 **Interfață:**
 
 - Cartonașe (cards) generate dinamic din tabela `faculties` (via `GET /api/faculties`). Cele 12 facultăți inițiale:
-  1. Administrarea Afacerilor, cu predare în limbi străine (FABIZ)
-  2. Administrație și Management Public (AMP)
-  3. Business și Turism (BT)
-  4. Cibernetică, Statistică și Informatică Economică (CSIE)
-  5. Contabilitate și Informatică de Gestiune (CIG)
-  6. Drept
-  7. Economie și Comunicare în Afaceri (FE)
-  8. Economie Agroalimentară și a Mediului (EAM)
-  9. Finanțe, Asigurări, Bănci și Burse de Valori (FABBV)
-  10. Management (MAN)
-  11. Marketing (MK)
-  12. Relații Economice Internaționale (REI)
+  1. **Administrarea Afacerilor, cu predare în limbi străine (FABIZ)**
+     - Administrarea Afacerilor (în limba engleză)
+     - Administrarea Afacerilor (în limba franceză)
+     - Administrarea Afacerilor (în limba germană)
+  2. **Administrație și Management Public (AMP)**
+     - Administrație Publică
+     - Resurse Umane
+  3. **Business și Turism (BT)**
+     - Administrarea afacerilor în comerț, turism, servicii, merceologie și managementul calității
+     - Administrarea afacerilor în comerț, turism, servicii, merceologie și managementul calității (în limba engleză)
+  4. **Cibernetică, Statistică și Informatică Economică (CSIE)**
+     - Învățământ cu frecvență: Cibernetică Economică, Informatică Economică, Informatică Economică (în limba engleză), Statistică economică și data science
+     - Învățământ la distanță: Informatică Economică
+  5. **Contabilitate și Informatică de Gestiune (CIG)**
+     - Învățământ cu frecvență: Contabilitate și Informatică de Gestiune, Contabilitate și Informatică de Gestiune (în limba engleză)
+     - Învățământ la distanță: Contabilitate și Informatică de Gestiune
+  6. **Drept**
+     - Drept
+  7. **Economie Agroalimentară și a Mediului (EAM)**
+     - Învățământ cu frecvență: Economie Agroalimentară și a Mediului
+     - Învățământ la distanță: Economie Agroalimentară și a Mediului (Tulcea)
+  8. **Economie și Comunicare în Afaceri (FE)**
+     - Economie și comunicare economică în afaceri
+  9. **Finanțe, Asigurări, Bănci și Burse de Valori (FABBV)**
+     - Învățământ cu frecvență: Finanțe și Bănci, Finanțe și Bănci (în limba engleză)
+     - Învățământ la distanță: Finanțe și Bănci, Finanțe și Bănci (Buzău)
+  10. **Management (MAN)**
+      - Învățământ cu frecvență: Management, Management (în limba engleză)
+      - Învățământ la distanță: Management, Management (Piatra Neamț), Management (Deva)
+  11. **Marketing (MK)**
+      - Învățământ cu frecvență: Marketing, Marketing (în limba engleză)
+      - Învățământ cu frecvență redusă: Marketing
+      - Învățământ la distanță: Marketing
+  12. **Relații Economice Internaționale (REI)**
+      - Economie și afaceri internaționale
+      - Economie și afaceri internaționale (în limba engleză)
+      - Limbi moderne aplicate (engleză, franceză)
 - Fiecare cartonaș conține numele facultății.
 - Buton pentru confirmarea selecției.
 

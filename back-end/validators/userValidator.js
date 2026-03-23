@@ -11,8 +11,8 @@ const validateProfileData = (data) => {
     errors.push("Numele conține caractere invalide.");
   }
 
-  if (data.studyYear && (data.studyYear < 1 || data.studyYear > 4)) {
-    errors.push("Anul de studiu trebuie să fie între 1 și 4.");
+  if (data.studyYear && (data.studyYear < 1 || data.studyYear > 3)) {
+    errors.push("Anul de studiu trebuie să fie între 1 și 3.");
   }
 
   return errors;

@@ -13,8 +13,8 @@ const detectStudyYear = (email) => {
   let studyYear = currentYear - startYear;
   if (currentMonth >= 10) studyYear += 1;
 
-  // Dacă e în afara intervalului 1-4, returnăm null (absolvent sau invalid)
-  if (studyYear < 1 || studyYear > 4) return null;
+  // Dacă e în afara intervalului 1-3, returnăm null (absolvent sau invalid)
+  if (studyYear < 1 || studyYear > 3) return null;
 
   return studyYear;
 };
