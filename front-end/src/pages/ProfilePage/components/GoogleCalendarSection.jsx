@@ -49,7 +49,7 @@ const GoogleCalendarSection = ({ status, onSync, onDisconnect }) => {
           </p>
           <button
             className="btn btn--primary"
-            onClick={() => { window.location.href = "http://localhost:5000/api/google-calendar/connect"; }}
+            onClick={() => { window.location.href = `${import.meta.env.VITE_API_URL}/api/google-calendar/connect`; }}
           >
             Conectează Google Calendar
           </button>
