@@ -7,7 +7,7 @@ const GoogleCalendarButton = ({ connected, onSync, onDisconnect }) => {
         <button
           className="gcal-btn gcal-btn--connect"
           onClick={() => {
-            window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google/calendar`;
+            window.location.href = "/api/auth/google/calendar";
           }}
         >
           <span>📅</span>

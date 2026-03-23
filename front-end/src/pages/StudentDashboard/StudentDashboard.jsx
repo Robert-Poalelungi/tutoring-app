@@ -190,7 +190,7 @@ const StudentDashboard = () => {
                 {!calStatus.connected && (
                   <button
                     className="btn btn--primary btn--sm"
-                    onClick={() => { window.location.href = `${import.meta.env.VITE_API_URL}/api/google-calendar/connect`; }}
+                    onClick={() => { window.location.href = "/api/google-calendar/connect"; }}
                   >
                     Conectează Calendar
                   </button>
