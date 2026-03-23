@@ -21,6 +21,7 @@ export const updateSpecialization = (id, data) =>
 export const deleteSpecialization = (id) => api.delete(`/admin/specializations/${id}`);
 
 // Courses
+export const getCourses = () => api.get("/admin/courses");
 export const createCourse = (data) => api.post("/admin/courses", data);
 export const updateCourse = (id, data) => api.put(`/admin/courses/${id}`, data);
 export const deleteCourse = (id) => api.delete(`/admin/courses/${id}`);
@@ -31,6 +32,13 @@ export const assignCourse = (professorId, courseId) =>
 export const removeCourse = (professorId, courseId) =>
   api.delete(`/admin/professors/${professorId}/courses`, { data: { courseId } });
 
+// Consultations (admin)
+export const getAdminConsultations = () => api.get("/admin/consultations");
+export const adminCreateConsultation = (data) => api.post("/admin/consultations", data);
+export const adminCancelConsultation = (id) => api.put(`/admin/consultations/cancel/${id}`);
+export const adminDeleteConsultation = (id) => api.delete(`/admin/consultations/${id}`);
+
 // Settings
 export const getSettings = () => api.get("/admin/settings");
+export const updateSettings = (data) => api.put("/admin/settings/session", data);
 export const updateSession = (data) => api.put("/admin/settings/session", data);

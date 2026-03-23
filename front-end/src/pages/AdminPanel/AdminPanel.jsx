@@ -4,6 +4,7 @@ import UsersTab from "./components/UsersTab";
 import FacultiesTab from "./components/FacultiesTab";
 import SpecializationsTab from "./components/SpecializationsTab";
 import CoursesTab from "./components/CoursesTab";
+import ConsultationsTab from "./components/ConsultationsTab";
 import SettingsTab from "./components/SettingsTab";
 import "./AdminPanel.css";
 
@@ -12,6 +13,7 @@ const TABS = [
   { key: "facultati", label: "Facultăți" },
   { key: "specializari", label: "Specializări" },
   { key: "materii", label: "Materii" },
+  { key: "consultatii", label: "Consultații" },
   { key: "setari", label: "Setări" },
 ];
 
@@ -40,6 +42,7 @@ const AdminPanel = () => {
           {activeTab === "facultati" && <FacultiesTab />}
           {activeTab === "specializari" && <SpecializationsTab />}
           {activeTab === "materii" && <CoursesTab />}
+          {activeTab === "consultatii" && <ConsultationsTab />}
           {activeTab === "setari" && <SettingsTab />}
         </div>
       </div>

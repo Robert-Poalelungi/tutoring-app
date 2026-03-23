@@ -47,7 +47,7 @@ const FacultiesTab = () => {
   if (loading) return <div className="admin-tab__loading">Se încarcă...</div>;
 
   return (
-    <div className="admin-tab">
+    <div className="admin-tab-content">
       <form className="admin-inline-form" onSubmit={handleSubmit}>
         <input className="admin-input" type="text" placeholder="Nume facultate" value={form.name} onChange={set("name")} required />
         <input className="admin-input admin-input--short" type="text" placeholder="Abrev." value={form.abbreviation} onChange={set("abbreviation")} required />

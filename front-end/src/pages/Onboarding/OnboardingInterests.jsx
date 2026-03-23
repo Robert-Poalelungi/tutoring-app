@@ -12,14 +12,20 @@ const OnboardingInterests = () => {
 
   const handleFinish = async () => {
     const profileRaw = sessionStorage.getItem("onboarding_profile");
-    if (!profileRaw) { navigate("/onboarding/faculty"); return; }
-    const profile = JSON.parse(profileRaw);
+    if (!profileRaw) { navigate("/onboarding"); return; }
+
+    let profile;
+    try { profile = JSON.parse(profileRaw); }
+    catch { navigate("/onboarding"); return; }
+
     setLoading(true);
+    setError(null);
+
     try {
       await completeProfile({
-        name: profile.name,
+        name: `${profile.lastName} ${profile.firstName}`,
         studyYear: Number(profile.studyYear),
-        serie: profile.serie,
+        serie: profile.serie || null,
         facultyId: Number(profile.facultyId),
         specializationId: Number(profile.specializationId),
       });
@@ -28,8 +34,8 @@ const OnboardingInterests = () => {
       await fetchUser();
       navigate("/dashboard");
     } catch (err) {
-      setError("A apărut o eroare. Încearcă din nou.");
       console.error(err);
+      setError("A apărut o eroare la salvarea profilului. Încearcă din nou.");
     } finally {
       setLoading(false);
     }
@@ -43,22 +49,41 @@ const OnboardingInterests = () => {
           <div className="progress-dot progress-dot--done" />
           <div className="progress-dot progress-dot--active" />
         </div>
+
         <p className="onboarding-card__step">Pasul 3 din 3</p>
-        <div style={{ fontSize: "48px", margin: "16px 0" }}>🎓</div>
+
+        <div style={{ fontSize: "52px", margin: "12px 0 20px", display: "block" }}>🎓</div>
+
         <h1 className="onboarding-card__title">Totul este gata!</h1>
         <p className="onboarding-card__subtitle">
-          Profilul tău a fost configurat. Acum poți accesa consultațiile și calendarul personalizat.
+          Profilul tău a fost configurat. Vei vedea automat consultațiile
+          relevante pentru specializarea și anul tău de studiu.
         </p>
-        {error && (
-          <p style={{ color: "#c0392b", fontSize: "13px", marginBottom: "12px" }}>{error}</p>
-        )}
+
+        <div style={{ background: "var(--primary-muted)", borderRadius: "var(--radius-md)", padding: "16px", marginBottom: "8px" }}>
+          <p style={{ fontSize: "13px", color: "var(--primary)", fontWeight: 600, lineHeight: 1.6 }}>
+            ✓ Consultațiile tale vor apărea în Dashboard<br />
+            ✓ Primești notificări cu 24h și 1h înainte<br />
+            ✓ Poți conecta Google Calendar oricând din Profil
+          </p>
+        </div>
+
+        {error && <p className="onboarding-error">{error}</p>}
+
         <div className="onboarding-card__actions" style={{ justifyContent: "center" }}>
+          <button
+            className="onboarding-btn onboarding-btn--secondary"
+            onClick={() => navigate("/onboarding/profile")}
+            disabled={loading}
+          >
+            ← Înapoi
+          </button>
           <button
             className="onboarding-btn onboarding-btn--primary"
             onClick={handleFinish}
             disabled={loading}
           >
-            {loading ? "Se salvează..." : "Accesează aplicația →"}
+            {loading ? "Se salvează..." : "Intră în aplicație →"}
           </button>
         </div>
       </div>

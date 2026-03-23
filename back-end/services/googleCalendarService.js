@@ -70,13 +70,14 @@ const createEvent = async (userId, consultationId) => {
     if (!consultation) return;
 
     const calendar = await getCalendarClient(connection);
-    const endTime = calculateEndTime(consultation.time, consultation.duration);
+    const timeStr = consultation.time.slice(0, 5); // "HH:MM" — MySQL TIME returns "HH:MM:SS"
+    const endTime = calculateEndTime(timeStr, consultation.duration);
 
     const event = {
       summary: `Consultație: ${consultation.course.name}`,
       description: `Profesor: ${consultation.professor.firstName} ${consultation.professor.lastName}\nTip: ${consultation.type}${consultation.room ? `\nSala: ${consultation.room}` : ""}${consultation.meetingLink ? `\nLink: ${consultation.meetingLink}` : ""}${consultation.materialsLink ? `\nMateriale: ${consultation.materialsLink}` : ""}`,
       start: {
-        dateTime: `${consultation.date}T${consultation.time}:00`,
+        dateTime: `${consultation.date}T${timeStr}:00`,
         timeZone: "Europe/Bucharest",
       },
       end: {
@@ -138,13 +139,14 @@ const updateEvent = async (userId, consultationId) => {
     if (!consultation) return;
 
     const calendar = await getCalendarClient(connection);
-    const endTime = calculateEndTime(consultation.time, consultation.duration);
+    const timeStr = consultation.time.slice(0, 5);
+    const endTime = calculateEndTime(timeStr, consultation.duration);
 
     const event = {
       summary: `Consultație: ${consultation.course.name}`,
       description: `Profesor: ${consultation.professor.firstName} ${consultation.professor.lastName}\nTip: ${consultation.type}${consultation.room ? `\nSala: ${consultation.room}` : ""}${consultation.meetingLink ? `\nLink: ${consultation.meetingLink}` : ""}${consultation.materialsLink ? `\nMateriale: ${consultation.materialsLink}` : ""}`,
       start: {
-        dateTime: `${consultation.date}T${consultation.time}:00`,
+        dateTime: `${consultation.date}T${timeStr}:00`,
         timeZone: "Europe/Bucharest",
       },
       end: {

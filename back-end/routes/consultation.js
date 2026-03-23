@@ -12,7 +12,7 @@ const {
   unenrollConsultation,
   getStudentConsultations,
 } = require("../controllers/consultation");
-const { isAuthenticated, hasRole } = require("../middleware/auth");
+const { isAuthenticated, hasRole, optionalAuth } = require("../middleware/auth");
 
 // ─── STUDENT ───
 
@@ -48,7 +48,7 @@ router.delete("/delete/:id", isAuthenticated, hasRole("professor", "admin"), del
 // ─── PUBLIC (la final, /:id nu interceptează rutele de mai sus) ───
 
 // GET /api/consultations — toate consultațiile (pentru calendar public)
-router.get("/", getAllConsultations);
+router.get("/", optionalAuth, getAllConsultations);
 
 // GET /api/consultations/:id — o consultație după ID
 router.get("/:id", getConsultationById);

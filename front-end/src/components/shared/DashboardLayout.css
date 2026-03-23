@@ -1,16 +1,13 @@
 .dashboard-layout {
-  display: flex;
-  flex-direction: column;
   min-height: 100vh;
+  background: var(--bg);
 }
 
-.dashboard-body {
-  display: flex;
-  flex: 1;
+.dashboard-main {
+  padding-top: var(--navbar-height);
+  min-height: calc(100vh - var(--navbar-height));
 }
 
 .dashboard-content {
-  flex: 1;
-  padding: 32px;
-  overflow-y: auto;
+  animation: fadeInUp 0.45s var(--ease) both;
 }

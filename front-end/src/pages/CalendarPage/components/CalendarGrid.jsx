@@ -68,8 +68,11 @@ const CalendarGrid = ({ consultations, selectedDate, onSelectDate, session }) =>
   };
 
   const isSelected = (day) => {
-    const dateStr = formatDateStr(day);
-    return dateStr === selectedDate.toISOString().split("T")[0];
+    return (
+      day === selectedDate.getDate() &&
+      currentMonth === selectedDate.getMonth() &&
+      currentYear === selectedDate.getFullYear()
+    );
   };
 
   const handleSelectDay = (day) => {

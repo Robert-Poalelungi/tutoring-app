@@ -1,143 +1,128 @@
 .day-panel {
-  width: 300px;
-  flex-shrink: 0;
-  background: #fff;
-  border-radius: 12px;
-  border: 1px solid #eee;
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
+  animation: fadeInUp 0.4s var(--ease) both;
 }
 
 .day-panel__header {
-  padding: 20px 20px 16px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.day-panel__day-name {
-  font-size: 12px;
-  font-weight: 600;
-  color: #aaa;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.day-panel__date {
-  font-size: 18px;
-  font-weight: 700;
-  color: #333;
-  margin: 2px 0 6px;
-}
-
-.day-panel__count {
-  font-size: 13px;
-  color: #888;
-}
-
-.day-panel__list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.day-panel__empty {
-  font-size: 13px;
-  color: #aaa;
-  text-align: center;
-  padding: 24px 0;
-}
-
-/* Consultation mini card */
-
-.consultation-card-mini {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid #eee;
-  background: #fafafa;
-  gap: 12px;
-}
-
-.consultation-card-mini--online {
-  border-left: 3px solid #667eea;
-}
-
-.consultation-card-mini--cancelled {
-  opacity: 0.6;
-  background: #fff5f5;
-  border-color: #fdd;
-}
-
-.consultation-card-mini--completed {
-  background: #f5fff8;
-  border-color: #d4edda;
-}
-
-.consultation-card-mini__info {
-  flex: 1;
-  min-width: 0;
-}
-
-.consultation-card-mini__course {
-  font-size: 13px;
-  font-weight: 600;
-  color: #333;
-  white-space: nowrap;
+  padding: 20px 20px 16px;
+  background: var(--gradient);
+  position: relative;
   overflow: hidden;
-  text-overflow: ellipsis;
+}
+.day-panel__header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  pointer-events: none;
 }
 
-.consultation-card-mini__professor {
-  font-size: 12px;
-  color: #888;
-  margin: 2px 0;
+.day-panel__date-block { position: relative; z-index: 1; }
+
+.day-panel__day-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 2px;
 }
 
-.consultation-card-mini__time {
-  font-size: 12px;
-  color: #555;
-  font-weight: 500;
+.day-panel__date {
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.4px;
+}
+
+.day-panel__count-badge {
+  min-width: 40px; height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.22);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 900;
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  border: 1.5px solid rgba(255,255,255,0.3);
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
 }
 
-.consultation-card-mini__btn {
-  background: #667eea;
-  color: #fff;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
+.day-panel__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 12px;
+}
+
+/* Consultation card inside panel */
+.consult-card {
+  display: flex;
+  border-radius: var(--radius-md);
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: all 0.25s var(--ease);
+  animation: fadeInUp 0.35s var(--ease) both;
+}
+.consult-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: rgba(102,126,234,0.25);
+  transform: translateX(3px) translateY(-1px);
+}
+.consult-card + .consult-card { margin-top: 8px; }
+
+.consult-card__accent { width: 4px; flex-shrink: 0; }
+.consult-card--online .consult-card__accent { background: var(--gradient); }
+.consult-card--fizic .consult-card__accent { background: linear-gradient(to bottom, #10b981, #059669); }
+.consult-card--cancelled .consult-card__accent { background: var(--danger); }
+.consult-card--completed .consult-card__accent { background: var(--success); }
+.consult-card--cancelled { opacity: 0.65; }
+
+.consult-card__body {
+  padding: 12px 14px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.consult-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.consult-card__time { font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.02em; }
+.consult-card__badges { display: flex; gap: 4px; flex-wrap: wrap; }
+.consult-card__course { font-size: 14px; font-weight: 700; color: var(--text-primary); line-height: 1.3; }
+.consult-card__professor { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+.consult-card__details-btn {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 5px 13px;
+  border-radius: 20px;
   font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: background 0.2s;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--primary-light, #eef0ff);
+  border: 1.5px solid transparent;
+  transition: all 0.2s var(--ease);
+  cursor: pointer;
+  font-family: inherit;
 }
-
-.consultation-card-mini__btn:hover {
-  background: #5a6fd6;
-}
-
-/* Status badges */
-
-.status-badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 7px;
-  border-radius: 4px;
-}
-
-.status-badge--cancelled {
-  background: #ffe0e0;
-  color: #c0392b;
-}
-
-.status-badge--completed {
-  background: #d4edda;
-  color: #27ae60;
+.consult-card__details-btn:hover {
+  background: var(--gradient);
+  color: #fff;
+  transform: translateX(2px);
+  box-shadow: 0 4px 12px rgba(102,126,234,0.3);
 }

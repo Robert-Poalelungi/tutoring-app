@@ -29,6 +29,21 @@ const getAllConsultations = async (req, res) => {
       ],
     });
 
+    // Dacă studentul e autentificat, marchează consultațiile la care e înscris
+    const userId = req.user?.id;
+    if (userId) {
+      const enrollments = await UserConsultation.findAll({
+        where: { userId, status: "active" },
+        attributes: ["consultationId"],
+      });
+      const enrolledIds = new Set(enrollments.map((e) => e.consultationId));
+      const result = consultations.map((c) => ({
+        ...c.toJSON(),
+        isEnrolled: enrolledIds.has(c.id),
+      }));
+      return res.status(200).json(result);
+    }
+
     return res.status(200).json(consultations);
   } catch (error) {
     return res.status(500).json({ message: "Eroare server.", error: error.message });
@@ -74,14 +89,6 @@ const createConsultation = async (req, res) => {
     const course = await Course.findByPk(courseId);
     if (!course) {
       return res.status(404).json({ message: "Materia nu a fost găsită." });
-    }
-
-    if (type === "online" && !meetingLink) {
-      return res.status(400).json({ message: "Link-ul de meeting este obligatoriu pentru consultații online." });
-    }
-
-    if (type === "fizic" && !room) {
-      return res.status(400).json({ message: "Sala este obligatorie pentru consultații fizice." });
     }
 
     let professorId = req.user.id;
@@ -300,7 +307,7 @@ const enrollConsultation = async (req, res) => {
         createEvent(req.user.id, consultationId);
         return res.status(200).json({ message: "Te-ai re-înscris la consultație cu succes." });
       }
-      return res.status(400).json({ message: "Ești deja înscris la această consultație." });
+      return res.status(200).json({ message: "Ești deja înscris la această consultație.", alreadyEnrolled: true });
     }
 
     await UserConsultation.create({
@@ -397,10 +404,36 @@ const getStudentConsultations = async (req, res) => {
       });
     }
 
+    const taggedAuto = autoConsultations.map((c) => ({ ...c.toJSON(), enrollmentSource: "auto" }));
+    const taggedManual = manualConsultations.map((c) => ({ ...c.toJSON(), isEnrolled: true, enrollmentSource: "manual" }));
+
     return res.status(200).json({
-      auto: autoConsultations,
-      manual: manualConsultations,
+      auto: taggedAuto,
+      manual: taggedManual,
     });
+  } catch (error) {
+    return res.status(500).json({ message: "Eroare server.", error: error.message });
+  }
+};
+
+// Returnează toate consultațiile (admin — toate statusurile, toți profesorii)
+const getAllConsultationsAdmin = async (req, res) => {
+  try {
+    const consultations = await Consultation.findAll({
+      include: [
+        {
+          model: Course,
+          as: "course",
+          include: [
+            { model: Faculty, as: "faculty" },
+            { model: Specialization, as: "specialization" },
+          ],
+        },
+        { model: User, as: "professor", attributes: ["id", "firstName", "lastName", "email"] },
+      ],
+      order: [["date", "DESC"], ["time", "ASC"]],
+    });
+    return res.status(200).json(consultations);
   } catch (error) {
     return res.status(500).json({ message: "Eroare server.", error: error.message });
   }
@@ -408,6 +441,7 @@ const getStudentConsultations = async (req, res) => {
 
 module.exports = {
   getAllConsultations,
+  getAllConsultationsAdmin,
   getConsultationById,
   createConsultation,
   updateConsultation,

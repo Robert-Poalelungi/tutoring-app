@@ -5,66 +5,76 @@ import "./DayConsultationsPanel.css";
 
 const DayConsultationsPanel = ({ date, consultations, loading, user }) => {
   const [selected, setSelected] = useState(null);
-
   const dateStr = date.toISOString().split("T")[0];
 
   return (
     <>
-      <div className="day-panel">
+      <div className="day-panel card">
         <div className="day-panel__header">
-          <p className="day-panel__day-name">{getDayName(dateStr)}</p>
-          <h2 className="day-panel__date">{formatDate(dateStr)}</h2>
-          <p className="day-panel__count">
-            {loading
-              ? "Se încarcă..."
-              : consultations.length === 0
-              ? "Nicio consultație"
-              : `${consultations.length} consultație${consultations.length !== 1 ? " " : ""}${consultations.length !== 1 ? "i" : ""}`}
-          </p>
+          <div className="day-panel__date-block">
+            <p className="day-panel__day-name">{getDayName(dateStr)}</p>
+            <h2 className="day-panel__date">{formatDate(dateStr)}</h2>
+          </div>
+          <div className="day-panel__count-badge">
+            {loading ? "…" : consultations.length}
+          </div>
         </div>
 
         <div className="day-panel__list">
-          {!loading && consultations.length === 0 && (
-            <p className="day-panel__empty">
-              Nu există consultații programate pentru această zi.
-            </p>
+          {loading && (
+            <div className="loading-spinner" />
           )}
 
-          {consultations.map((c) => (
+          {!loading && consultations.length === 0 && (
+            <div className="empty-state">
+              <span className="empty-state__icon">📅</span>
+              <span className="empty-state__title">Nicio consultație</span>
+              <span>Nu sunt consultații programate pentru această zi.</span>
+            </div>
+          )}
+
+          {!loading && consultations.map((c) => (
             <div
               key={c.id}
               className={[
-                "consultation-card-mini",
-                c.status === "cancelled" ? "consultation-card-mini--cancelled" : "",
-                c.status === "completed" ? "consultation-card-mini--completed" : "",
-                c.type === "online" ? "consultation-card-mini--online" : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
+                "consult-card",
+                c.status === "cancelled" ? "consult-card--cancelled" : "",
+                c.status === "completed" ? "consult-card--completed" : "",
+                c.type === "online" ? "consult-card--online" : "consult-card--fizic",
+              ].filter(Boolean).join(" ")}
             >
-              <div className="consultation-card-mini__info">
-                <p className="consultation-card-mini__course">
-                  {c.course?.name}
+              <div className="consult-card__accent" />
+              <div className="consult-card__body">
+                <div className="consult-card__top">
+                  <span className="consult-card__time">
+                    {formatTime(c.startTime || c.time)}
+                    {c.endTime ? ` – ${formatTime(c.endTime)}` : ""}
+                  </span>
+                  <div className="consult-card__badges">
+                    <span className={`badge badge--${c.type}`}>
+                      {c.type === "online" ? "Online" : "Fizic"}
+                    </span>
+                    {c.status === "cancelled" && (
+                      <span className="badge badge--cancelled">Anulat</span>
+                    )}
+                    {c.status === "completed" && (
+                      <span className="badge badge--completed">Finalizat</span>
+                    )}
+                  </div>
+                </div>
+                <p className="consult-card__course">{c.course?.name || c.courseName}</p>
+                <p className="consult-card__professor">
+                  {c.professor?.firstName
+                    ? `${c.professor.firstName} ${c.professor.lastName}`
+                    : c.professorName || ""}
                 </p>
-                <p className="consultation-card-mini__professor">
-                  {c.professor?.firstName} {c.professor?.lastName}
-                </p>
-                <p className="consultation-card-mini__time">
-                  {formatTime(c.time)}
-                  {c.status === "cancelled" && (
-                    <span className="status-badge status-badge--cancelled">Anulat</span>
-                  )}
-                  {c.status === "completed" && (
-                    <span className="status-badge status-badge--completed">Finalizat</span>
-                  )}
-                </p>
+                <button
+                  className="consult-card__details-btn"
+                  onClick={() => setSelected(c)}
+                >
+                  Detalii →
+                </button>
               </div>
-              <button
-                className="consultation-card-mini__btn"
-                onClick={() => setSelected(c)}
-              >
-                Detalii
-              </button>
             </div>
           ))}
         </div>

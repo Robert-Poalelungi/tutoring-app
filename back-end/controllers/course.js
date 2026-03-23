@@ -5,10 +5,6 @@ const getAllCourses = async (req, res) => {
   try {
     const courses = await Course.findAll();
 
-    if (!courses.length) {
-      return res.status(404).json({ message: "Nu există materii." });
-    }
-
     return res.status(200).json(courses);
   } catch (error) {
     return res.status(500).json({ message: "Eroare server.", error: error.message });

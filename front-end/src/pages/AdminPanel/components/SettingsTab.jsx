@@ -40,10 +40,12 @@ const SettingsTab = () => {
   if (loading) return <div className="admin-tab__loading">Se încarcă...</div>;
 
   return (
-    <div className="admin-tab">
+    <div className="admin-tab-content">
       <div className="settings-card">
-        <h3 className="settings-card__title">Sesiunea activă</h3>
-        <p className="settings-card__desc">Configurează datele sesiunilor de examene în care apar consultațiile în calendar.</p>
+        <div className="settings-card__title-block">
+          <h3 className="settings-card__title">Sesiunea activă</h3>
+          <p className="settings-card__desc">Configurează datele sesiunilor de examene în care apar consultațiile în calendar.</p>
+        </div>
         <form className="settings-form" onSubmit={handleSave}>
           <div className="settings-row">
             <div className="form-group">
@@ -65,11 +67,11 @@ const SettingsTab = () => {
               <input type="date" value={form.summerEnd} onChange={set("summerEnd")} />
             </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div className="settings-save-row">
             <button type="submit" className="admin-btn admin-btn--primary" disabled={saving}>
               {saving ? "Se salvează..." : "Salvează setările"}
             </button>
-            {saved && <span style={{ color: "#27ae60", fontSize: "13px", fontWeight: 600 }}>✓ Salvat!</span>}
+            {saved && <span className="settings-saved">✓ Salvat!</span>}
           </div>
         </form>
       </div>

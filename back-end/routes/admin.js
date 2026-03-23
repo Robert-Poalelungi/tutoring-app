@@ -21,6 +21,8 @@ const {
   getSettings,
   updateSession,
 } = require("../controllers/admin");
+const { getAllCourses } = require("../controllers/course");
+const { getAllConsultationsAdmin, createConsultation, cancelConsultation, deleteConsultation } = require("../controllers/consultation");
 const { isAuthenticated, hasRole } = require("../middleware/auth");
 
 // Toate rutele de admin necesită autentificare + rol admin
@@ -44,6 +46,9 @@ router.put("/users/:id/role", updateUserRole);
 router.delete("/users/:id", deleteUser);
 
 // ─── COURSES ───
+
+// GET /api/admin/courses — toate materiile
+router.get("/courses", getAllCourses);
 
 // POST /api/admin/courses — creare materie
 router.post("/courses", createCourse);
@@ -89,6 +94,20 @@ router.put("/specializations/:id", updateSpecialization);
 
 // DELETE /api/admin/specializations/:id — ștergere specializare
 router.delete("/specializations/:id", deleteSpecialization);
+
+// ─── CONSULTATIONS ───
+
+// GET /api/admin/consultations — toate consultațiile (toate statusurile, toți profesorii)
+router.get("/consultations", getAllConsultationsAdmin);
+
+// POST /api/admin/consultations — creare consultație (cu profesorId override)
+router.post("/consultations", createConsultation);
+
+// PUT /api/admin/consultations/cancel/:id — anulare
+router.put("/consultations/cancel/:id", cancelConsultation);
+
+// DELETE /api/admin/consultations/:id — ștergere permanentă
+router.delete("/consultations/:id", deleteConsultation);
 
 // ─── SETTINGS ───
 

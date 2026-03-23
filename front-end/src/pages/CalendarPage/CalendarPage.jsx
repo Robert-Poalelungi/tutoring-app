@@ -21,8 +21,19 @@ const CalendarPage = () => {
       try {
         const res = await getActiveSession();
         setSession(res.data);
+        // Initialize calendar to first session month
+        if (res.data) {
+          const now = new Date();
+          let initMonth;
+          if (res.data.activeSession === "winter") {
+            initMonth = new Date(now.getFullYear(), 0, 1); // January
+          } else {
+            initMonth = new Date(now.getFullYear(), 5, 1); // June
+          }
+          setSelectedDate(initMonth);
+        }
       } catch (err) {
-        console.error("Eroare la încărcarea sesiunii:", err);
+        console.error("Session load error:", err);
       }
     };
     fetchSession();
@@ -35,40 +46,44 @@ const CalendarPage = () => {
         const params = {};
         if (filters.studyYear) params.studyYear = filters.studyYear;
         if (filters.specializationId) params.specializationId = filters.specializationId;
-
+        if (filters.facultyId) params.facultyId = filters.facultyId;
         const res = await getAllConsultations(params);
         setConsultations(res.data);
       } catch (err) {
-        console.error("Eroare la încărcarea consultațiilor:", err);
+        console.error("Consultations load error:", err);
       } finally {
         setLoading(false);
       }
     };
     fetchConsultations();
-  }, [filters.studyYear, filters.specializationId]);
+  }, [filters.studyYear, filters.specializationId, filters.facultyId]);
 
-  const consultationsForDay = consultations.filter(
-    (c) => c.date === selectedDate.toISOString().split("T")[0]
-  );
+  // Client-side filtering for type
+  const filteredConsultations = consultations.filter((c) => {
+    if (filters.type && c.type !== filters.type) return false;
+    return true;
+  });
+
+  const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
+  const consultationsForDay = filteredConsultations.filter((c) => c.date === dateStr);
 
   return (
     <div className="calendar-page">
       <Navbar />
-
       <div className="calendar-page__inner">
         <CalendarFilters />
-
         <div className="calendar-page__body">
-          <DayConsultationsPanel
-            date={selectedDate}
-            consultations={consultationsForDay}
-            loading={loading}
-            user={user}
-          />
-
+          <div className="calendar-page__left">
+            <DayConsultationsPanel
+              date={selectedDate}
+              consultations={consultationsForDay}
+              loading={loading}
+              user={user}
+            />
+          </div>
           <div className="calendar-page__right">
             <CalendarGrid
-              consultations={consultations}
+              consultations={filteredConsultations}
               selectedDate={selectedDate}
               onSelectDate={setSelectedDate}
               session={session}

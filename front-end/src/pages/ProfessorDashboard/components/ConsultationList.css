@@ -1,142 +1,139 @@
+/* ============================================================
+   ConsultationList.css — Professor consultation list
+   ============================================================ */
+
 .consultation-list {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
 }
 
 .consultation-list__empty {
-  text-align: center;
-  padding: 40px;
-  color: #aaa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 52px 24px;
+  color: var(--text-muted);
   font-size: 14px;
-  background: #fafafa;
-  border-radius: 10px;
-  border: 1px dashed #ddd;
+  text-align: center;
+  background: var(--bg-hover);
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-lg);
+  animation: fadeIn 0.4s var(--ease) both;
 }
 
 .consultation-group {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  animation: fadeInUp 0.4s var(--ease) both;
 }
 
 .consultation-group__date {
-  font-size: 13px;
-  font-weight: 700;
-  color: #667eea;
+  font-size: 12px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding-bottom: 6px;
-  border-bottom: 2px solid #eef0ff;
+  letter-spacing: 0.1em;
+  padding-bottom: 10px;
+  border-bottom: 2px solid transparent;
+  border-image: var(--gradient) 1;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
+/* ── Row ────────────────────────────────────────────────── */
 .consultation-row {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--border);
+  padding: 16px 18px;
   display: flex;
-  align-items: center;
-  gap: 12px;
-  background: white;
-  border-radius: 10px;
-  border: 1px solid #eee;
-  padding: 12px 16px;
-  transition: all 0.15s;
+  align-items: flex-start;
+  gap: 14px;
+  transition:
+    transform 0.22s var(--ease-spring),
+    box-shadow 0.22s var(--ease),
+    border-color 0.22s var(--ease);
+  flex-wrap: wrap;
 }
-
 .consultation-row:hover {
-  border-color: #ddd;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(102, 126, 234, 0.25);
+  transform: translateY(-2px);
 }
 
 .consultation-row__time {
   font-size: 14px;
-  font-weight: 700;
-  color: #333;
-  min-width: 110px;
+  font-weight: 900;
+  min-width: 100px;
+  flex-shrink: 0;
+  letter-spacing: -0.2px;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .consultation-row__course {
   font-size: 14px;
-  color: #444;
+  font-weight: 700;
+  color: var(--text-primary);
   flex: 1;
+  min-width: 120px;
 }
 
 .consultation-row__badges {
   display: flex;
   gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .consultation-row__actions {
   display: flex;
   gap: 6px;
+  flex-wrap: wrap;
   margin-left: auto;
 }
 
+/* ── Action buttons ─────────────────────────────────────── */
 .action-btn {
-  background: none;
-  border: 1px solid #ddd;
+  padding: 5px 12px;
   border-radius: 6px;
-  padding: 5px 10px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.15s;
-  color: #555;
-}
-
-.action-btn:hover {
-  background: #f5f6fa;
-}
-
-.action-btn--danger {
-  color: #c0392b;
-  border-color: #f5c6cb;
-}
-
-.action-btn--danger:hover {
-  background: #ffe0e0;
-}
-
-.action-btn--success {
-  color: #27ae60;
-  border-color: #c3e6cb;
-}
-
-.action-btn--success:hover {
-  background: #d4edda;
-}
-
-/* Badge base */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
-  line-height: 1.4;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  background: var(--bg);
+  transition: background 0.15s, transform 0.15s var(--ease-spring);
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
 }
-
-/* Type badges */
-.badge--online {
-  background: #eef2ff;
-  color: #667eea;
+.action-btn:hover {
+  background: var(--bg-hover);
+  transform: translateY(-1px);
 }
+.action-btn--danger { color: var(--danger); border-color: #f5c6cb; background: var(--danger-light); }
+.action-btn--danger:hover { background: #ffd0d0; }
+.action-btn--success { color: var(--success); border-color: #c3e6cb; background: var(--success-light); }
+.action-btn--success:hover { background: #c3e6cb; }
 
-.badge--fizic {
-  background: #fef3e2;
-  color: #e67e22;
-}
+/* ── Badge classes ──────────────────────────────────────── */
+.badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+.badge--online { background: var(--primary-light); color: var(--primary); }
+.badge--fizic { background: #e8f5e9; color: #2e7d32; }
+.badge--published { background: var(--warning-light, #fff8e1); color: var(--warning, #f39c12); }
+.badge--cancelled { background: var(--danger-light); color: var(--danger); }
+.badge--completed { background: var(--success-light); color: var(--success); }
+.badge--draft { background: #f5f6fa; color: #888; border: 1px solid #ddd; }
 
-/* Status badges */
-.badge--published {
-  background: #e8f5e9;
-  color: #27ae60;
-}
-
-.badge--cancelled {
-  background: #fdecea;
-  color: #c0392b;
-}
-
-.badge--completed {
-  background: #f0f0f0;
-  color: #888;
+/* ── Mobile ─────────────────────────────────────────────── */
+@media (max-width: 580px) {
+  .consultation-row { flex-direction: column; gap: 10px; }
+  .consultation-row__actions { margin-left: 0; }
 }

@@ -39,4 +39,18 @@ const hasRole = (...roles) => {
   };
 };
 
-module.exports = { isAuthenticated, hasRole };
+// Setează req.user dacă există un token valid, fără a bloca dacă nu există
+const optionalAuth = async (req, res, next) => {
+  try {
+    const token = req.cookies.access_token;
+    if (!token) return next();
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findByPk(decoded.id);
+    if (user) req.user = user;
+  } catch {
+    // token invalid — continuă fără utilizator
+  }
+  next();
+};
+
+module.exports = { isAuthenticated, hasRole, optionalAuth };

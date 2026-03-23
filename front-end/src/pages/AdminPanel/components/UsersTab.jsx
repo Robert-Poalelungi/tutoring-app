@@ -43,8 +43,8 @@ const UsersTab = () => {
   if (loading) return <div className="admin-tab__loading">Se încarcă...</div>;
 
   return (
-    <div className="admin-tab">
-      <div className="admin-tab__toolbar">
+    <div className="admin-tab-content">
+      <div className="admin-toolbar">
         <input
           className="admin-search"
           type="text"
@@ -52,7 +52,7 @@ const UsersTab = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <span className="admin-tab__count">{filtered.length} utilizatori</span>
+        <span className="admin-count">{filtered.length} utilizatori</span>
       </div>
       <div className="admin-table-wrap">
         <table className="admin-table">

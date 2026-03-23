@@ -1,15 +1,15 @@
 import Navbar from "./Navbar";
-import Sidebar from "./Sidebar";
 import "./DashboardLayout.css";
 
-const DashboardLayout = ({ children, sidebarLinks }) => {
+const DashboardLayout = ({ children }) => {
   return (
     <div className="dashboard-layout">
       <Navbar />
-      <div className="dashboard-body">
-        {sidebarLinks && <Sidebar links={sidebarLinks} />}
-        <main className="dashboard-content">{children}</main>
-      </div>
+      <main className="dashboard-main">
+        <div className="dashboard-content page-enter">
+          {children}
+        </div>
+      </main>
     </div>
   );
 };

@@ -15,11 +15,15 @@ const OnboardingFaculty = () => {
       .then((res) => setFaculties(res.data))
       .catch(console.error)
       .finally(() => setLoading(false));
+
+    // Pre-select from sessionStorage if navigating back
+    const saved = sessionStorage.getItem("onboarding_facultyId");
+    if (saved) setSelectedId(Number(saved));
   }, []);
 
   const handleContinue = () => {
     if (!selectedId) return;
-    sessionStorage.setItem("onboarding_facultyId", selectedId);
+    sessionStorage.setItem("onboarding_facultyId", String(selectedId));
     navigate("/onboarding/profile");
   };
 
@@ -31,6 +35,7 @@ const OnboardingFaculty = () => {
           <div className="progress-dot" />
           <div className="progress-dot" />
         </div>
+
         <p className="onboarding-card__step">Pasul 1 din 3</p>
         <h1 className="onboarding-card__title">Selectează facultatea</h1>
         <p className="onboarding-card__subtitle">
@@ -38,7 +43,9 @@ const OnboardingFaculty = () => {
         </p>
 
         {loading ? (
-          <p style={{ color: "#888" }}>Se încarcă...</p>
+          <div style={{ textAlign: "center", padding: "32px", color: "var(--text-muted)" }}>
+            Se încarcă facultățile...
+          </div>
         ) : (
           <div className="faculty-onboarding-grid">
             {faculties.map((f) => (
@@ -46,6 +53,7 @@ const OnboardingFaculty = () => {
                 key={f.id}
                 className={`faculty-onboarding-card ${selectedId === f.id ? "faculty-onboarding-card--selected" : ""}`}
                 onClick={() => setSelectedId(f.id)}
+                type="button"
               >
                 <span className="faculty-onboarding-card__abbr">{f.abbreviation}</span>
                 <span className="faculty-onboarding-card__name">{f.name}</span>

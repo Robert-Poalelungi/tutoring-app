@@ -26,6 +26,7 @@ const getCurrentUser = async (req, res) => {
 
     const userData = user.toJSON();
     userData.detectedStudyYear = detectStudyYear(user.email);
+    userData.name = `${user.firstName || ""} ${user.lastName || ""}`.trim();
 
     return res.status(200).json(userData);
   } catch (error) {
@@ -87,7 +88,7 @@ const updateProfile = async (req, res) => {
       return res.status(404).json({ message: "Utilizatorul nu a fost găsit." });
     }
 
-    const { firstName, lastName, facultyId, specializationId, studyYear } = req.body;
+    const { firstName, lastName, facultyId, specializationId, studyYear, serie } = req.body;
     const nameRegex = /^[A-Za-zĂăÂâÎîȘșȚț\s-]+$/;
 
     if (firstName) {
@@ -110,6 +111,7 @@ const updateProfile = async (req, res) => {
     if (facultyId) user.facultyId = facultyId;
     if (specializationId) user.specializationId = specializationId;
     if (studyYear) user.studyYear = studyYear;
+    if (serie !== undefined) user.serie = serie || null;
 
     await user.save();
 

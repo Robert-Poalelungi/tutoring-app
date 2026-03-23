@@ -1,56 +1,99 @@
+/* ============================================================
+   AdminPanel.css — Premium animated admin layout
+   ============================================================ */
+
 .admin-panel {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 32px 24px;
+  padding: 28px 16px 72px;
   display: flex;
   flex-direction: column;
   gap: 24px;
+  animation: fadeInUp 0.5s var(--ease) both;
+}
+@media (min-width: 768px) {
+  .admin-panel { padding: 40px 28px 80px; }
 }
 
+/* ── Header ─────────────────────────────────────────────── */
 .admin-panel__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  animation: fadeInUp 0.5s var(--ease) 0.05s both;
 }
 
 .admin-panel__title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #222;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -0.6px;
+  line-height: 1.15;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+}
+.admin-panel__title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 40px;
+  height: 3px;
+  background: var(--gradient);
+  border-radius: 2px;
+  animation: scaleIn 0.4s var(--ease-spring) 0.4s both;
+  transform-origin: left center;
+}
+@media (min-width: 600px) {
+  .admin-panel__title { font-size: 36px; }
 }
 
+/* ── Tabs ───────────────────────────────────────────────── */
 .admin-tabs {
   display: flex;
-  gap: 4px;
-  background: #f5f6fa;
-  border-radius: 10px;
-  padding: 4px;
-  width: fit-content;
+  gap: 0;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 5px;
+  border: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  box-shadow: var(--shadow-sm);
+  animation: fadeInDown 0.45s var(--ease) 0.1s both;
 }
+.admin-tabs::-webkit-scrollbar { display: none; }
 
 .admin-tab {
-  padding: 8px 20px;
-  border-radius: 7px;
+  padding: 9px 18px;
+  border-radius: var(--radius-md);
   font-size: 13px;
   font-weight: 600;
-  color: #666;
+  color: var(--text-muted);
   background: none;
   border: none;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: color 0.2s var(--ease), background 0.2s var(--ease), transform 0.2s var(--ease-spring), box-shadow 0.2s var(--ease);
+  white-space: nowrap;
+  font-family: inherit;
 }
-
 .admin-tab:hover {
-  color: #333;
-  background: #eee;
+  color: var(--text-primary);
+  background: var(--bg-hover);
+  transform: translateY(-1px);
 }
-
 .admin-tab--active {
-  background: white;
-  color: #667eea;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  background: var(--gradient);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(102, 126, 234, 0.35);
+  transform: translateY(-1px);
 }
 
 .admin-panel__content {
   flex: 1;
+  animation: fadeInUp 0.45s var(--ease) 0.15s both;
 }

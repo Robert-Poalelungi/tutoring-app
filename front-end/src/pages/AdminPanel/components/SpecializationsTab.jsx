@@ -41,7 +41,7 @@ const SpecializationsTab = () => {
   if (loading) return <div className="admin-tab__loading">Se încarcă...</div>;
 
   return (
-    <div className="admin-tab">
+    <div className="admin-tab-content">
       <form className="admin-inline-form" onSubmit={handleSubmit}>
         <select className="admin-input" value={form.facultyId} onChange={set("facultyId")} required>
           <option value="">Selectează facultatea</option>

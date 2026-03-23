@@ -1,136 +1,235 @@
+/* ============================================================
+   Onboarding.css — Animated full-page onboarding flow
+   ============================================================ */
+
 .onboarding-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  background: var(--gradient);
+  padding: 24px 16px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  position: relative;
+  overflow: hidden;
 }
 
+/* Floating ambient orbs */
+.onboarding-page::before,
+.onboarding-page::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  animation: float 8s ease-in-out infinite;
+}
+.onboarding-page::before {
+  width: 400px;
+  height: 400px;
+  background: rgba(255, 255, 255, 0.12);
+  top: -100px;
+  left: -100px;
+  animation-duration: 9s;
+}
+.onboarding-page::after {
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.08);
+  bottom: -80px;
+  right: -60px;
+  animation-duration: 11s;
+  animation-delay: -3s;
+}
+
+/* Card */
 .onboarding-card {
-  background: white;
-  border-radius: 20px;
-  padding: 40px;
-  max-width: 560px;
+  background: var(--bg-card);
+  border-radius: var(--radius-2xl, 24px);
+  padding: 36px 32px;
   width: 100%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  max-width: 520px;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.22), 0 8px 32px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+  z-index: 1;
+  animation: scaleInSpring 0.55s var(--ease-spring) both;
+  backdrop-filter: blur(4px);
 }
 
+@media (max-width: 480px) {
+  .onboarding-card { padding: 28px 20px; border-radius: var(--radius-xl); }
+}
+
+/* ── Progress bars ──────────────────────────────────────── */
+.progress-dots {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 28px;
+}
+.progress-dot {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  transition: all 0.4s var(--ease);
+  flex: 1;
+}
+.progress-dot--active {
+  background: var(--gradient);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+}
+.progress-dot--done {
+  background: var(--gradient);
+  opacity: 0.35;
+}
+
+/* ── Step label ─────────────────────────────────────────── */
 .onboarding-card__step {
-  font-size: 12px;
-  font-weight: 700;
-  color: #667eea;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--primary);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   margin-bottom: 8px;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .onboarding-card__title {
-  font-size: 26px;
-  font-weight: 800;
-  color: #222;
-  margin-bottom: 8px;
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--text-primary);
+  letter-spacing: -0.4px;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+@media (min-width: 480px) {
+  .onboarding-card__title { font-size: 28px; }
 }
 
 .onboarding-card__subtitle {
   font-size: 14px;
-  color: #888;
+  color: var(--text-muted);
   margin-bottom: 28px;
+  line-height: 1.6;
 }
 
+/* ── Actions row ────────────────────────────────────────── */
 .onboarding-card__actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 28px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .onboarding-btn {
-  padding: 12px 28px;
-  border-radius: 10px;
+  padding: 13px 28px;
+  border-radius: var(--radius-md);
   font-size: 14px;
   font-weight: 700;
   border: none;
   cursor: pointer;
-  transition: all 0.15s;
+  font-family: inherit;
+  transition: transform 0.2s var(--ease-spring), box-shadow 0.2s var(--ease);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
-
 .onboarding-btn--primary {
-  background: #667eea;
-  color: white;
+  background: var(--gradient);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.38);
 }
-
 .onboarding-btn--primary:hover {
-  background: #5a6fd6;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.48);
 }
-
+.onboarding-btn--primary:active { transform: scale(0.97); }
 .onboarding-btn--secondary {
-  background: #f5f6fa;
-  color: #555;
+  background: var(--bg);
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border);
 }
-
 .onboarding-btn--secondary:hover {
-  background: #eee;
+  background: var(--bg-hover);
+  transform: translateY(-1px);
 }
+.onboarding-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
-.onboarding-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.progress-dots {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-
-.progress-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #ddd;
-  transition: all 0.2s;
-}
-
-.progress-dot--active {
-  background: #667eea;
-  width: 24px;
-  border-radius: 4px;
-}
-
-.progress-dot--done {
-  background: #667eea;
-  opacity: 0.4;
-}
-
+/* ── Form fields ────────────────────────────────────────── */
 .onboarding-form-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
-
 .onboarding-form-group label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #666;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.09em;
 }
-
 .onboarding-form-group input,
 .onboarding-form-group select {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 14px;
-  font-family: Montserrat, sans-serif;
   width: 100%;
-  box-sizing: border-box;
-  transition: border-color 0.15s;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease), transform 0.2s var(--ease);
+  -webkit-appearance: none;
 }
-
 .onboarding-form-group input:focus,
 .onboarding-form-group select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+  transform: translateY(-1px);
+}
+.onboarding-form-group input:disabled {
+  background: var(--bg);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+.onboarding-form-group select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23888' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 38px;
+}
+
+.onboarding-form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 400px) {
+  .onboarding-form-row--2 { grid-template-columns: 1fr 1fr; }
+}
+
+.onboarding-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Error message ──────────────────────────────────────── */
+.onboarding-error {
+  font-size: 13px;
+  color: var(--danger);
+  background: var(--danger-light);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #f5c6cb;
+  animation: fadeIn 0.3s var(--ease) both;
 }

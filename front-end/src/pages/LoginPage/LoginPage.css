@@ -3,44 +3,147 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient);
+  padding: 24px 16px;
+  position: relative;
+  overflow: hidden;
 }
 
+/* Animated background orbs */
+.login-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.login-bg__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.35;
+  animation: float 6s ease-in-out infinite;
+}
+.login-bg__orb--1 {
+  width: 400px; height: 400px;
+  background: #a78bfa;
+  top: -100px; left: -100px;
+  animation-delay: 0s;
+}
+.login-bg__orb--2 {
+  width: 300px; height: 300px;
+  background: #60a5fa;
+  bottom: -80px; right: -60px;
+  animation-delay: 2s;
+}
+.login-bg__orb--3 {
+  width: 200px; height: 200px;
+  background: #f472b6;
+  top: 40%; left: 60%;
+  animation-delay: 4s;
+}
+
+/* Card */
 .login-card {
-  background: white;
-  padding: 48px;
-  border-radius: 16px;
-  text-align: center;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-  max-width: 400px;
-  width: 90%;
-}
-
-.login-card h1 {
-  font-size: 28px;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 8px;
-}
-
-.login-card p {
-  color: #666;
-  margin-bottom: 32px;
-  font-size: 14px;
-}
-
-.login-btn {
-  background: #667eea;
-  color: white;
-  border: none;
-  padding: 14px 32px;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 600;
-  transition: background 0.2s;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-2xl);
+  padding: 44px 36px;
   width: 100%;
+  max-width: 420px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.22), 0 0 0 1px rgba(255,255,255,0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: relative;
+  z-index: 1;
+  animation: scaleInSpring 0.5s var(--ease-spring) both;
 }
 
-.login-btn:hover {
-  background: #5a6fd6;
+.login-card__logo-wrap {
+  display: flex;
+  justify-content: center;
+}
+.login-card__logo {
+  width: 72px; height: 72px;
+  background: var(--gradient);
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  box-shadow: 0 12px 32px rgba(102,126,234,0.4);
+  animation: bounceIn 0.6s var(--ease-spring) 0.2s both;
+}
+
+.login-card__brand { text-align: center; }
+.login-card__title {
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--text-primary);
+  letter-spacing: -0.6px;
+  margin-bottom: 6px;
+}
+.login-card__title span { color: var(--primary); }
+.login-card__subtitle { font-size: 14px; color: var(--text-muted); font-weight: 500; }
+
+/* Feature list */
+.login-card__features {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--gradient-soft);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+}
+.login-feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  animation: fadeInUp 0.4s var(--ease) both;
+}
+.login-feature:nth-child(1) { animation-delay: 0.1s; }
+.login-feature:nth-child(2) { animation-delay: 0.2s; }
+.login-feature:nth-child(3) { animation-delay: 0.3s; }
+.login-feature__icon { font-size: 18px; flex-shrink: 0; }
+
+/* Google button */
+.login-card__google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  width: 100%;
+  padding: 15px 20px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border);
+  background: var(--bg-card);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  transition: all 0.25s var(--ease);
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+.login-card__google-btn:hover {
+  border-color: #4285F4;
+  box-shadow: 0 6px 24px rgba(66,133,244,0.2);
+  transform: translateY(-2px);
+}
+.login-card__google-btn:active { transform: translateY(0); }
+.login-card__google-icon { width: 22px; height: 22px; flex-shrink: 0; }
+
+.login-card__note {
+  font-size: 11px;
+  color: var(--text-light);
+  text-align: center;
+  line-height: 1.6;
+}
+
+@media (max-width: 440px) {
+  .login-card { padding: 32px 20px; gap: 20px; }
+  .login-card__title { font-size: 26px; }
 }

@@ -1,5 +1,4 @@
-const { google } = require("googleapis");
-const { GoogleCalendarConnection, ConsultationCalendarSync } = require("../models");
+const { GoogleCalendarConnection, ConsultationCalendarSync, User } = require("../models");
 const {
   createOAuth2Client,
   getAuthUrl,
@@ -18,51 +17,65 @@ const connect = (req, res) => {
 
 // GET /api/google-calendar/callback — callback OAuth
 const callback = async (req, res) => {
-  try {
-    const { code, state: userId } = req.query;
+  const { code, state: rawUserId, error: oauthError } = req.query;
+  const userId = parseInt(rawUserId, 10);
 
-    if (!code) {
-      return res.redirect(`${process.env.ORIGIN_SITE}/student/dashboard?calendar=error`);
+  if (oauthError || !code) {
+    console.error("[GCal callback] OAuth error or missing code:", oauthError);
+    return res.redirect(`${process.env.ORIGIN_SITE}/dashboard?calendar=error`);
+  }
+
+  if (!userId || isNaN(userId)) {
+    console.error("[GCal callback] Missing or invalid state/userId:", rawUserId);
+    return res.redirect(`${process.env.ORIGIN_SITE}/dashboard?calendar=error`);
+  }
+
+  try {
+    console.log("[GCal callback] Exchanging code for tokens, userId:", userId);
+    const tokens = await getTokensFromCode(code);
+    console.log("[GCal callback] Tokens received. Has refresh_token:", !!tokens.refresh_token);
+
+    if (!tokens.access_token) {
+      throw new Error("No access_token in token response");
     }
 
-    const tokens = await getTokensFromCode(code);
-
-    // Obține email-ul Google al utilizatorului
-    const oauth2Client = createOAuth2Client();
-    oauth2Client.setCredentials(tokens);
-    const oauth2 = google.oauth2({ version: "v2", auth: oauth2Client });
-    const userInfo = await oauth2.userinfo.get();
+    // Obține email-ul din baza de date
+    const dbUser = await User.findByPk(userId);
+    const googleEmail = dbUser ? dbUser.email : "unknown";
+    console.log("[GCal callback] User found:", !!dbUser, "email:", googleEmail);
 
     // Verifică dacă există deja o conexiune
-    let connection = await GoogleCalendarConnection.findOne({
-      where: { userId },
-    });
+    let connection = await GoogleCalendarConnection.findOne({ where: { userId } });
 
     if (connection) {
-      // Actualizează conexiunea existentă
       connection.accessToken = tokens.access_token;
-      connection.refreshToken = tokens.refresh_token || connection.refreshToken;
+      if (tokens.refresh_token) connection.refreshToken = tokens.refresh_token;
       connection.tokenExpiry = tokens.expiry_date ? new Date(tokens.expiry_date) : null;
-      connection.googleEmail = userInfo.data.email;
+      connection.googleEmail = googleEmail;
       connection.isActive = true;
       await connection.save();
+      console.log("[GCal callback] Updated existing connection");
     } else {
-      // Creează conexiune nouă
+      // Dacă nu avem refresh_token (Google nu îl trimite din nou), afișăm eroare clară
+      if (!tokens.refresh_token) {
+        throw new Error("No refresh_token returned. User may need to revoke access in Google account and retry.");
+      }
       connection = await GoogleCalendarConnection.create({
         userId,
-        googleEmail: userInfo.data.email,
+        googleEmail,
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token,
         tokenExpiry: tokens.expiry_date ? new Date(tokens.expiry_date) : null,
         calendarId: "primary",
         isActive: true,
       });
+      console.log("[GCal callback] Created new connection, id:", connection.id);
     }
 
-    res.redirect(`${process.env.ORIGIN_SITE}/student/dashboard?calendar=connected`);
+    res.redirect(`${process.env.ORIGIN_SITE}/dashboard?calendar=connected`);
   } catch (error) {
-    console.error("Eroare la callback Google Calendar:", error.message);
-    res.redirect(`${process.env.ORIGIN_SITE}/student/dashboard?calendar=error`);
+    console.error("[GCal callback] ERROR:", error.message, error.stack);
+    res.redirect(`${process.env.ORIGIN_SITE}/dashboard?calendar=error`);
   }
 };
 

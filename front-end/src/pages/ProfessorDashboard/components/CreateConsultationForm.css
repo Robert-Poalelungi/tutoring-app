@@ -1,151 +1,156 @@
+/* ============================================================
+   CreateConsultationForm.css — Professor consultation creator
+   ============================================================ */
+
 .create-form {
-  background: white;
-  border-radius: 16px;
-  border: 1px solid #eee;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  border: 1.5px solid rgba(102, 126, 234, 0.25);
+  box-shadow: var(--shadow-md), 0 0 0 4px rgba(102, 126, 234, 0.08);
+  overflow: hidden;
+  animation: scaleInSpring 0.5s var(--ease-spring) both;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.create-form__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--gradient);
+  position: relative;
+  overflow: hidden;
+}
+.create-form__header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
+}
+
+.create-form__header h3 {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  position: relative;
+  z-index: 1;
+}
+
+.create-form__close {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: background 0.2s var(--ease), transform 0.3s var(--ease-spring);
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+.create-form__close:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: rotate(90deg) scale(1.1);
+}
+
+/* ── Body ───────────────────────────────────────────────── */
+.create-form__body {
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.create-form__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.create-form__header h3 {
-  font-size: 17px;
-  font-weight: 700;
-  color: #222;
-}
-
-.create-form__close {
-  background: none;
-  border: none;
-  font-size: 18px;
-  color: #aaa;
-  padding: 4px 8px;
-  border-radius: 6px;
-  transition: all 0.15s;
-  cursor: pointer;
-}
-
-.create-form__close:hover {
-  background: #f5f6fa;
-  color: #333;
-}
-
-.create-form__body {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
 .form-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 600px) {
+  .form-row { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.form-group label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #666;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 9px 12px;
-  font-size: 14px;
-  font-family: Montserrat, sans-serif;
-  width: 100%;
-  box-sizing: border-box;
-  transition: border-color 0.15s;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: #667eea;
-}
-
+/* ── Type toggle ────────────────────────────────────────── */
 .type-toggle {
   display: flex;
-  gap: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
-  border: 1px solid #ddd;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
 }
 
 .type-option {
   flex: 1;
   text-align: center;
-  padding: 9px 0;
+  padding: 10px 0;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.15s;
-  color: #666;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  color: var(--text-muted);
+  user-select: none;
 }
-
-.type-option input {
-  display: none;
-}
-
+.type-option input { display: none; }
 .type-option--active {
-  background: #667eea;
-  color: white;
-  border-color: #667eea;
+  background: var(--gradient);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
+/* ── Actions ────────────────────────────────────────────── */
 .create-form__actions {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 4px;
+  padding-top: 4px;
+  flex-wrap: wrap;
 }
 
 .btn-primary {
-  background: #667eea;
-  color: white;
-  border: none;
-  padding: 10px 24px;
-  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 22px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
+  background: var(--gradient);
+  color: #fff;
+  border: none;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: transform 0.2s var(--ease-spring), box-shadow 0.2s var(--ease);
+  font-family: inherit;
+  box-shadow: 0 3px 12px rgba(102, 126, 234, 0.34);
 }
-
 .btn-primary:hover {
-  background: #5a6fd6;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.44);
 }
+.btn-primary:active { transform: scale(0.97); }
 
 .btn-secondary {
-  background: #f5f6fa;
-  color: #555;
-  border: 1px solid #ddd;
-  padding: 10px 24px;
-  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 22px;
+  border-radius: var(--radius-sm);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
+  background: var(--bg);
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background 0.15s, transform 0.15s var(--ease-spring);
+  font-family: inherit;
 }
-
 .btn-secondary:hover {
-  background: #eee;
+  background: var(--bg-hover);
+  transform: translateY(-1px);
 }
