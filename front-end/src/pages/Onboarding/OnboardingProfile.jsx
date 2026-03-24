@@ -38,22 +38,22 @@ const OnboardingProfile = () => {
         <div className="onboarding-form">
           <div className="form-row">
             <div className="form-group">
-              <label>Prenume</label>
-              <input value={form.firstName} onChange={set("firstName")} placeholder="ex: Alexandru" />
+              <label htmlFor="onb-firstName">Prenume</label>
+              <input id="onb-firstName" type="text" value={form.firstName} onChange={set("firstName")} placeholder="ex: Alexandru" />
             </div>
             <div className="form-group">
-              <label>Nume</label>
-              <input value={form.lastName} onChange={set("lastName")} placeholder="ex: Popescu" />
+              <label htmlFor="onb-lastName">Nume</label>
+              <input id="onb-lastName" type="text" value={form.lastName} onChange={set("lastName")} placeholder="ex: Popescu" />
             </div>
           </div>
           <div className="form-group">
-            <label>Email universitar</label>
-            <input value={user?.email || ""} disabled placeholder="email@stud.ase.ro" />
+            <label htmlFor="onb-email">Email universitar</label>
+            <input id="onb-email" type="email" value={user?.email || ""} disabled placeholder="email@stud.ase.ro" />
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label>An universitar</label>
-              <select value={form.studyYear} onChange={set("studyYear")}>
+              <label htmlFor="onb-studyYear">An universitar</label>
+              <select id="onb-studyYear" value={form.studyYear} onChange={set("studyYear")}>
                 <option value="" disabled>Selectează</option>
                 {[1,2,3,4,5].map((y) => (
                   <option key={y} value={y}>Anul {y}{y > 3 ? ` (Master ${y-3})` : ""}</option>
@@ -61,8 +61,8 @@ const OnboardingProfile = () => {
               </select>
             </div>
             <div className="form-group">
-              <label>Specializare</label>
-              <input value={form.specialization} onChange={set("specialization")} placeholder="ex: Informatică Economică" />
+              <label htmlFor="onb-specialization">Specializare</label>
+              <input id="onb-specialization" type="text" value={form.specialization} onChange={set("specialization")} placeholder="ex: Informatică Economică" />
             </div>
           </div>
         </div>

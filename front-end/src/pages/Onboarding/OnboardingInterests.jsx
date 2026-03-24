@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { completeProfile } from "../../services/userService";
@@ -10,10 +10,6 @@ const OnboardingInterests = () => {
   const [courses, setCourses] = useState([]);
   const [selected, setSelected] = useState([]);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    // Courses endpoint not available yet; grid shows when data is loaded
-  }, []);
 
   const toggle = (id) => setSelected((s) => s.includes(id) ? s.filter((x) => x !== id) : [...s, id]);
 
