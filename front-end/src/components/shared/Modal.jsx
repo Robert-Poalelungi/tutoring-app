@@ -48,11 +48,12 @@ const Modal = ({
 
         {(onConfirm || cancelLabel) && (
           <div className="modal-footer">
-            <button className="modal-btn modal-btn--cancel" onClick={onClose}>
+            <button type="button" className="modal-btn modal-btn--cancel" onClick={onClose}>
               {cancelLabel}
             </button>
             {onConfirm && (
               <button
+                type="button"
                 className="modal-btn modal-btn--confirm"
                 onClick={onConfirm}
                 disabled={confirmDisabled}
