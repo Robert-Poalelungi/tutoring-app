@@ -13,60 +13,38 @@ import AdminPanel from "./pages/AdminPanel/AdminPanel";
 
 const ProtectedRoute = ({ children, roles }) => {
   const { user, loading } = useAuth();
-
   if (loading) return null;
   if (!user) return <Navigate to="/login" />;
   if (!user.isProfileCompleted) return <Navigate to="/onboarding" />;
   if (roles && !roles.includes(user.role)) return <Navigate to="/" />;
+  return children;
+};
 
+const OnboardingRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" />;
+  if (user.isProfileCompleted) return <Navigate to="/" />;
   return children;
 };
 
 const App = () => {
   const { loading } = useAuth();
-
   if (loading) return null;
 
   return (
     <Routes>
       <Route path="/" element={<CalendarPage />} />
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/onboarding" element={<OnboardingFaculty />} />
-      <Route path="/onboarding/profile" element={<OnboardingProfile />} />
-      <Route path="/onboarding/interests" element={<OnboardingInterests />} />
 
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute roles={["student"]}>
-            <StudentDashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/professor"
-        element={
-          <ProtectedRoute roles={["professor"]}>
-            <ProfessorDashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin"
-        element={
-          <ProtectedRoute roles={["admin"]}>
-            <AdminPanel />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <ProfilePage />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/onboarding" element={<OnboardingRoute><OnboardingFaculty /></OnboardingRoute>} />
+      <Route path="/onboarding/profile" element={<OnboardingRoute><OnboardingProfile /></OnboardingRoute>} />
+      <Route path="/onboarding/interests" element={<OnboardingRoute><OnboardingInterests /></OnboardingRoute>} />
+
+      <Route path="/dashboard" element={<ProtectedRoute roles={["student"]}><StudentDashboard /></ProtectedRoute>} />
+      <Route path="/professor" element={<ProtectedRoute roles={["professor"]}><ProfessorDashboard /></ProtectedRoute>} />
+      <Route path="/admin" element={<ProtectedRoute roles={["admin"]}><AdminPanel /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
