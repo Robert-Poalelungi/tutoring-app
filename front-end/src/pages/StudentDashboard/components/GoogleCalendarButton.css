@@ -1,48 +1,23 @@
-.gcal-btn-group {
+.gcal-card {
+  background: rgba(242, 240, 240, 0.06);
+  border: 1px solid rgba(242, 240, 240, 0.1);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
   display: flex;
-  gap: 8px;
   align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   flex-wrap: wrap;
 }
 
-.gcal-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.gcal-btn--connect {
-  background: #667eea;
-  color: white;
-}
-
-.gcal-btn--connect:hover {
-  background: #5a6fd6;
-}
-
-.gcal-btn--sync {
-  background: #f0f2ff;
-  color: #667eea;
-  border: 1px solid #667eea;
-}
-
-.gcal-btn--sync:hover {
-  background: #e6e9ff;
-}
-
-.gcal-btn--disconnect {
-  background: #fff0f0;
-  color: #c0392b;
-  border: 1px solid #f5c6cb;
-}
-
-.gcal-btn--disconnect:hover {
-  background: #ffe0e0;
-}
+.gcal-card__info { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.gcal-card__label { font-size: 0.9rem; font-weight: 600; color: rgba(242, 240, 240, 0.8); }
+.gcal-badge { padding: 0.2rem 0.65rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; }
+.gcal-badge--connected { background: rgba(56,161,105,0.2); color: #38a169; }
+.gcal-badge--disconnected { background: rgba(242, 240, 240, 0.1); color: rgba(242, 240, 240, 0.5); }
+.gcal-card__email { font-size: 0.78rem; color: rgba(242, 240, 240, 0.5); }
+.gcal-btn { padding: 0.45rem 1.1rem; border-radius: 999px; font-size: 0.82rem; font-weight: 700; cursor: pointer; border: none; transition: background 0.2s; }
+.gcal-btn--connect { background: var(--color-accent); color: var(--color-text); }
+.gcal-btn--connect:hover { background: var(--color-accent-hover); }
+.gcal-btn--disconnect { background: rgba(229,62,62,0.15); color: #e53e3e; border: 1px solid rgba(229,62,62,0.25); }
+.gcal-btn--disconnect:hover { background: rgba(229,62,62,0.25); }

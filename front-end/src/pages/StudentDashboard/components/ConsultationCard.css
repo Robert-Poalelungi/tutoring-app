@@ -1,153 +1,48 @@
-/* ============================================================
-   ConsultationCard.css — Premium animated card
-   ============================================================ */
-
-.consult-dash-card {
+.consult-card {
+  background: rgba(242, 240, 240, 0.08);
+  border: 1px solid rgba(242, 240, 240, 0.12);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 18px 18px 14px;
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  border: 1.5px solid var(--border);
-  border-left: 4px solid var(--card-color, var(--primary));
-  text-align: left;
-  width: 100%;
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  position: relative;
+  gap: 0.35rem;
+}
+
+.consult-card:hover { background: rgba(242, 240, 240, 0.14); transform: translateY(-2px); }
+.consult-card--past { opacity: 0.55; }
+
+.consult-card__course {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-inverse);
+  white-space: nowrap;
   overflow: hidden;
-  animation: fadeInUp 0.4s var(--ease) both;
-  font-family: inherit;
-  transition:
-    transform 0.28s var(--ease-spring),
-    box-shadow 0.28s var(--ease),
-    border-color 0.28s var(--ease);
+  text-overflow: ellipsis;
 }
 
-/* shimmer sweep on hover */
-.consult-dash-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(
-    120deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.18) 50%,
-    transparent 100%
-  );
-  transition: left 0.55s var(--ease);
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* ambient gradient overlay */
-.consult-dash-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0) 0%,
-    rgba(102, 126, 234, 0.05) 100%
-  );
-  opacity: 0;
-  transition: opacity 0.25s var(--ease);
-  pointer-events: none;
-}
-
-.consult-dash-card:hover {
-  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(102, 126, 234, 0.15);
-  transform: translateY(-5px) scale(1.012);
-  border-color: var(--card-color, var(--primary));
-}
-.consult-dash-card:hover::before { left: 140%; }
-.consult-dash-card:hover::after  { opacity: 1; }
-
-.consult-dash-card:active {
-  transform: translateY(-2px) scale(1.005);
-  transition-duration: 0.1s;
-}
-
-/* ── Modifier states ─────────────────────────────────────── */
-.consult-dash-card--cancelled {
-  opacity: 0.62;
-  border-left-color: var(--danger, #ef4444);
-  filter: saturate(0.7);
-}
-.consult-dash-card--completed {
-  border-left-color: var(--success, #10b981);
-}
-
-/* ── Top row (badges) ────────────────────────────────────── */
-.consult-dash-card__top {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  position: relative;
-  z-index: 2;
-}
-
-/* ── Course name ─────────────────────────────────────────── */
-.consult-dash-card__course {
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--text-primary);
-  line-height: 1.3;
-  letter-spacing: -0.15px;
-  position: relative;
-  z-index: 2;
-}
-
-/* ── Professor ───────────────────────────────────────────── */
-.consult-dash-card__professor {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-weight: 500;
-  position: relative;
-  z-index: 2;
-}
-
-/* ── Footer ──────────────────────────────────────────────── */
-.consult-dash-card__footer {
+.consult-card__professor,
+.consult-card__date {
+  font-size: 0.78rem;
+  color: rgba(242, 240, 240, 0.6);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  margin-top: auto;
-  padding-top: 11px;
-  border-top: 1px solid var(--border);
-  position: relative;
-  z-index: 2;
+  gap: 0.35rem;
 }
 
-.consult-dash-card__date {
-  font-size: 11px;
+.consult-card__actions { margin-top: 0.4rem; }
+
+.consult-card__btn {
+  padding: 0.28rem 0.8rem;
+  background: var(--color-accent);
+  border: none;
+  border-radius: 999px;
+  font-size: 0.72rem;
   font-weight: 700;
-  color: var(--text-muted);
-  letter-spacing: 0.03em;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-.consult-dash-card__time {
-  font-size: 14px;
-  font-weight: 900;
-  color: var(--card-color, var(--primary));
-  letter-spacing: -0.2px;
-  transition: letter-spacing 0.2s var(--ease);
-}
-.consult-dash-card:hover .consult-dash-card__time {
-  letter-spacing: 0px;
-}
-
-/* ── Staggered entrance for grid children ────────────────── */
-.consultations-grid .consult-dash-card:nth-child(1)  { animation-delay: 0.05s; }
-.consultations-grid .consult-dash-card:nth-child(2)  { animation-delay: 0.10s; }
-.consultations-grid .consult-dash-card:nth-child(3)  { animation-delay: 0.15s; }
-.consultations-grid .consult-dash-card:nth-child(4)  { animation-delay: 0.20s; }
-.consultations-grid .consult-dash-card:nth-child(5)  { animation-delay: 0.25s; }
-.consultations-grid .consult-dash-card:nth-child(6)  { animation-delay: 0.30s; }
-.consultations-grid .consult-dash-card:nth-child(n+7) { animation-delay: 0.35s; }
+.consult-card__btn:hover { background: var(--color-accent-hover); }

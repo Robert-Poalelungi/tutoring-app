@@ -1,30 +1,52 @@
+import { useState } from "react";
+import { disconnectCalendar } from "../../../services/calendarService";
 import "./GoogleCalendarButton.css";
 
-const GoogleCalendarButton = ({ connected, onSync, onDisconnect }) => {
-  if (!connected) {
-    return (
-      <div className="gcal-btn-group">
-        <button
-          className="gcal-btn gcal-btn--connect"
-          onClick={() => {
-            window.location.href = "/api/auth/google/calendar";
-          }}
-        >
-          <span>📅</span>
-          Conectează Google Calendar
-        </button>
-      </div>
-    );
-  }
+const GoogleCalendarButton = ({ status, onStatusChange }) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleConnect = () => {
+    window.location.href = "/api/google-calendar/connect";
+  };
+
+  const handleDisconnect = async () => {
+    setLoading(true);
+    try {
+      await disconnectCalendar();
+      onStatusChange({ connected: false });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="gcal-btn-group">
-      <button className="gcal-btn gcal-btn--sync" onClick={onSync}>
-        Sincronizează
-      </button>
-      <button className="gcal-btn gcal-btn--disconnect" onClick={onDisconnect}>
-        Deconectează
-      </button>
+    <div className="gcal-card">
+      <div className="gcal-card__info">
+        <span className="gcal-card__label">
+          <i className="fa-brands fa-google" /> Google Calendar
+        </span>
+        {status.connected ? (
+          <span className="gcal-badge gcal-badge--connected">Sincronizat ✓</span>
+        ) : (
+          <span className="gcal-badge gcal-badge--disconnected">Neconectat</span>
+        )}
+        {status.connected && (status.email || status.googleEmail) && (
+          <span className="gcal-card__email">{status.email || status.googleEmail}</span>
+        )}
+      </div>
+      <div className="gcal-card__actions">
+        {!status.connected ? (
+          <button type="button" className="gcal-btn gcal-btn--connect" onClick={handleConnect} disabled={loading}>
+            Conectează Calendar
+          </button>
+        ) : (
+          <button type="button" className="gcal-btn gcal-btn--disconnect" onClick={handleDisconnect} disabled={loading}>
+            Deconectează
+          </button>
+        )}
+      </div>
     </div>
   );
 };

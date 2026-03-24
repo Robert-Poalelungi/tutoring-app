@@ -1,213 +1,65 @@
-/* ============================================================
-   StudentDashboard.css — Premium animated layout
-   ============================================================ */
+.student-dashboard { display: flex; flex-direction: column; gap: 1.5rem; }
 
-.student-dashboard {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 28px 16px 72px;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  animation: fadeInUp 0.5s var(--ease) both;
-}
-@media (min-width: 768px) {
-  .student-dashboard { padding: 40px 28px 80px; }
-}
-
-/* ── Hero ───────────────────────────────────────────────── */
 .student-dashboard__hero {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 18px;
-  flex-wrap: wrap;
-  animation: fadeInUp 0.5s var(--ease) 0.05s both;
+  background: rgba(242, 240, 240, 0.06);
+  border: 1px solid rgba(242, 240, 240, 0.1);
+  border-radius: 14px;
+  padding: 1.5rem 1.75rem;
 }
 
 .student-dashboard__greeting {
-  font-size: 30px;
-  font-weight: 900;
-  letter-spacing: -0.6px;
-  line-height: 1.15;
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  position: relative;
-}
-.student-dashboard__greeting::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -4px;
-  width: 48px;
-  height: 3px;
-  background: var(--gradient);
-  border-radius: 2px;
-  animation: scaleIn 0.4s var(--ease-spring) 0.4s both;
-  transform-origin: left center;
-}
-@media (min-width: 600px) {
-  .student-dashboard__greeting { font-size: 36px; }
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--color-text-inverse);
 }
 
 .student-dashboard__subtext {
-  font-size: 14px;
-  color: var(--text-muted);
-  margin-top: 10px;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  animation: fadeIn 0.5s var(--ease) 0.2s both;
+  font-size: 0.9rem;
+  color: rgba(242, 240, 240, 0.6);
+  margin-top: 0.25rem;
 }
 
-/* ── Google Calendar card ───────────────────────────────── */
-.gcal-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px 22px;
-  flex-wrap: wrap;
-  border: 1.5px solid rgba(102, 126, 234, 0.15);
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-  border-radius: var(--radius-lg);
-  transition: box-shadow 0.3s var(--ease), border-color 0.3s var(--ease), transform 0.3s var(--ease);
-  animation: fadeInUp 0.45s var(--ease) both;
-  position: relative;
-  overflow: hidden;
-}
-.gcal-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(102, 126, 234, 0.06) 50%, transparent 100%);
-  background-size: 200% 100%;
-  opacity: 0;
-  transition: opacity 0.3s var(--ease);
-}
-.gcal-card:hover {
-  box-shadow: var(--shadow-md), 0 0 0 1px rgba(102, 126, 234, 0.2);
-  border-color: rgba(102, 126, 234, 0.3);
-  transform: translateY(-2px);
-}
-.gcal-card:hover::before { opacity: 1; }
-
-.gcal-card__info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.gcal-card__label {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--text-secondary);
-  letter-spacing: 0.01em;
-}
-.gcal-card__email {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-weight: 500;
-}
-.gcal-card__actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-/* ── Section ────────────────────────────────────────────── */
-.student-dashboard__section {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  animation: fadeInUp 0.45s var(--ease) both;
-}
-.student-dashboard__section:nth-child(3) { animation-delay: 0.1s; }
-.student-dashboard__section:nth-child(4) { animation-delay: 0.18s; }
-.student-dashboard__section:nth-child(5) { animation-delay: 0.26s; }
+.dashboard-section { display: flex; flex-direction: column; gap: 0.75rem; }
 
 .section-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-
-.student-dashboard__past-toggle {
-  margin-top: 4px;
-}
-.student-dashboard__past-toggle summary {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-muted);
-  cursor: pointer;
-  user-select: none;
-  padding: 6px 0;
-  list-style: none;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.student-dashboard__past-toggle summary::before {
-  content: "▸";
-  font-size: 11px;
-  transition: transform 0.2s;
-}
-.student-dashboard__past-toggle[open] summary::before {
-  transform: rotate(90deg);
+  gap: 0.6rem;
 }
 
 .section-title {
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--text-secondary);
-  position: relative;
-  padding-left: 16px;
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
-  font-size: 11px;
-  letter-spacing: 0.1em;
-}
-.section-title::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 18px;
-  background: var(--gradient);
-  border-radius: 3px;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
-  animation: glow 2.5s ease-in-out infinite;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text-inverse);
 }
 
 .section-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 26px;
-  height: 26px;
-  padding: 0 8px;
-  border-radius: 13px;
-  background: var(--gradient);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 900;
-  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.38);
-  animation: scaleIn 0.35s var(--ease-spring) 0.25s both;
-  letter-spacing: 0;
+  background: var(--color-accent);
+  color: var(--color-text);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
 }
 
-/* ── Consultations grid ─────────────────────────────────── */
-.consultations-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 14px;
+.section-action {
+  margin-left: auto;
+  padding: 0.4rem 1rem;
+  background: rgba(242, 240, 240, 0.08);
+  border: 1px solid rgba(242, 240, 240, 0.18);
+  border-radius: 999px;
+  color: rgba(242, 240, 240, 0.75);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
 }
-@media (min-width: 560px) {
-  .consultations-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (min-width: 900px) {
-  .consultations-grid { grid-template-columns: repeat(3, 1fr); }
+
+.section-action:hover { background: rgba(242, 240, 240, 0.15); color: var(--color-text-inverse); }
+
+.past-toggle {
+  color: rgba(242, 240, 240, 0.5);
+  font-size: 0.82rem;
+  cursor: pointer;
+  margin-top: 0.25rem;
 }
