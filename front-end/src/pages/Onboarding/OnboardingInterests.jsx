@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { completeProfile } from "../../services/userService";
@@ -7,84 +7,81 @@ import "./Onboarding.css";
 const OnboardingInterests = () => {
   const navigate = useNavigate();
   const { fetchUser } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [courses, setCourses] = useState([]);
+  const [selected, setSelected] = useState([]);
+  const [saving, setSaving] = useState(false);
 
-  const handleFinish = async () => {
-    const profileRaw = sessionStorage.getItem("onboarding_profile");
-    if (!profileRaw) { navigate("/onboarding"); return; }
+  useEffect(() => {
+    // Courses endpoint not available yet; grid shows when data is loaded
+  }, []);
 
-    let profile;
-    try { profile = JSON.parse(profileRaw); }
-    catch { navigate("/onboarding"); return; }
+  const toggle = (id) => setSelected((s) => s.includes(id) ? s.filter((x) => x !== id) : [...s, id]);
 
-    setLoading(true);
-    setError(null);
-
+  const handleFinish = async (skip = false) => {
+    setSaving(true);
     try {
+      const profile = JSON.parse(sessionStorage.getItem("onb_profile") || "{}");
+      const faculty = JSON.parse(sessionStorage.getItem("onb_faculty") || "{}");
       await completeProfile({
-        name: `${profile.lastName} ${profile.firstName}`,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
         studyYear: Number(profile.studyYear),
-        serie: profile.serie || null,
-        facultyId: Number(profile.facultyId),
-        specializationId: Number(profile.specializationId),
+        specialization: profile.specialization,
+        facultyId: faculty.id,
+        interests: skip ? [] : selected,
       });
-      sessionStorage.removeItem("onboarding_facultyId");
-      sessionStorage.removeItem("onboarding_profile");
+      sessionStorage.removeItem("onb_faculty");
+      sessionStorage.removeItem("onb_profile");
       await fetchUser();
-      navigate("/dashboard");
+      navigate("/");
     } catch (err) {
       console.error(err);
-      setError("A apărut o eroare la salvarea profilului. Încearcă din nou.");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
   return (
     <div className="onboarding-page">
-      <div className="onboarding-card" style={{ textAlign: "center" }}>
-        <div className="progress-dots" style={{ justifyContent: "center" }}>
-          <div className="progress-dot progress-dot--done" />
-          <div className="progress-dot progress-dot--done" />
-          <div className="progress-dot progress-dot--active" />
+      <div className="onboarding-box">
+        <div className="onboarding-progress">
+          <div className="progress-step done"><div className="progress-circle">✓</div><span className="progress-label">Facultate</span></div>
+          <div className="progress-line done" />
+          <div className="progress-step done"><div className="progress-circle">✓</div><span className="progress-label">Date personale</span></div>
+          <div className="progress-line done" />
+          <div className="progress-step active"><div className="progress-circle">3</div><span className="progress-label">Discipline</span></div>
         </div>
 
-        <p className="onboarding-card__step">Pasul 3 din 3</p>
+        <h2 className="onboarding-step-title">Adaugă discipline suplimentare</h2>
+        <p className="onboarding-step-subtitle">Opțional — discipline la care dorești consultații (restanțe, reexaminări)</p>
 
-        <div style={{ fontSize: "52px", margin: "12px 0 20px", display: "block" }}>🎓</div>
+        {courses.length > 0 && (
+          <div className="disciplines-grid">
+            {courses.map((c) => (
+              <button
+                type="button"
+                key={c.id}
+                className={`discipline-card ${selected.includes(c.id) ? "selected" : ""}`}
+                onClick={() => toggle(c.id)}
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
+        )}
 
-        <h1 className="onboarding-card__title">Totul este gata!</h1>
-        <p className="onboarding-card__subtitle">
-          Profilul tău a fost configurat. Vei vedea automat consultațiile
-          relevante pentru specializarea și anul tău de studiu.
-        </p>
-
-        <div style={{ background: "var(--primary-muted)", borderRadius: "var(--radius-md)", padding: "16px", marginBottom: "8px" }}>
-          <p style={{ fontSize: "13px", color: "var(--primary)", fontWeight: 600, lineHeight: 1.6 }}>
-            ✓ Consultațiile tale vor apărea în Dashboard<br />
-            ✓ Primești notificări cu 24h și 1h înainte<br />
-            ✓ Poți conecta Google Calendar oricând din Profil
-          </p>
-        </div>
-
-        {error && <p className="onboarding-error">{error}</p>}
-
-        <div className="onboarding-card__actions" style={{ justifyContent: "center" }}>
-          <button
-            className="onboarding-btn onboarding-btn--secondary"
-            onClick={() => navigate("/onboarding/profile")}
-            disabled={loading}
-          >
-            ← Înapoi
+        <div className="onboarding-actions onboarding-actions--split">
+          <button type="button" className="btn-back" onClick={() => navigate("/onboarding/profile")}>
+            <i className="fa-solid fa-arrow-left" /> Înapoi
           </button>
-          <button
-            className="onboarding-btn onboarding-btn--primary"
-            onClick={handleFinish}
-            disabled={loading}
-          >
-            {loading ? "Se salvează..." : "Intră în aplicație →"}
-          </button>
+          <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+            <button type="button" className="btn-skip" onClick={() => handleFinish(true)} disabled={saving}>
+              Skip
+            </button>
+            <button type="button" className="btn-confirm" onClick={() => handleFinish(false)} disabled={saving}>
+              {saving ? "Se salvează..." : "Finalizează"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

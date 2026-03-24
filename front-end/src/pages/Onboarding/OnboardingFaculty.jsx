@@ -1,75 +1,55 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../services/axiosInstance";
+import { getPublicFaculties } from "../../services/userService";
 import "./Onboarding.css";
 import "./OnboardingFaculty.css";
 
 const OnboardingFaculty = () => {
   const navigate = useNavigate();
   const [faculties, setFaculties] = useState([]);
-  const [selectedId, setSelectedId] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState(null);
 
   useEffect(() => {
-    api.get("/faculties")
-      .then((res) => setFaculties(res.data))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-
-    // Pre-select from sessionStorage if navigating back
-    const saved = sessionStorage.getItem("onboarding_facultyId");
-    if (saved) setSelectedId(Number(saved));
+    getPublicFaculties().then((r) => setFaculties(r.data)).catch(console.error);
   }, []);
 
-  const handleContinue = () => {
-    if (!selectedId) return;
-    sessionStorage.setItem("onboarding_facultyId", String(selectedId));
+  const handleNext = () => {
+    sessionStorage.setItem("onb_faculty", JSON.stringify(selected));
     navigate("/onboarding/profile");
   };
 
   return (
     <div className="onboarding-page">
-      <div className="onboarding-card">
-        <div className="progress-dots">
-          <div className="progress-dot progress-dot--active" />
-          <div className="progress-dot" />
-          <div className="progress-dot" />
+      <div className="onboarding-box">
+        {/* Progress */}
+        <div className="onboarding-progress">
+          <div className="progress-step active"><div className="progress-circle">1</div><span className="progress-label">Facultate</span></div>
+          <div className="progress-line" />
+          <div className="progress-step"><div className="progress-circle">2</div><span className="progress-label">Date personale</span></div>
+          <div className="progress-line" />
+          <div className="progress-step"><div className="progress-circle">3</div><span className="progress-label">Discipline</span></div>
         </div>
 
-        <p className="onboarding-card__step">Pasul 1 din 3</p>
-        <h1 className="onboarding-card__title">Selectează facultatea</h1>
-        <p className="onboarding-card__subtitle">
-          Alege facultatea la care ești înscris pentru a vedea consultațiile relevante.
-        </p>
+        <h2 className="onboarding-step-title">Alege facultatea ta</h2>
+        <p className="onboarding-step-subtitle">Selectează facultatea la care ești înscris</p>
 
-        {loading ? (
-          <div style={{ textAlign: "center", padding: "32px", color: "var(--text-muted)" }}>
-            Se încarcă facultățile...
-          </div>
-        ) : (
-          <div className="faculty-onboarding-grid">
-            {faculties.map((f) => (
-              <button
-                key={f.id}
-                className={`faculty-onboarding-card ${selectedId === f.id ? "faculty-onboarding-card--selected" : ""}`}
-                onClick={() => setSelectedId(f.id)}
-                type="button"
-              >
-                <span className="faculty-onboarding-card__abbr">{f.abbreviation}</span>
-                <span className="faculty-onboarding-card__name">{f.name}</span>
-              </button>
-            ))}
-          </div>
-        )}
+        <div className="faculty-grid">
+          {faculties.map((f) => (
+            <button
+              type="button"
+              key={f.id}
+              className={`faculty-card ${selected?.id === f.id ? "selected" : ""}`}
+              onClick={() => setSelected(f)}
+            >
+              <div className="faculty-card__abbr">{f.abbreviation || f.name.slice(0, 3)}</div>
+              <div className="faculty-card__name">{f.name}</div>
+            </button>
+          ))}
+        </div>
 
-        <div className="onboarding-card__actions">
-          <span />
-          <button
-            className="onboarding-btn onboarding-btn--primary"
-            onClick={handleContinue}
-            disabled={!selectedId}
-          >
-            Continuă →
+        <div className="onboarding-actions">
+          <button type="button" className="btn-confirm" disabled={!selected} onClick={handleNext}>
+            Continuă
           </button>
         </div>
       </div>
