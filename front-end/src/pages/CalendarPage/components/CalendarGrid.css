@@ -52,7 +52,7 @@
   transition: background 0.2s;
 }
 
-.cal-nav-btn:hover { background: #e0e0e0; }
+.cal-nav-btn:hover { background: var(--color-surface-soft); }
 
 .calendar-weekdays {
   display: grid;

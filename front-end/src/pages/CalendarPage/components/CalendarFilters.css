@@ -50,7 +50,7 @@
   cursor: pointer;
 }
 
-.cal-filter-select option { background: #1d174b; }
+.cal-filter-select option { background: var(--color-bg); }
 
 .cal-filter-reset {
   margin-left: auto;

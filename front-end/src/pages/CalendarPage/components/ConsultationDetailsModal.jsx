@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { formatDate, formatTime } from "../../../utils/formatDate";
 import { enrollConsultation, unenrollConsultation } from "../../../services/consultationService";
+import "../../../components/shared/Modal.css";
 import "./ConsultationDetailsModal.css";
 
 const ConsultationDetailsModal = ({ consultation: c, onClose, user, onRefresh }) => {
@@ -132,7 +133,7 @@ const ConsultationDetailsModal = ({ consultation: c, onClose, user, onRefresh })
               </button>
             )
           )}
-          <button type="button" className="modal-btn modal-btn--confirm" onClick={onClose}>Închide</button>
+          <button type="button" className="modal-btn modal-btn--cancel" onClick={onClose}>Închide</button>
         </div>
       </div>
     </div>,
