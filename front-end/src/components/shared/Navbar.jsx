@@ -10,26 +10,20 @@ const roleDashboard = {
   admin: "/admin",
 };
 
-const roleLabel = {
-  student: "Student",
-  professor: "Profesor",
-  admin: "Admin",
-};
-
 const Navbar = () => {
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [popupOpen, setPopupOpen] = useState(false);
+
+  useEffect(() => { setPopupOpen(false); }, [location.pathname]);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => { setMenuOpen(false); }, [location.pathname]);
+    if (!popupOpen) return;
+    const close = (e) => { if (!e.target.closest(".navbar__user-wrap")) setPopupOpen(false); };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [popupOpen]);
 
   const handleLogout = async () => {
     try { await logout(); } catch (_) {}
@@ -37,93 +31,67 @@ const Navbar = () => {
     navigate("/");
   };
 
-  const firstName = user?.name?.split(" ")[0] || "";
   const initials = user?.name
     ? user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
-    : "?";
+    : null;
+
+  const dashboardPath = user ? (roleDashboard[user.role] || "/") : null;
 
   return (
-    <>
-      <nav className={`navbar ${scrolled ? "navbar--scrolled" : ""}`}>
-        <Link to="/" className="navbar__logo">
-          <div className="navbar__logo-icon">🎓</div>
-          <span className="navbar__logo-text">Tutoring<span>App</span></span>
-        </Link>
+    <header className="navbar">
+      <nav className="navbar__inner">
+        <Link to="/" className="navbar__logo">Tutoring App</Link>
 
-        {user ? (
-          <>
-            <div className="navbar__desktop">
-              <Link
-                to={roleDashboard[user.role] || "/"}
-                className={`navbar__link ${location.pathname === roleDashboard[user.role] ? "navbar__link--active" : ""}`}
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/"
-                className={`navbar__link ${location.pathname === "/" ? "navbar__link--active" : ""}`}
-              >
-                Calendar
-              </Link>
-              <Link
-                to="/profile"
-                className={`navbar__link ${location.pathname === "/profile" ? "navbar__link--active" : ""}`}
-              >
-                Profil
-              </Link>
-              <div className="navbar__separator" />
-              <span className={`badge badge--${user.role}`}>{roleLabel[user.role]}</span>
-              <button className="navbar__avatar" onClick={() => setMenuOpen((v) => !v)}>
-                {initials}
-              </button>
-            </div>
-
-            <button
-              className="navbar__hamburger"
-              onClick={() => setMenuOpen((v) => !v)}
-              aria-label="Meniu"
-            >
-              <div className="navbar__avatar navbar__avatar--sm">{initials}</div>
-              <span className="navbar__chevron">{menuOpen ? "✕" : "☰"}</span>
-            </button>
-          </>
-        ) : (
-          <Link to="/login" className="btn btn--primary btn--sm">
-            Autentificare
+        <div className="navbar__links">
+          <Link
+            to="/"
+            className={`navbar__link ${location.pathname === "/" ? "navbar__link--active" : ""}`}
+          >
+            <i className="fa-regular fa-calendar" />
+            <span>Calendar</span>
           </Link>
-        )}
-      </nav>
 
-      {menuOpen && user && (
-        <>
-          <div className="navbar__backdrop" onClick={() => setMenuOpen(false)} />
-          <div className="navbar__dropdown">
-            <div className="navbar__dropdown-user">
-              <div className="navbar__dropdown-avatar">{initials}</div>
-              <div>
-                <p className="navbar__dropdown-name">{user.name}</p>
-                <p className="navbar__dropdown-email">{user.email}</p>
-              </div>
-              <span className={`badge badge--${user.role}`}>{roleLabel[user.role]}</span>
+          {user && dashboardPath && (
+            <Link
+              to={dashboardPath}
+              className={`navbar__link ${location.pathname === dashboardPath ? "navbar__link--active" : ""}`}
+            >
+              <i className="fa-solid fa-table-columns" />
+              <span>Dashboard</span>
+            </Link>
+          )}
+        </div>
+
+        <div className="navbar__user-wrap">
+          <button
+            className={`navbar__avatar ${popupOpen ? "navbar__avatar--active" : ""}`}
+            onClick={() => setPopupOpen((o) => !o)}
+            aria-label="Meniu utilizator"
+          >
+            <span className="navbar__initials">{initials || "?"}</span>
+          </button>
+
+          {popupOpen && (
+            <div className="navbar__popup">
+              {user ? (
+                <>
+                  <Link to="/profile" className="navbar__popup-btn">
+                    <i className="fa-solid fa-user" /> Profil
+                  </Link>
+                  <button className="navbar__popup-btn navbar__popup-btn--danger" onClick={handleLogout}>
+                    <i className="fa-solid fa-right-from-bracket" /> Deconectare
+                  </button>
+                </>
+              ) : (
+                <Link to="/login" className="navbar__popup-btn">
+                  <i className="fa-solid fa-right-to-bracket" /> Conectare
+                </Link>
+              )}
             </div>
-            <div className="navbar__dropdown-links">
-              <Link to="/" className="navbar__dropdown-link" onClick={() => setMenuOpen(false)}>
-                <span>📅</span> Calendar
-              </Link>
-              <Link to={roleDashboard[user.role] || "/"} className="navbar__dropdown-link" onClick={() => setMenuOpen(false)}>
-                <span>🏠</span> Dashboard
-              </Link>
-              <Link to="/profile" className="navbar__dropdown-link" onClick={() => setMenuOpen(false)}>
-                <span>👤</span> Profil
-              </Link>
-            </div>
-            <button className="navbar__dropdown-logout" onClick={handleLogout}>
-              Ieșire din cont
-            </button>
-          </div>
-        </>
-      )}
-    </>
+          )}
+        </div>
+      </nav>
+    </header>
   );
 };
 

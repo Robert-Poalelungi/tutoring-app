@@ -1,17 +1,14 @@
 import Navbar from "./Navbar";
 import "./DashboardLayout.css";
 
-const DashboardLayout = ({ children }) => {
-  return (
-    <div className="dashboard-layout">
-      <Navbar />
-      <main className="dashboard-main">
-        <div className="dashboard-content page-enter">
-          {children}
-        </div>
-      </main>
-    </div>
-  );
-};
+const DashboardLayout = ({ children }) => (
+  <div className="dashboard-layout">
+    <Navbar />
+    <main className="dashboard-layout__main">{children}</main>
+    <footer className="dashboard-layout__footer">
+      <p>Tutoring App</p>
+    </footer>
+  </div>
+);
 
 export default DashboardLayout;
