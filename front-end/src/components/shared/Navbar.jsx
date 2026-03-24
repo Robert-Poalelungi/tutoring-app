@@ -73,20 +73,12 @@ const Navbar = () => {
 
           {popupOpen && (
             <div className="navbar__popup">
-              {user ? (
-                <>
-                  <Link to="/profile" className="navbar__popup-btn">
-                    <i className="fa-solid fa-user" /> Profil
-                  </Link>
-                  <button className="navbar__popup-btn navbar__popup-btn--danger" onClick={handleLogout}>
-                    <i className="fa-solid fa-right-from-bracket" /> Deconectare
-                  </button>
-                </>
-              ) : (
-                <Link to="/login" className="navbar__popup-btn">
-                  <i className="fa-solid fa-right-to-bracket" /> Conectare
-                </Link>
-              )}
+              <Link to="/profile" className="navbar__popup-btn">
+                <i className="fa-solid fa-user" /> Profil
+              </Link>
+              <button className="navbar__popup-btn navbar__popup-btn--danger" onClick={handleLogout}>
+                <i className="fa-solid fa-right-from-bracket" /> Deconectare
+              </button>
             </div>
           )}
         </div>
