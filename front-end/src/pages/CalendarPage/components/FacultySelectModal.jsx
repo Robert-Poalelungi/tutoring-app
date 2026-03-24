@@ -1,37 +1,45 @@
-import { useRef } from "react";
+import { useState, useEffect } from "react";
+import Modal from "../../../components/shared/Modal";
+import { getPublicFaculties } from "../../../services/userService";
+import "../../Onboarding/Onboarding.css";
 import "./FacultySelectModal.css";
 
-const FacultySelectModal = ({ faculties, selectedId, onSelect, onClose }) => {
-  const overlayRef = useRef(null);
+const FacultySelectModal = ({ isOpen, onClose, onSelect, currentFacultyId }) => {
+  const [faculties, setFaculties] = useState([]);
+  const [selected, setSelected] = useState(null);
 
-  const handleOverlayClick = (e) => {
-    if (e.target === overlayRef.current) onClose();
-  };
+  useEffect(() => {
+    if (isOpen) getPublicFaculties().then((r) => setFaculties(r.data || [])).catch(() => {});
+  }, [isOpen]);
 
   return (
-    <div className="modal-overlay" ref={overlayRef} onClick={handleOverlayClick}>
-      <div className="faculty-modal">
-        <div className="faculty-modal__header">
-          <h3>Selectează facultatea</h3>
-          <button className="modal-close" onClick={onClose}>✕</button>
-        </div>
-        <div className="faculty-modal__grid">
-          {faculties.map((f) => (
-            <button
-              key={f.id}
-              className={`faculty-card ${selectedId === f.id ? "faculty-card--selected" : ""}`}
-              onClick={() => onSelect(f.id)}
-            >
-              <span className="faculty-card__abbr">{f.abbreviation}</span>
-              <span className="faculty-card__name">{f.name}</span>
-            </button>
-          ))}
-        </div>
-        <button className="faculty-modal__clear" onClick={() => onSelect(null)}>
-          Afișează toate facultățile
-        </button>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Selectează facultatea"
+      onConfirm={() => { if (selected) { onSelect(selected); onClose(); } }}
+      confirmLabel="Selectează"
+      confirmDisabled={!selected}
+    >
+      <div className="faculty-grid" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
+        {faculties.map((f) => (
+          <button
+            key={f.id}
+            type="button"
+            className={`faculty-card ${selected?.id === f.id ? "selected" : ""} ${f.id === currentFacultyId ? "current" : ""}`}
+            onClick={() => setSelected(f)}
+          >
+            <div className="faculty-card__abbr">{f.abbreviation || f.name.slice(0, 3)}</div>
+            <div className="faculty-card__name">{f.name}</div>
+          </button>
+        ))}
       </div>
-    </div>
+      {selected && (
+        <p style={{ fontSize: "0.78rem", color: "var(--color-text-muted)", marginTop: "0.5rem" }}>
+          Schimbarea facultății va reseta specializarea.
+        </p>
+      )}
+    </Modal>
   );
 };
 

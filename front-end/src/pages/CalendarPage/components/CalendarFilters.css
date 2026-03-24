@@ -1,91 +1,67 @@
 .calendar-filters {
   display: flex;
   align-items: center;
-  gap: 8px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 12px 16px;
-  box-shadow: var(--shadow-sm);
-  animation: fadeInDown 0.4s var(--ease) both;
-  backdrop-filter: blur(8px);
-}
-.calendar-filters::-webkit-scrollbar { display: none; }
-
-@media (min-width: 768px) {
-  .calendar-filters { flex-wrap: wrap; overflow-x: visible; gap: 10px 8px; }
+  gap: 1rem;
+  padding: 0.75rem 0;
+  width: min(1200px, 100%);
+  margin: 0 auto 0.5rem;
+  flex-wrap: wrap;
 }
 
-.calendar-filters__group {
+.cal-filter-group {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
+  gap: 0.5rem;
 }
 
-.calendar-filters__label {
-  font-size: 10px;
-  font-weight: 800;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  white-space: nowrap;
-}
-
-.filter-btn {
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 12px;
+.cal-filter-group label {
+  font-size: 0.78rem;
   font-weight: 600;
-  color: var(--text-secondary);
-  background: var(--bg);
-  border: 1.5px solid var(--border);
-  white-space: nowrap;
-  transition: all 0.2s var(--ease);
-  font-family: inherit;
+  color: rgba(242, 240, 240, 0.6);
+}
+
+.cal-year-buttons {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.cal-year-btn {
+  padding: 0.38rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(242, 240, 240, 0.2);
+  background: rgba(242, 240, 240, 0.07);
+  color: rgba(242, 240, 240, 0.7);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.cal-year-btn:hover { background: rgba(242, 240, 240, 0.14); color: var(--color-text-inverse); }
+.cal-year-btn.active { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-text); }
+
+.cal-filter-select {
+  padding: 0.38rem 0.75rem;
+  background: rgba(242, 240, 240, 0.07);
+  border: 1px solid rgba(242, 240, 240, 0.2);
+  border-radius: 999px;
+  color: rgba(242, 240, 240, 0.7);
+  font-size: 0.8rem;
   cursor: pointer;
 }
-.filter-btn:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: var(--primary-light, #eef0ff);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(102,126,234,0.15);
-}
-.filter-btn--active {
-  background: var(--gradient);
-  color: #fff;
-  border-color: transparent;
-  box-shadow: 0 4px 12px rgba(102,126,234,0.3);
-}
-.filter-btn--active:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(102,126,234,0.4);
-}
-.filter-btn--reset {
-  color: var(--danger);
-  border-color: #fca5a5;
-  background: var(--danger-light);
-}
-.filter-btn--reset:hover { background: #fecaca; border-color: var(--danger); }
 
-.filter-select {
-  padding: 6px 32px 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  background: var(--bg);
-  border: 1.5px solid var(--border);
-  font-family: inherit;
+.cal-filter-select option { background: #1d174b; }
+
+.cal-filter-reset {
+  margin-left: auto;
+  padding: 0.38rem 0.9rem;
+  border-radius: 999px;
+  background: none;
+  border: 1px solid rgba(242, 240, 240, 0.15);
+  color: rgba(242, 240, 240, 0.5);
+  font-size: 0.78rem;
   cursor: pointer;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2394a3b8' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  transition: all 0.2s var(--ease);
+  transition: color 0.2s, border-color 0.2s;
 }
-.filter-select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+
+.cal-filter-reset:hover { color: var(--color-text-inverse); border-color: rgba(242, 240, 240, 0.4); }

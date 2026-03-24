@@ -8,6 +8,7 @@ import CalendarFilters from "./components/CalendarFilters";
 import CalendarGrid from "./components/CalendarGrid";
 import DayConsultationsPanel from "./components/DayConsultationsPanel";
 import ConsultationLegend from "./components/ConsultationLegend";
+import ConsultationDetailsModal from "./components/ConsultationDetailsModal";
 import "./CalendarPage.css";
 
 const CalendarPage = () => {
@@ -15,57 +16,37 @@ const CalendarPage = () => {
   const { selectedDate, setSelectedDate, filters, session, setSession } = useCalendar();
   const [consultations, setConsultations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState(null);
 
   useEffect(() => {
-    const fetchSession = async () => {
-      try {
-        const res = await getActiveSession();
+    getActiveSession()
+      .then((res) => {
         setSession(res.data);
-        // Initialize calendar to first session month
         if (res.data) {
           const now = new Date();
-          let initMonth;
-          if (res.data.activeSession === "winter") {
-            initMonth = new Date(now.getFullYear(), 0, 1); // January
-          } else {
-            initMonth = new Date(now.getFullYear(), 5, 1); // June
-          }
+          const initMonth = res.data.activeSession === "winter"
+            ? new Date(now.getFullYear(), 0, 1)
+            : new Date(now.getFullYear(), 5, 1);
           setSelectedDate(initMonth);
         }
-      } catch (err) {
-        console.error("Session load error:", err);
-      }
-    };
-    fetchSession();
+      })
+      .catch(console.error);
   }, []);
 
   useEffect(() => {
-    const fetchConsultations = async () => {
-      setLoading(true);
-      try {
-        const params = {};
-        if (filters.studyYear) params.studyYear = filters.studyYear;
-        if (filters.specializationId) params.specializationId = filters.specializationId;
-        if (filters.facultyId) params.facultyId = filters.facultyId;
-        const res = await getAllConsultations(params);
-        setConsultations(res.data);
-      } catch (err) {
-        console.error("Consultations load error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchConsultations();
-  }, [filters.studyYear, filters.specializationId, filters.facultyId]);
-
-  // Client-side filtering for type
-  const filteredConsultations = consultations.filter((c) => {
-    if (filters.type && c.type !== filters.type) return false;
-    return true;
-  });
+    setLoading(true);
+    const params = {};
+    if (filters.studyYear) params.studyYear = filters.studyYear;
+    if (filters.facultyId) params.facultyId = filters.facultyId;
+    if (filters.specializationId) params.specializationId = filters.specializationId;
+    getAllConsultations(params)
+      .then((res) => setConsultations(res.data || []))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [filters.studyYear, filters.facultyId, filters.specializationId]);
 
   const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`;
-  const consultationsForDay = filteredConsultations.filter((c) => c.date === dateStr);
+  const consultationsForDay = consultations.filter((c) => c.date === dateStr);
 
   return (
     <div className="calendar-page">
@@ -78,12 +59,12 @@ const CalendarPage = () => {
               date={selectedDate}
               consultations={consultationsForDay}
               loading={loading}
-              user={user}
+              onSelect={setSelected}
             />
           </div>
           <div className="calendar-page__right">
             <CalendarGrid
-              consultations={filteredConsultations}
+              consultations={consultations}
               selectedDate={selectedDate}
               onSelectDate={setSelectedDate}
               session={session}
@@ -92,6 +73,14 @@ const CalendarPage = () => {
           </div>
         </div>
       </div>
+
+      {selected && (
+        <ConsultationDetailsModal
+          consultation={selected}
+          user={user}
+          onClose={() => setSelected(null)}
+        />
+      )}
     </div>
   );
 };

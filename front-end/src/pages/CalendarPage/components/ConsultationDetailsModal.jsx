@@ -9,15 +9,18 @@ const ConsultationDetailsModal = ({ consultation: c, onClose, user, onRefresh })
   const [enrolling, setEnrolling] = useState(false);
   const [enrolled, setEnrolled] = useState(c.isEnrolled || false);
 
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; });
+
   useEffect(() => {
-    const handleKey = (e) => { if (e.key === "Escape") onClose(); };
-    document.addEventListener("keydown", handleKey);
+    const onKey = (e) => { if (e.key === "Escape") onCloseRef.current(); };
+    document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
     return () => {
-      document.removeEventListener("keydown", handleKey);
+      document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-  }, [onClose]);
+  }, []);
 
   const handleOverlayClick = (e) => {
     if (e.target === overlayRef.current) onClose();
@@ -62,123 +65,75 @@ const ConsultationDetailsModal = ({ consultation: c, onClose, user, onRefresh })
     : c.professorName || "";
 
   const courseName = c.course?.name || c.courseName || "";
+  const isPast = c.date && new Date(c.date + "T00:00:00") < new Date(new Date().toDateString());
 
   return createPortal(
     <div className="modal-overlay" ref={overlayRef} onClick={handleOverlayClick}>
       <div className="consult-modal">
-        {/* Header */}
         <div className="consult-modal__header">
-          <div className="consult-modal__badges">
-            <span className={`badge badge--${c.type}`}>
-              {c.type === "online" ? "Online" : "Fizic"}
-            </span>
-            {c.status === "cancelled" && <span className="badge badge--cancelled">Anulat</span>}
-            {c.status === "completed" && <span className="badge badge--completed">Finalizat</span>}
-            {c.status === "published" && <span className="badge badge--published">Activ</span>}
+          <div>
+            <div className="consult-modal__badges">
+              <span className={`badge badge--${c.type}`}>{c.type === "online" ? "Online" : "Fizic"}</span>
+              {c.status === "cancelled" && <span className="badge badge--cancelled">Anulat</span>}
+              {c.status === "completed" && <span className="badge badge--completed">Finalizat</span>}
+              {c.status === "published" && !isPast && <span className="badge badge--published">Activ</span>}
+            </div>
+            <h3 className="consult-modal__title">{courseName}</h3>
           </div>
-          <button className="consult-modal__close" onClick={onClose} aria-label="Închide">✕</button>
+          <button type="button" className="modal-close" onClick={onClose} aria-label="Închide">
+            <i className="fa-solid fa-xmark" />
+          </button>
         </div>
 
-        {/* Title */}
-        <div className="consult-modal__title-block">
-          <h2 className="consult-modal__course">{courseName}</h2>
-          <p className="consult-modal__professor">{professorName}</p>
-        </div>
-
-        {/* Details */}
-        <div className="consult-modal__details">
-          <div className="detail-row">
-            <span className="detail-label">Data</span>
-            <span className="detail-value">{formatDate(c.date)}</span>
-          </div>
-          <div className="detail-row">
-            <span className="detail-label">Ora</span>
-            <span className="detail-value">
-              {formatTime(c.startTime || c.time)}
-              {c.endTime ? ` – ${formatTime(c.endTime)}` : ""}
-              {duration ? ` · ${duration}` : ""}
-            </span>
-          </div>
-          {c.type === "fizic" && (c.location || c.room) && (
-            <div className="detail-row">
-              <span className="detail-label">Sala</span>
-              <span className="detail-value">{c.location || c.room}</span>
+        <div className="consult-modal__body">
+          <div className="consult-modal__row"><i className="fa-solid fa-user-tie" /><span>{professorName}</span></div>
+          <div className="consult-modal__row"><i className="fa-regular fa-calendar" /><span>{formatDate(c.date)}</span></div>
+          {c.startTime && (
+            <div className="consult-modal__row">
+              <i className="fa-regular fa-clock" />
+              <span>{formatTime(c.startTime)}{c.endTime ? ` – ${formatTime(c.endTime)}` : ""}{duration ? ` · ${duration}` : ""}</span>
             </div>
           )}
           {c.type === "online" && (c.location || c.meetingLink) && (
-            <div className="detail-row">
-              <span className="detail-label">Link</span>
-              <a href={c.location || c.meetingLink} target="_blank" rel="noreferrer" className="detail-link">
-                Intră în sesiune →
-              </a>
+            <div className="consult-modal__row">
+              <i className="fa-solid fa-video" />
+              <a href={c.location || c.meetingLink} target="_blank" rel="noreferrer">Link Zoom</a>
             </div>
           )}
-          {c.materialsLink && (
-            <div className="detail-row">
-              <span className="detail-label">Materiale</span>
-              <a href={c.materialsLink} target="_blank" rel="noreferrer" className="detail-link">
-                Deschide →
-              </a>
-            </div>
-          )}
-          {c.maxParticipants && (
-            <div className="detail-row">
-              <span className="detail-label">Locuri</span>
-              <span className="detail-value">{c.maxParticipants} max</span>
-            </div>
-          )}
-          {c.serie && c.serie !== "Toate" && (
-            <div className="detail-row">
-              <span className="detail-label">Seria</span>
-              <span className="detail-value">{c.serie}</span>
+          {c.type === "fizic" && (c.location || c.room) && (
+            <div className="consult-modal__row">
+              <i className="fa-solid fa-door-open" />
+              <span>Sala {c.location || c.room}</span>
             </div>
           )}
           {c.notes && (
-            <div className="detail-row detail-row--notes">
-              <span className="detail-label">Notițe</span>
-              <span className="detail-value">{c.notes}</span>
+            <div className="consult-modal__row">
+              <i className="fa-solid fa-note-sticky" />
+              <span>{c.notes}</span>
             </div>
           )}
           {c.status === "cancelled" && c.cancellationReason && (
-            <div className="detail-row detail-row--danger">
-              <span className="detail-label">Motiv</span>
-              <span className="detail-value">{c.cancellationReason}</span>
+            <div className="consult-modal__row">
+              <i className="fa-solid fa-ban" />
+              <span>{c.cancellationReason}</span>
             </div>
           )}
         </div>
 
-        {/* Actions */}
-        {user?.role === "student" && c.status === "published" && (
-          <div className="consult-modal__actions">
-            {c.enrollmentSource === "auto" ? null : !enrolled ? (
-              <button
-                className="btn btn--primary"
-                onClick={handleEnroll}
-                disabled={enrolling}
-              >
+        <div className="consult-modal__footer">
+          {user?.role === "student" && c.status === "published" && !isPast && c.enrollmentSource !== "auto" && (
+            !enrolled ? (
+              <button type="button" className="modal-btn modal-btn--confirm" onClick={handleEnroll} disabled={enrolling}>
                 {enrolling ? "Se înscrie..." : "Înscrie-te"}
               </button>
             ) : (
-              <button
-                className="btn btn--secondary"
-                onClick={handleUnenroll}
-                disabled={enrolling}
-              >
+              <button type="button" className="modal-btn modal-btn--cancel" onClick={handleUnenroll} disabled={enrolling}>
                 {enrolling ? "..." : "Retrage-te"}
               </button>
-            )}
-            {c.type === "online" && (c.location || c.meetingLink) && (
-              <a
-                href={c.location || c.meetingLink}
-                target="_blank"
-                rel="noreferrer"
-                className="btn btn--ghost"
-              >
-                Intră online →
-              </a>
-            )}
-          </div>
-        )}
+            )
+          )}
+          <button type="button" className="modal-btn modal-btn--confirm" onClick={onClose}>Închide</button>
+        </div>
       </div>
     </div>,
     document.body

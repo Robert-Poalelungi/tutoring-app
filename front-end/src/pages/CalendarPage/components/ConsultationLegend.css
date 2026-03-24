@@ -1,20 +1,21 @@
-.legend {
-  background: var(--bg-card);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  padding: 12px 18px;
+.consult-legend {
   display: flex;
+  gap: 1rem;
   flex-wrap: wrap;
-  gap: 10px 18px;
-  align-items: center;
-  box-shadow: var(--shadow-sm);
-  animation: fadeIn 0.4s var(--ease) 0.2s both;
 }
-.legend__item { display: flex; align-items: center; gap: 7px; }
-.legend__dot {
-  width: 8px; height: 8px;
+
+.consult-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.consult-legend__dot {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
-  box-shadow: 0 0 6px currentColor;
 }
-.legend__label { font-size: 12px; font-weight: 600; color: var(--text-muted); }

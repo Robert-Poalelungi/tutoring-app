@@ -1,23 +1,21 @@
 import "./ConsultationLegend.css";
 
-const items = [
-  { color: "#667eea", label: "Consultație online" },
-  { color: "#2e7d32", label: "Consultație fizică" },
-  { color: "#c0392b", label: "Anulată" },
-  { color: "#27ae60", label: "Finalizată" },
+const LEGEND = [
+  { label: "Online", color: "#2e6cb5" },
+  { label: "Fizic", color: "#ff9f2f" },
+  { label: "Anulat", color: "#e53e3e" },
+  { label: "Finalizat", color: "#38a169" },
 ];
 
-const ConsultationLegend = () => {
-  return (
-    <div className="legend">
-      {items.map((item) => (
-        <div key={item.label} className="legend__item">
-          <span className="legend__dot" style={{ background: item.color }} />
-          <span className="legend__label">{item.label}</span>
-        </div>
-      ))}
-    </div>
-  );
-};
+const ConsultationLegend = () => (
+  <div className="consult-legend">
+    {LEGEND.map(({ label, color }) => (
+      <div key={label} className="consult-legend__item">
+        <span className="consult-legend__dot" style={{ background: color }} />
+        <span>{label}</span>
+      </div>
+    ))}
+  </div>
+);
 
 export default ConsultationLegend;
