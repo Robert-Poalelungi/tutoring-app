@@ -2,7 +2,6 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  text-decoration: none;
   font-family: "Poppins", sans-serif;
 }
 
@@ -16,7 +15,7 @@
   --color-accent: #ff9f2f;
   --color-accent-hover: #ffaf54;
   --color-border-soft: rgba(14, 9, 50, 0.14);
-  --color-success: #2e6cb5;
+  --color-info: #2e6cb5;
   --color-danger: #e53e3e;
   --color-done: #38a169;
   --navbar-height: 5rem;
