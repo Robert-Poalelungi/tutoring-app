@@ -94,7 +94,7 @@ const ProfessorDashboard = () => {
     return (
       <DashboardLayout>
         <div className="professor-dashboard">
-          <p>Se încarcă...</p>
+          <div className="loading-spinner" />
         </div>
       </DashboardLayout>
     );
@@ -110,7 +110,8 @@ const ProfessorDashboard = () => {
             </p>
           </div>
           <button
-            className="btn-primary"
+            type="button"
+            className="professor-dashboard__new-btn"
             onClick={() => {
               setShowCreateForm(true);
               setEditingConsultation(null);

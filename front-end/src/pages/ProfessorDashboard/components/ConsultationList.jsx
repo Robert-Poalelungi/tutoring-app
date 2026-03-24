@@ -12,111 +12,74 @@ const TYPE_LABELS = {
   fizic: "Fizic",
 };
 
-const ConsultationList = ({ consultations, onEdit, onCancel, onComplete, onDelete }) => {
-  if (!consultations || consultations.length === 0) {
-    return (
-      <div className="consultation-list__empty">
-        Nu ai nicio consultație programată încă.
-      </div>
-    );
-  }
-
-  // Group consultations by date
-  const groups = consultations.reduce((acc, consultation) => {
-    const dateKey = consultation.date;
-    if (!acc[dateKey]) acc[dateKey] = [];
-    acc[dateKey].push(consultation);
-    return acc;
-  }, {});
-
-  // Sort date keys ascending
-  const sortedDates = Object.keys(groups).sort((a, b) => new Date(a) - new Date(b));
-
-  return (
-    <div className="consultation-list">
-      {sortedDates.map((dateKey) => (
-        <div key={dateKey} className="consultation-group">
-          <div className="consultation-group__date">
-            {formatDate(dateKey)}
-          </div>
-          {groups[dateKey].map((c) => (
-            <ConsultationRow
-              key={c.id}
-              consultation={c}
-              onEdit={onEdit}
-              onCancel={onCancel}
-              onComplete={onComplete}
-              onDelete={onDelete}
-            />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-};
-
 const ConsultationRow = ({ consultation, onEdit, onCancel, onComplete, onDelete }) => {
   const { id, startTime, endTime, courseName, type, status } = consultation;
-
   const isActive = status === "published";
   const isCancelled = status === "cancelled";
   const isCompleted = status === "completed";
 
   return (
-    <div className="consultation-row">
-      <span className="consultation-row__time">
-        {formatTime(startTime)} – {formatTime(endTime)}
-      </span>
-
-      <span className="consultation-row__course">{courseName}</span>
-
-      <div className="consultation-row__badges">
-        <span className={`badge badge--${type}`}>
-          {TYPE_LABELS[type] ?? type}
-        </span>
-        <span className={`badge badge--${status}`}>
-          {STATUS_LABELS[status] ?? status}
-        </span>
+    <div className="prof-card">
+      <div className="prof-card__course">{courseName}</div>
+      <div className="prof-card__meta">
+        <span><i className="fa-regular fa-clock" /> {formatTime(startTime)} – {formatTime(endTime)}</span>
+        <span className={`badge badge--${type}`}>{TYPE_LABELS[type] ?? type}</span>
+        <span className={`badge badge--${status}`}>{STATUS_LABELS[status] ?? status}</span>
       </div>
-
-      <div className="consultation-row__actions">
+      <div className="prof-card__actions">
         {isActive && (
-          <button
-            className="action-btn"
-            onClick={() => onEdit(consultation)}
-            title="Editează"
-          >
+          <button type="button" className="prof-card__btn prof-card__btn--edit" onClick={() => onEdit(consultation)}>
             Editează
           </button>
         )}
         {isActive && (
-          <button
-            className="action-btn action-btn--success"
-            onClick={() => onComplete(id)}
-            title="Marchează ca finalizată"
-          >
+          <button type="button" className="prof-card__btn prof-card__btn--complete" onClick={() => onComplete(id)}>
             Finalizează
           </button>
         )}
         {isActive && (
-          <button
-            className="action-btn action-btn--danger"
-            onClick={() => onCancel(id)}
-            title="Anulează"
-          >
+          <button type="button" className="prof-card__btn prof-card__btn--cancel" onClick={() => onCancel(id)}>
             Anulează
           </button>
         )}
         {(isCancelled || isCompleted) && (
-          <button
-            className="action-btn action-btn--danger"
-            onClick={() => onDelete(id)}
-            title="Șterge definitiv"
-          >
+          <button type="button" className="prof-card__btn prof-card__btn--cancel" onClick={() => onDelete(id)}>
             Șterge
           </button>
         )}
       </div>
+    </div>
+  );
+};
+
+const ConsultationList = ({ consultations, onEdit, onCancel, onComplete, onDelete }) => {
+  if (!consultations || consultations.length === 0) {
+    return (
+      <div className="empty-state">
+        <span className="empty-state__icon">📋</span>
+        <span className="empty-state__title">Nicio consultație programată</span>
+      </div>
+    );
+  }
+
+  const groups = consultations.reduce((acc, c) => {
+    if (!acc[c.date]) acc[c.date] = [];
+    acc[c.date].push(c);
+    return acc;
+  }, {});
+
+  const sortedDates = Object.keys(groups).sort((a, b) => new Date(a) - new Date(b));
+
+  return (
+    <div className="prof-list">
+      {sortedDates.map((dateKey) => (
+        <div key={dateKey} className="prof-list__group">
+          <div className="prof-list__date-header">{formatDate(dateKey)}</div>
+          {groups[dateKey].map((c) => (
+            <ConsultationRow key={c.id} consultation={c} onEdit={onEdit} onCancel={onCancel} onComplete={onComplete} onDelete={onDelete} />
+          ))}
+        </div>
+      ))}
     </div>
   );
 };

@@ -1,118 +1,32 @@
-/* ============================================================
-   ProfessorDashboard.css — Premium animated layout
-   ============================================================ */
+.professor-dashboard { display: flex; flex-direction: column; gap: 1.5rem; }
 
-.professor-dashboard {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 28px 16px 72px;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  animation: fadeInUp 0.5s var(--ease) both;
-}
-@media (min-width: 768px) {
-  .professor-dashboard { padding: 40px 28px 80px; }
-}
-
-/* ── Header ─────────────────────────────────────────────── */
 .professor-dashboard__header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 18px;
   flex-wrap: wrap;
-  animation: fadeInUp 0.5s var(--ease) 0.05s both;
+  gap: 1rem;
 }
 
 .professor-dashboard__title {
-  font-size: 30px;
-  font-weight: 900;
-  letter-spacing: -0.6px;
-  line-height: 1.15;
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  position: relative;
-}
-.professor-dashboard__title::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -4px;
-  width: 48px;
-  height: 3px;
-  background: var(--gradient);
-  border-radius: 2px;
-  animation: scaleIn 0.4s var(--ease-spring) 0.4s both;
-  transform-origin: left center;
-}
-@media (min-width: 600px) {
-  .professor-dashboard__title { font-size: 36px; }
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-text-inverse);
 }
 
-.professor-dashboard__subtext {
-  font-size: 14px;
-  color: var(--text-muted);
-  margin-top: 10px;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  animation: fadeIn 0.5s var(--ease) 0.2s both;
-}
-
-/* ── Stats row (optional utility) ───────────────────────── */
-.professor-dashboard__stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 14px;
-  animation: fadeInUp 0.45s var(--ease) 0.1s both;
-}
-
-.professor-dashboard__stat {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  border: 1.5px solid var(--border);
-  padding: 18px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.28s var(--ease-spring), box-shadow 0.28s var(--ease), border-color 0.28s var(--ease);
-  box-shadow: var(--shadow-sm);
-}
-.professor-dashboard__stat::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: var(--gradient);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.35s var(--ease-spring);
-}
-.professor-dashboard__stat:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: rgba(102, 126, 234, 0.25);
-}
-.professor-dashboard__stat:hover::before { transform: scaleX(1); }
-
-.professor-dashboard__stat-value {
-  font-size: 28px;
-  font-weight: 900;
-  letter-spacing: -0.5px;
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.professor-dashboard__stat-label {
-  font-size: 11px;
+.professor-dashboard__new-btn {
+  padding: 0.55rem 1.4rem;
+  background: var(--color-accent);
+  border: none;
+  border-radius: 999px;
+  font-size: 0.88rem;
   font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
+  color: var(--color-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.2s, transform 0.15s;
 }
+
+.professor-dashboard__new-btn:hover { background: var(--color-accent-hover); transform: translateY(-1px); }

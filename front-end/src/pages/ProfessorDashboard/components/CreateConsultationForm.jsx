@@ -44,7 +44,7 @@ const CreateConsultationForm = ({ courses, initialData, onSubmit, onCancel }) =>
       <div className="create-form__header">
         <h3>{initialData ? "Editează consultație" : "Consultație nouă"}</h3>
         <button type="button" className="create-form__close" onClick={onCancel}>
-          ✕
+          <i className="fa-solid fa-xmark" />
         </button>
       </div>
       <form className="create-form__body" onSubmit={handleSubmit}>
@@ -169,10 +169,10 @@ const CreateConsultationForm = ({ courses, initialData, onSubmit, onCancel }) =>
         </div>
 
         <div className="create-form__actions">
-          <button type="button" className="btn-secondary" onClick={onCancel}>
+          <button type="button" className="create-form__btn-cancel" onClick={onCancel}>
             Anulează
           </button>
-          <button type="submit" className="btn-primary">
+          <button type="submit" className="create-form__btn-submit">
             {initialData ? "Salvează" : "Creează"}
           </button>
         </div>
