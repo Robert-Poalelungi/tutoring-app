@@ -14,16 +14,19 @@ const Modal = ({
 }) => {
   const overlayRef = useRef(null);
 
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; });
+
   useEffect(() => {
     if (!isOpen) return;
-    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    const onKey = (e) => { if (e.key === "Escape") onCloseRef.current(); };
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -36,7 +39,7 @@ const Modal = ({
       <div className="modal-card">
         <div className="modal-header">
           <h3 className="modal-title">{title}</h3>
-          <button className="modal-close" onClick={onClose} aria-label="Închide">
+          <button type="button" className="modal-close" onClick={onClose} aria-label="Închide">
             <i className="fa-solid fa-xmark" />
           </button>
         </div>

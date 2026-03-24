@@ -62,26 +62,28 @@ const Navbar = () => {
           )}
         </div>
 
-        <div className="navbar__user-wrap">
-          <button
-            className={`navbar__avatar ${popupOpen ? "navbar__avatar--active" : ""}`}
-            onClick={() => setPopupOpen((o) => !o)}
-            aria-label="Meniu utilizator"
-          >
-            <span className="navbar__initials">{initials || "?"}</span>
-          </button>
+        {user && (
+          <div className="navbar__user-wrap">
+            <button
+              className={`navbar__avatar ${popupOpen ? "navbar__avatar--active" : ""}`}
+              onClick={() => setPopupOpen((o) => !o)}
+              aria-label="Meniu utilizator"
+            >
+              <span className="navbar__initials">{initials || "?"}</span>
+            </button>
 
-          {popupOpen && (
-            <div className="navbar__popup">
-              <Link to="/profile" className="navbar__popup-btn">
-                <i className="fa-solid fa-user" /> Profil
-              </Link>
-              <button className="navbar__popup-btn navbar__popup-btn--danger" onClick={handleLogout}>
-                <i className="fa-solid fa-right-from-bracket" /> Deconectare
-              </button>
-            </div>
-          )}
-        </div>
+            {popupOpen && (
+              <div className="navbar__popup">
+                <Link to="/profile" className="navbar__popup-btn">
+                  <i className="fa-solid fa-user" /> Profil
+                </Link>
+                <button className="navbar__popup-btn navbar__popup-btn--danger" onClick={handleLogout}>
+                  <i className="fa-solid fa-right-from-bracket" /> Deconectare
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </nav>
     </header>
   );

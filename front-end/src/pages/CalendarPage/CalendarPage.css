@@ -1,6 +1,6 @@
 .calendar-page {
   min-height: 100vh;
-  background: var(--bg);
+  background: var(--color-bg);
 }
 
 .calendar-page__inner {
