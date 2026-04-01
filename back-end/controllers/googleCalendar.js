@@ -1,10 +1,12 @@
-const { GoogleCalendarConnection, ConsultationCalendarSync, User } = require("../models");
+const { GoogleCalendarConnection, ConsultationCalendarSync, User, Consultation, Course, UserConsultation } = require("../models");
+const { Op } = require("sequelize");
 const {
   createOAuth2Client,
   getAuthUrl,
   getTokensFromCode,
   createEvent,
   revokeConnection,
+  syncAllForUser,
 } = require("../services/googleCalendarService");
 
 // GET /api/google-calendar/connect — inițiază OAuth flow
@@ -72,6 +74,11 @@ const callback = async (req, res) => {
       console.log("[GCal callback] Created new connection, id:", connection.id);
     }
 
+    // Sincronizează toate consultațiile în background (nu blochează redirect-ul)
+    syncAllForUser(userId).catch((err) =>
+      console.error("[GCal callback] syncAllForUser error:", err.message)
+    );
+
     res.redirect(`${process.env.ORIGIN_SITE}/dashboard?calendar=connected`);
   } catch (error) {
     console.error("[GCal callback] ERROR:", error.message, error.stack);
@@ -127,32 +134,38 @@ const syncAll = async (req, res) => {
       return res.status(400).json({ message: "Google Calendar nu este conectat." });
     }
 
-    // Găsește consultațiile la care e înscris studentul
-    const { UserConsultation, Consultation } = require("../models");
+    const student = await User.findByPk(req.user.id);
+
+    // 1. Consultații din UserConsultation (manuale + auto înregistrate)
     const enrollments = await UserConsultation.findAll({
       where: { userId: req.user.id, status: "active" },
-      include: [
-        {
-          model: Consultation,
-          as: "consultation",
-          where: { status: "published" },
-        },
-      ],
+      include: [{ model: Consultation, as: "consultation", where: { status: "published" } }],
     });
+    const enrolledIds = new Set(enrollments.map((e) => e.consultationId));
+
+    // 2. Consultații auto (după an + specializare) — prinde și cele fără UserConsultation
+    let autoConsultations = [];
+    if (student.studyYear && student.specializationId) {
+      autoConsultations = await Consultation.findAll({
+        where: { status: "published" },
+        include: [{ model: Course, as: "course", where: { studyYear: student.studyYear, specializationId: student.specializationId } }],
+      });
+    }
+
+    // Unificăm ID-urile
+    const allConsultationIds = new Set([
+      ...enrolledIds,
+      ...autoConsultations.map((c) => c.id),
+    ]);
 
     let synced = 0;
-    for (const enrollment of enrollments) {
-      // Verifică dacă există deja un sync
+    for (const consultationId of allConsultationIds) {
       const existingSync = await ConsultationCalendarSync.findOne({
-        where: {
-          userId: req.user.id,
-          consultationId: enrollment.consultationId,
-          syncStatus: "synced",
-        },
+        where: { userId: req.user.id, consultationId, syncStatus: "synced" },
       });
 
       if (!existingSync) {
-        await createEvent(req.user.id, enrollment.consultationId);
+        await createEvent(req.user.id, consultationId);
         synced++;
       }
     }

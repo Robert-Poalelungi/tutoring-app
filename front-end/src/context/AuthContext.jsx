@@ -1,32 +1,53 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import { getCurrentUser } from "../services/authService";
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { authApi } from '../api';
+import { AuthContext } from './AuthContextObject';
 
-const AuthContext = createContext(null);
-
-export const useAuth = () => useContext(AuthContext);
-
-export const AuthProvider = ({ children }) => {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const fetchUser = async () => {
+  const refreshUser = useCallback(async () => {
+    setIsLoading(true);
     try {
-      const res = await getCurrentUser();
-      setUser(res.data);
-    } catch {
-      setUser(null);
+      const currentUser = await authApi.getCurrentUser();
+      setUser(currentUser);
+      return currentUser;
+    } catch (error) {
+      if (error.status === 401) {
+        setUser(null);
+        return null;
+      }
+      throw error;
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchUser();
   }, []);
 
-  return (
-    <AuthContext.Provider value={{ user, setUser, loading, fetchUser }}>
-      {children}
-    </AuthContext.Provider>
+  const logout = useCallback(async () => {
+    try {
+      await authApi.logout();
+    } finally {
+      setUser(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshUser().catch(() => {
+      setUser(null);
+      setIsLoading(false);
+    });
+  }, [refreshUser]);
+
+  const value = useMemo(
+    () => ({
+      user,
+      isLoading,
+      isAuthenticated: Boolean(user),
+      refreshUser,
+      logout,
+    }),
+    [isLoading, logout, refreshUser, user],
   );
-};
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}

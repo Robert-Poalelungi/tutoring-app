@@ -1,0 +1,411 @@
+/* -------------------------------------------PROFIL PAGE------------------------------------------ */
+
+.has-navbar > .profile-container {
+  width: min(var(--page-max-width), calc(100vw - var(--page-gutter))) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  align-self: center !important;
+}
+
+.profile-body {
+  overflow-x: hidden;
+  min-height: 100vh;
+  background-image: url(../../assets/background.png);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.profile-container {
+  width: min(var(--page-max-width), calc(100vw - var(--page-gutter)));
+  align-self: center;
+  margin: 1.5rem auto 2rem;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 2rem;
+  padding-left: 0;
+  color: var(--color-text-inverse);
+}
+
+/* Sidebar stânga */
+.profile-sidebar {
+  width: 260px;
+  min-width: 260px;
+  background: var(--albastru-inchis-navy);
+  border-radius: 30px;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  height: fit-content;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.profile-avatar {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgb(247, 181, 0), rgb(255, 140, 0));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.avatar-initials {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: white;
+}
+
+.profile-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-text-inverse);
+  text-align: center;
+}
+
+.profile-role {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 0.5rem;
+}
+
+.profile-email-sidebar {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: rgba(242, 240, 240, 0.65);
+  text-align: center;
+  line-height: 1.35;
+  word-break: normal;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+
+.profile-sidebar-badge {
+  background: #ffffff;
+  border-radius: 50px;
+  padding: 0.2rem 0.9rem;
+  color: #1d174b !important;
+  font-weight: 600;
+}
+
+.profile-sidebar-badge * {
+  color: #1d174b !important;
+}
+
+.profile-badge,
+.profile-badge-year {
+  display: none;
+}
+
+#sidebar-faculty,
+#sidebar-year {
+  color: rgba(242, 240, 240, 0.65);
+}
+
+/* Content dreapta */
+.profile-content {
+  display: contents;
+}
+
+.profile-section {
+  background: var(--albastru-inchis-navy);
+  border-radius: 24px;
+  padding: 1.5rem 2rem;
+}
+
+.profile-section,
+.profile-section .section-body,
+.profile-section .section-body p,
+.profile-section .section-body span {
+  color: var(--color-text-inverse);
+}
+
+.google-calendar-section {
+  padding: 1.5rem 2rem;
+}
+
+.google-calendar-header {
+  padding: 0;
+  align-items: center;
+  flex-direction: row;
+  gap: 0.7rem;
+  margin-bottom: 1.25rem;
+}
+
+.google-calendar-header h3 {
+  margin: 0;
+}
+
+.google-calendar-header h3 i {
+  color: var(--color-accent);
+}
+
+.calendar-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.9rem;
+  background: rgba(242, 240, 240, 0.14);
+  border: 1px solid rgba(242, 240, 240, 0.2);
+  color: var(--color-text-inverse);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.2rem 0.9rem;
+  border-radius: 999px;
+}
+
+.google-calendar-body {
+  background: rgba(242, 240, 240, 0.08);
+  border-radius: 16px;
+  padding: 1.2rem 1.5rem;
+  box-shadow: none;
+}
+
+.google-calendar-text {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: rgba(242, 240, 240, 0.84);
+  margin-bottom: 1rem;
+}
+
+.button-connect-calendar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(242, 240, 240, 0.22);
+  border-radius: 50px;
+  padding: 0.45rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-inverse);
+  background: rgba(242, 240, 240, 0.08);
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+  box-shadow: none;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.button-connect-calendar:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-text-inverse);
+}
+
+.profile-content .profile-section:nth-of-type(1) {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.profile-content .profile-section:nth-of-type(2) {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+
+.profile-content .profile-section:nth-of-type(3) {
+  grid-column: 1 / -1;
+  grid-row: 3;
+}
+
+/* -------------------------------------------Profile-specific button overrides------------------------------------------ */
+
+.profile-body .button-edit {
+  background: var(--color-surface-soft);
+  border: 3px solid var(--color-text);
+  color: var(--color-text);
+  box-shadow: 0 4px 12px rgba(8, 7, 26, 0.1);
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-body .button-edit:hover {
+  background: #e9e5e2;
+  border-color: var(--color-text);
+  color: var(--color-text);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(8, 7, 26, 0.16);
+}
+
+.profile-body .button-edit.button-save,
+.profile-body .button-connect-calendar {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.profile-body .button-edit.button-save:hover,
+.profile-body .button-connect-calendar:hover {
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+  color: var(--color-text-inverse);
+}
+
+/* -------------------------------------------Profile-specific form overrides------------------------------------------ */
+
+.profile-body .form-group input,
+.profile-body .form-group select {
+  color: var(--color-text);
+  border: 2px solid rgba(22, 18, 48, 0.14);
+  background: #ffffff;
+}
+
+.profile-body .form-group input:not(:disabled):focus,
+.profile-body .form-group select:not(:disabled):focus {
+  border-color: var(--color-accent);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(255, 159, 47, 0.2);
+}
+
+.profile-body .form-group input::placeholder {
+  color: rgba(14, 9, 50, 0.48);
+}
+
+.profile-body .form-group select option {
+  color: var(--color-text);
+  background: #ffffff;
+}
+
+.profile-body .form-group input:disabled,
+.profile-body .form-group select:disabled {
+  color: rgba(14, 9, 50, 0.55);
+  background: rgba(219, 220, 228, 0.92);
+  border-color: rgba(22, 18, 48, 0.2);
+  -webkit-text-fill-color: rgba(14, 9, 50, 0.55);
+  opacity: 1;
+}
+
+.input-locked {
+  opacity: 1;
+  cursor: not-allowed !important;
+}
+
+/* -------------------------------------------Faculty card------------------------------------------ */
+
+.faculty-card {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  background: rgba(242, 240, 240, 0.08);
+  padding: 1.2rem 1.5rem;
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+.faculty-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgb(247, 181, 0), rgb(255, 140, 0));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+}
+
+.faculty-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.faculty-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text-inverse);
+}
+
+.faculty-abbr {
+  font-size: 0.8rem;
+  color: rgba(242, 240, 240, 0.72);
+}
+
+
+/* -------------------------------------------Responsive------------------------------------------ */
+
+@media (max-width: 768px) {
+  .profile-container {
+    grid-template-columns: 1fr;
+    padding-left: 0;
+    width: calc(100% - var(--page-gutter));
+    margin: 1rem auto 2rem;
+    gap: 1rem;
+  }
+
+  .profile-sidebar {
+    width: 100%;
+    min-width: 0;
+    grid-column: 1;
+    grid-row: auto;
+    border-radius: 20px;
+    padding: 1.5rem;
+  }
+
+  .profile-avatar {
+    width: 4.5rem;
+    height: 4.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .avatar-initials {
+    font-size: 1.4rem;
+  }
+
+  .profile-name {
+    font-size: 1rem;
+  }
+
+  .profile-email-sidebar {
+    font-size: 0.78rem;
+  }
+
+  .profile-content .profile-section:nth-of-type(1),
+  .profile-content .profile-section:nth-of-type(2),
+  .profile-content .profile-section:nth-of-type(3) {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .profile-section {
+    border-radius: 18px;
+    padding: 1.25rem;
+  }
+
+  .profile-body .form-row {
+    flex-direction: column;
+  }
+
+  .google-calendar-section {
+    padding: 1.25rem;
+  }
+
+  .google-calendar-header {
+    margin-bottom: 0.9rem;
+    flex-wrap: wrap;
+  }
+
+  .google-calendar-body {
+    padding: 1rem;
+  }
+
+  .google-calendar-text {
+    font-size: 0.85rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .button-connect-calendar {
+    width: 100%;
+    font-size: 0.85rem;
+    padding: 0.6rem 1rem;
+  }
+
+  .calendar-status-badge {
+    font-size: 0.76rem;
+    min-height: 1.75rem;
+  }
+}

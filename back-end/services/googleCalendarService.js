@@ -241,13 +241,24 @@ const revokeConnection = async (userId) => {
       console.log("Token deja revocat sau expirat.");
     }
 
-    // Șterge evenimentele sincronizate
+    // Șterge evenimentele din Google Calendar și înregistrările din DB
     const syncs = await ConsultationCalendarSync.findAll({
-      where: { userId },
+      where: { userId, syncStatus: "synced" },
     });
+    const calendar = await getCalendarClient(connection);
     for (const sync of syncs) {
+      try {
+        await calendar.events.delete({
+          calendarId: sync.calendarId,
+          eventId: sync.googleEventId,
+        });
+      } catch (err) {
+        // Evenimentul poate fi deja șters din calendar
+      }
       await sync.destroy();
     }
+    // Șterge și înregistrările cu status failed
+    await ConsultationCalendarSync.destroy({ where: { userId } });
 
     // Marchează conexiunea ca inactivă
     connection.isActive = false;
@@ -255,6 +266,50 @@ const revokeConnection = async (userId) => {
   } catch (error) {
     console.error(`Eroare la revocarea conexiunii Google Calendar (user ${userId}):`, error.message);
     throw error;
+  }
+};
+
+// Sincronizează toate consultațiile unui student (după conectare sau la cerere)
+const syncAllForUser = async (userId) => {
+  try {
+    const connection = await GoogleCalendarConnection.findOne({
+      where: { userId, isActive: true },
+    });
+    if (!connection) return;
+
+    const { User, Consultation, Course, UserConsultation } = require("../models");
+    const student = await User.findByPk(userId);
+    if (!student) return;
+
+    // Consultații din UserConsultation
+    const enrollments = await UserConsultation.findAll({
+      where: { userId, status: "active" },
+      include: [{ model: Consultation, as: "consultation", where: { status: "published" } }],
+    });
+    const enrolledIds = new Set(enrollments.map((e) => e.consultationId));
+
+    // Consultații auto (după an + specializare)
+    let autoIds = new Set();
+    if (student.studyYear && student.specializationId) {
+      const autoConsultations = await Consultation.findAll({
+        where: { status: "published" },
+        include: [{ model: Course, as: "course", where: { studyYear: student.studyYear, specializationId: student.specializationId } }],
+      });
+      autoConsultations.forEach((c) => autoIds.add(c.id));
+    }
+
+    const allIds = new Set([...enrolledIds, ...autoIds]);
+
+    for (const consultationId of allIds) {
+      const existingSync = await ConsultationCalendarSync.findOne({
+        where: { userId, consultationId, syncStatus: "synced" },
+      });
+      if (!existingSync) {
+        await createEvent(userId, consultationId);
+      }
+    }
+  } catch (err) {
+    console.error(`Eroare syncAllForUser (user ${userId}):`, err.message);
   }
 };
 
@@ -266,5 +321,6 @@ module.exports = {
   updateEvent,
   deleteEvent,
   syncAllForConsultation,
+  syncAllForUser,
   revokeConnection,
 };

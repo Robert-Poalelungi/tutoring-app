@@ -1,0 +1,109 @@
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.section-header-center {
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .section-header-col {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+}
+
+.button-wide {
+  min-width: 10rem;
+  justify-content: center;
+}
+
+.section-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-inverse);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-header h3 i {
+  color: var(--color-accent);
+}
+
+.section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.button-edit {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(242, 240, 240, 0.1);
+  border: 2px solid rgba(242, 240, 240, 0.2);
+  border-radius: 50px;
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-inverse);
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.button-edit:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-text-inverse);
+}
+
+.button-edit.button-save {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: var(--color-text-inverse);
+}
+
+.button-edit.button-save:hover {
+  background: var(--color-success-hover);
+  border-color: var(--color-success-hover);
+}
+
+.btn-row-edit {
+  padding: 0.35rem 0.9rem;
+  border: none;
+  border-radius: 50px;
+  background: #6b7280;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+  transition: background 0.2s;
+}
+
+.btn-row-edit:hover {
+  background: #4b5563;
+}
+
+.btn-row-delete {
+  padding: 0.35rem 0.9rem;
+  border: none;
+  border-radius: 50px;
+  background: #dc2626;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+  transition: background 0.2s;
+}
+
+.btn-row-delete:hover {
+  background: #b91c1c;
+}

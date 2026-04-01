@@ -1,54 +1,79 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./context/AuthContext";
+import React from 'react';
+import { Navigate, Routes, Route } from 'react-router-dom';
+import { useAuth } from './context/useAuth';
+import { getDashboardRouteByRole, normalizeRole } from './utils/navigation';
+import Admin from './pages/admin/admin.jsx';
+import Calendar from './pages/calendar/calendar.jsx';
+import Dashboard from './pages/dashboard/dashboard.jsx';
+import Drive from './pages/drive/drive.jsx';
+import Login from './pages/login/login.jsx';
+import Profesor from './pages/profesor/profesor.jsx';
+import Profil from './pages/profil/profil.jsx';
 
-import CalendarPage from "./pages/CalendarPage/CalendarPage";
-import LoginPage from "./pages/LoginPage/LoginPage";
-import OnboardingFaculty from "./pages/Onboarding/OnboardingFaculty";
-import OnboardingProfile from "./pages/Onboarding/OnboardingProfile";
-import OnboardingInterests from "./pages/Onboarding/OnboardingInterests";
-import StudentDashboard from "./pages/StudentDashboard/StudentDashboard";
-import ProfessorDashboard from "./pages/ProfessorDashboard/ProfessorDashboard";
-import ProfilePage from "./pages/ProfilePage/ProfilePage";
-import AdminPanel from "./pages/AdminPanel/AdminPanel";
+function ProtectedRoute({ children, allowedRoles = null }) {
+  const { isAuthenticated, isLoading, user } = useAuth();
 
-const ProtectedRoute = ({ children, roles }) => {
-  const { user, loading } = useAuth();
-  if (loading) return null;
-  if (!user) return <Navigate to="/login" />;
-  if (!user.isProfileCompleted) return <Navigate to="/onboarding" />;
-  if (roles && !roles.includes(user.role)) return <Navigate to="/" />;
+  if (isLoading) {
+    return null;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (Array.isArray(allowedRoles) && allowedRoles.length > 0) {
+    const role = normalizeRole(user?.role);
+    const normalizedAllowedRoles = allowedRoles.map((entry) => normalizeRole(entry));
+
+    if (!normalizedAllowedRoles.includes(role)) {
+      return <Navigate to={getDashboardRouteByRole(role)} replace />;
+    }
+  }
+
   return children;
-};
+}
 
-const OnboardingRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-  if (loading) return null;
-  if (!user) return <Navigate to="/login" />;
-  if (user.isProfileCompleted) return <Navigate to="/" />;
-  return children;
-};
-
-const App = () => {
-  const { loading } = useAuth();
-  if (loading) return null;
-
+function App() {
   return (
     <Routes>
-      <Route path="/" element={<CalendarPage />} />
-      <Route path="/login" element={<LoginPage />} />
-
-      <Route path="/onboarding" element={<OnboardingRoute><OnboardingFaculty /></OnboardingRoute>} />
-      <Route path="/onboarding/profile" element={<OnboardingRoute><OnboardingProfile /></OnboardingRoute>} />
-      <Route path="/onboarding/interests" element={<OnboardingRoute><OnboardingInterests /></OnboardingRoute>} />
-
-      <Route path="/dashboard" element={<ProtectedRoute roles={["student"]}><StudentDashboard /></ProtectedRoute>} />
-      <Route path="/professor" element={<ProtectedRoute roles={["professor"]}><ProfessorDashboard /></ProtectedRoute>} />
-      <Route path="/admin" element={<ProtectedRoute roles={["admin"]}><AdminPanel /></ProtectedRoute>} />
-      <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="/" element={<Calendar />} />
+      <Route path="/login" element={<Login />} />
+      <Route
+        path="/admin"
+        element={(
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Admin />
+          </ProtectedRoute>
+        )}
+      />
+      <Route path="/calendar" element={<Calendar />} />
+      <Route
+        path="/dashboard"
+        element={(
+          <ProtectedRoute allowedRoles={['student']}>
+            <Dashboard />
+          </ProtectedRoute>
+        )}
+      />
+      <Route path="/drive" element={<Drive />} />
+      <Route
+        path="/profesor"
+        element={(
+          <ProtectedRoute allowedRoles={['professor']}>
+            <Profesor />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/profil"
+        element={(
+          <ProtectedRoute>
+            <Profil />
+          </ProtectedRoute>
+        )}
+      />
     </Routes>
   );
-};
+}
 
 export default App;

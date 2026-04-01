@@ -1,0 +1,268 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(22, 18, 48, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+}
+
+.modal-overlay[hidden] {
+  display: none;
+}
+
+.modal-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 2rem;
+  width: 90vw;
+  max-width: 700px;
+  max-height: 85vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 0 20px 48px rgba(8, 7, 26, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.modal-header h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+#modal-details-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: rgba(22, 18, 48, 0.5);
+  transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+  color: var(--color-text);
+}
+
+.modal-warning {
+  font-size: 0.95rem;
+  color: var(--color-text);
+  background: rgba(29, 23, 75, 0.08);
+  border: 1px solid rgba(29, 23, 75, 0.25);
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+}
+
+.modal-hint {
+  font-size: 0.9rem;
+  color: var(--color-text);
+  margin-bottom: 1rem;
+}
+
+.modal-card .form-group label {
+  color: var(--color-text);
+}
+
+.modal-card .lock-icon {
+  color: rgba(22, 18, 48, 0.5);
+}
+
+
+/* -------------------------------------------Faculty grid------------------------------------------ */
+
+.faculty-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 480px) {
+  .faculty-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.faculty-grid-card {
+  background: var(--color-surface-soft);
+  border: 2px solid transparent;
+  border-radius: 16px;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.15s ease, background 0.2s ease;
+  position: relative;
+}
+
+.faculty-grid-card:hover {
+  border-color: rgba(247, 181, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.faculty-grid-card.selected {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+}
+
+.faculty-grid-card.current {
+  opacity: 0.5;
+  cursor: default;
+  padding-bottom: 2rem;
+}
+
+.faculty-grid-card.current:hover {
+  transform: none;
+}
+
+.faculty-grid-icon {
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgb(247, 181, 0), rgb(255, 140, 0));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.1rem;
+  margin: 0 auto 0.5rem;
+}
+
+.faculty-grid-abbr {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.faculty-grid-name {
+  font-size: 0.7rem;
+  color: rgba(22, 18, 48, 0.5);
+  margin-top: 0.2rem;
+  line-height: 1.3;
+}
+
+.current-badge {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(22, 18, 48, 0.15);
+  color: rgb(22, 18, 48);
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 50px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* -------------------------------------------Disciplines grid------------------------------------------ */
+
+.disciplines-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.discipline-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  border: 2px solid rgba(22, 18, 48, 0.12);
+  border-radius: 12px;
+  background: rgba(22, 18, 48, 0.03);
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.discipline-option:hover {
+  border-color: rgba(247, 181, 0, 0.4);
+}
+
+.discipline-option.selected {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-text);
+}
+
+.discipline-option.selected i {
+  color: var(--color-text);
+}
+
+.discipline-option i {
+  color: rgba(22, 18, 48, 0.18);
+  transition: color 0.2s ease;
+}
+
+/* -------------------------------------------Modal actions------------------------------------------ */
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+#modal-details-withdraw {
+  margin-right: auto;
+}
+
+.button-cancel {
+  padding: 0.6rem 1.5rem;
+  border: none;
+  border-radius: 50px;
+  background: #6b7280;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+  transition: background 0.2s ease;
+}
+
+.button-cancel:hover {
+  background: #4b5563;
+}
+
+.button-confirm {
+  padding: 0.6rem 1.5rem;
+  border: none;
+  border-radius: 50px;
+  background: var(--color-accent);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.button-confirm:hover {
+  background: var(--color-accent-hover);
+  color: var(--color-text-inverse);
+}
+
+.button-confirm:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

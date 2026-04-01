@@ -1,0 +1,59 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-decoration: none;
+  font-family: "Poppins", sans-serif;
+}
+
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --color-bg: #1d174b;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f2f0f0;
+  --color-text: #0e0932;
+  --color-text-muted: rgba(14, 9, 50, 0.62);
+  --color-text-inverse: #f2f0f0;
+  --color-accent: #ff9f2f;
+  --color-accent-hover: #ffaf54;
+  --color-accent-soft: rgb(247, 114, 57);
+  --color-success: #2e6cb5;
+  --color-success-hover: #204d83;
+  --color-link: #bdaff8;
+  --color-link-strong: #877db4;
+  --color-border-soft: rgba(14, 9, 50, 0.14);
+  --albastru-inchis-navy: #1d174b;
+  --alb-pur: #f2f0f0;
+  --galben-deschis: #ffaf54;
+  --light-gray: #f6f4f4;
+}
+
+/* -------------------------------------------Scrollbar------------------------------------------ */
+
+::-webkit-scrollbar {
+  width: 1vw;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--albastru-inchis-navy);
+  border-radius: 50px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--alb-pur);
+  border-radius: 50px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--alb-pur);
+}
+
+/* -------------------------------------------Body------------------------------------------ */
+
+body {
+  background-color: var(--color-bg);
+}

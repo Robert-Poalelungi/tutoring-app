@@ -26,7 +26,7 @@ router.get(
       case "admin":
         return res.redirect(`${process.env.ORIGIN_SITE}/admin`);
       case "professor":
-        return res.redirect(`${process.env.ORIGIN_SITE}/professor`);
+        return res.redirect(`${process.env.ORIGIN_SITE}/profesor`);
       default:
         return res.redirect(`${process.env.ORIGIN_SITE}/dashboard`);
     }
