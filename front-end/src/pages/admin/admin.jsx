@@ -9,7 +9,7 @@ import '../../css/components/section.css';
 import '../../css/components/forms.css';
 import '../../css/components/modal.css';
 import '../dashboard/dashboard.css';
-import './admin.css';
+import './styles.css';
 
 const ADMIN_TABS = [
   { key: 'users', icon: 'fa-solid fa-users', label: 'Utilizatori' },

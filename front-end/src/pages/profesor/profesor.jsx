@@ -8,7 +8,7 @@ import '../../css/components/section.css';
 import '../../css/components/forms.css';
 import '../../css/components/modal.css';
 import '../dashboard/dashboard.css';
-import './profesor.css';
+import './styles.css';
 
 const MONTH_NAMES = [
   'Ianuarie',

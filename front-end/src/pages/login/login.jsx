@@ -5,7 +5,7 @@ import '../../css/components/back-button.css';
 import '../../css/components/forms.css';
 import '../../css/components/chips.css';
 import '../../css/components/modal.css';
-import './login.css';
+import './styles.css';
 
 function Login() {
   const handleLogin = () => {
