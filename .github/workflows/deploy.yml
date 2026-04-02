@@ -16,16 +16,23 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          script_stop: true
           script: |
+            set -euo pipefail
+
             cd /var/www/html/tutoring-app
 
-            git pull
+            git fetch origin main
+            git checkout main
+            git reset --hard origin/main
+            git clean -fd
 
             cd back-end
             npm install
-            pm2 restart tutoring-app --update-env
 
             cd ../front-end
-            rm -f package-lock.json
             npm install
             npm run build
+
+            cd ../back-end
+            pm2 restart tutoring-app --update-env
