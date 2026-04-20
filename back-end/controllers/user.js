@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { User, Faculty, Specialization } = require("../models");
+const { User, Faculty, Specialization, NotificationPreference } = require("../models");
 const detectStudyYear = require("../utils/detectStudyYear");
 const { enrollStudentInMatchingConsultations, recalculateAutoEnrollments } = require("../services/autoEnrollmentService");
 
@@ -17,14 +17,23 @@ const getCurrentUser = async (req, res) => {
       include: [
         { model: Faculty, as: "faculty" },
         { model: Specialization, as: "specialization" },
+        { model: NotificationPreference, as: "notificationPreference" },
       ],
     });
+    if (!user.notificationPreference) {
+      await NotificationPreference.create({ userId: user.id });
+      user.notificationPreference = await NotificationPreference.findOne({ where: { userId: user.id } });
+    }
+
 
     if (!user) {
       return res.status(404).json({ message: "Utilizatorul nu a fost găsit." });
     }
 
     const userData = user.toJSON();
+    delete userData.driveAccessToken;
+    delete userData.driveRefreshToken;
+    userData.hasDriveAccess = Boolean(user.driveRefreshToken);
     userData.detectedStudyYear = detectStudyYear(user.email);
     userData.name = `${user.firstName || ""} ${user.lastName || ""}`.trim();
 
@@ -150,6 +159,51 @@ const toggleEmailNotifications = async (req, res) => {
   }
 };
 
+const getNotificationSettings = async (req, res) => {
+  try {
+    const [preferences] = await NotificationPreference.findOrCreate({
+      where: { userId: req.user.id },
+      defaults: { userId: req.user.id },
+    });
+
+    return res.status(200).json({
+      reminder1hour: preferences.reminder1hour,
+      reminder1day: preferences.reminder1day,
+      cancellation: preferences.cancellation,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Eroare server.", error: error.message });
+  }
+};
+
+const updateNotificationSettings = async (req, res) => {
+  try {
+    const { reminder1hour, reminder1day, cancellation } = req.body;
+
+    const [preferences] = await NotificationPreference.findOrCreate({
+      where: { userId: req.user.id },
+      defaults: { userId: req.user.id },
+    });
+
+    if (typeof reminder1hour === "boolean") preferences.reminder1hour = reminder1hour;
+    if (typeof reminder1day === "boolean") preferences.reminder1day = reminder1day;
+    if (typeof cancellation === "boolean") preferences.cancellation = cancellation;
+
+    await preferences.save();
+
+    return res.status(200).json({
+      message: "Preferințe notificări actualizate.",
+      settings: {
+        reminder1hour: preferences.reminder1hour,
+        reminder1day: preferences.reminder1day,
+        cancellation: preferences.cancellation,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Eroare server.", error: error.message });
+  }
+};
+
 // Creează JWT și setează cookie-ul
 const setAuthCookie = (user, res) => {
   const token = jwt.sign(
@@ -178,5 +232,7 @@ module.exports = {
   completeProfile,
   updateProfile,
   toggleEmailNotifications,
+  getNotificationSettings,
+  updateNotificationSettings,
   setAuthCookie,
 };

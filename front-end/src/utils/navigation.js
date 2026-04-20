@@ -11,12 +11,10 @@ export const getDashboardRouteByRole = (role) => {
 
   if (normalizedRole === 'admin') return '/admin';
   if (normalizedRole === 'professor') return '/profesor';
-  return '/dashboard';
+  return '/student';
 };
 
 export const getDashboardLabelByRole = (role) => {
-  const normalizedRole = normalizeRole(role);
-  if (normalizedRole === 'admin') return 'Admin';
   return 'Dashboard';
 };
 

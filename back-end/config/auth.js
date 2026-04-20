@@ -25,10 +25,15 @@ passport.use(
             role: "student",
             studyYear: detectStudyYear(email),
             isProfileCompleted: false,
+            driveAccessToken: accessToken || null,
+            driveRefreshToken: refreshToken || null,
           });
-        } else if (!user.studyYear) {
-          // Actualizează anul dacă nu a fost setat
-          user.studyYear = detectStudyYear(email);
+        } else {
+          if (!user.studyYear) {
+            user.studyYear = detectStudyYear(email);
+          }
+          user.driveAccessToken = accessToken || user.driveAccessToken;
+          if (refreshToken) user.driveRefreshToken = refreshToken;
           await user.save();
         }
 

@@ -1,0 +1,275 @@
+.drive-page {
+  width: 100%;
+  max-width: 100%;
+  margin: 1rem auto 2rem;
+  min-width: 0;
+}
+
+.drive-path {
+  margin: 0 0 0.7rem;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drive-filter-group {
+  margin-bottom: 0.8rem;
+}
+
+.drive-faculty-chip {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0 0.7rem;
+  background: #ffffff;
+  color: var(--color-text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.6rem;
+  border-radius: 50px;
+}
+
+.drive-filter-label {
+  margin: 0 0 0.35rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.drive-filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.drive-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.6rem;
+  align-items: center;
+  margin-bottom: 0.9rem;
+  min-width: 0;
+}
+
+.drive-toolbar-actions {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.drive-input {
+  width: 100%;
+  min-width: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.96);
+  color: #1c2735;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.9rem;
+  font-family: "Poppins", sans-serif;
+}
+
+.drive-input::placeholder {
+  color: #657489;
+}
+
+.drive-btn {
+  border: 1px solid #ef8e1b;
+  border-radius: 999px;
+  background: #f08a12;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+  white-space: nowrap;
+}
+
+.drive-btn:hover:not(:disabled) {
+  background: #db7a0c;
+}
+
+.drive-btn-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.drive-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.drive-btn-active {
+  background: #ffad4f;
+  color: #ffffff;
+  border-color: #ffad4f;
+}
+
+.drive-files {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.drive-download-row {
+  margin-top: 0.8rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.drive-file-actions {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.drive-btn-danger {
+  background: #b42318;
+  color: #fff;
+}
+
+.drive-btn-danger:hover:not(:disabled) {
+  background: #8c1a11;
+}
+
+.drive-file-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(70px, auto) auto;
+  align-items: center;
+  gap: 0.6rem;
+  background: #ffffff;
+  border: 1px solid #d7dee8;
+  border-radius: 14px;
+  padding: 0.65rem 0.8rem;
+}
+
+.drive-file-name {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.drive-file-name span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #1c2735;
+  font-weight: 600;
+}
+
+.drive-file-name i {
+  color: #2d5f95;
+}
+
+.drive-meta {
+  font-size: 0.76rem;
+  color: #45556a;
+  white-space: nowrap;
+}
+
+.drive-link {
+  color: #ffffff;
+  background: #f08a12;
+  border: 1px solid #ef8e1b;
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.78rem;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.drive-link:hover {
+  background: #db7a0c;
+}
+
+.drive-link-static {
+  pointer-events: none;
+}
+
+.drive-empty,
+.drive-error,
+.drive-loading {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+}
+
+.pagination {
+  margin-top: 1.25rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.button-pagination {
+  min-width: 2.2rem;
+  height: 2.2rem;
+  padding: 0 0.6rem;
+  border: none;
+  border-radius: 50px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: "Poppins", sans-serif;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.button-pagination:hover:not([disabled]) {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.button-pagination.active {
+  background: #f08a12;
+  color: #ffffff;
+}
+
+.button-pagination[disabled] {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+.pagination-ellipsis {
+  min-width: 2.2rem;
+  height: 2.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.pagination-total {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.84rem;
+  font-weight: 600;
+  margin: 0 0.35rem;
+}
+
+@media (max-width: 768px) {
+  .drive-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .drive-btn,
+  .drive-link {
+    width: 100%;
+    text-align: center;
+  }
+
+  .drive-file-row {
+    grid-template-columns: 1fr;
+    align-items: flex-start;
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+  }
+}

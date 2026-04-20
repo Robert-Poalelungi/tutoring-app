@@ -161,6 +161,10 @@
   gap: 0.75rem;
 }
 
+.admin-items-grid-courses {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
 .admin-item-card {
   background: var(--color-surface-soft);
   border: 1px solid rgba(14, 9, 50, 0.1);
@@ -318,6 +322,11 @@
   width: 90vw;
 }
 
+.modal-card-create {
+  max-width: 560px;
+  width: 90vw;
+}
+
 .modal-form-body {
   display: flex;
   flex-direction: column;
@@ -398,6 +407,75 @@
   margin-left: 0.25rem;
 }
 
+.modal-card-assignment {
+  max-width: 740px;
+  overflow-y: hidden;
+}
+
+.assignment-courses-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.65rem;
+  padding: 0.3rem 0;
+  max-height: min(46vh, 360px);
+  overflow-y: auto;
+  padding-right: 0.35rem;
+}
+
+.assignment-course-option {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  padding: 0.6rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid rgba(22, 18, 48, 0.12);
+  background: rgba(22, 18, 48, 0.03);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.assignment-course-option:hover {
+  border-color: rgba(247, 181, 0, 0.45);
+  background: rgba(247, 181, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.assignment-course-option:has(input:checked) {
+  border-color: rgba(247, 181, 0, 0.75);
+  background: rgba(247, 181, 0, 0.2);
+}
+
+.assignment-course-option input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 50%;
+  border: 2px solid rgba(22, 18, 48, 0.35);
+  background: #ffffff;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: inline-block;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.assignment-course-option input[type="checkbox"]:checked {
+  border-color: #f59e0b;
+  background: radial-gradient(circle at center, #f59e0b 45%, #ffffff 46%);
+}
+
+.assignment-course-option input[type="checkbox"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+}
+
+.assignment-course-option span {
+  line-height: 1.25;
+}
+
 /* -------------------------------------------Danger button------------------------------------------ */
 
 .button-danger {
@@ -437,6 +515,26 @@
   background: rgba(239, 68, 68, 0.08);
   border-color: rgba(239, 68, 68, 0.4);
   color: rgb(239, 68, 68);
+}
+
+.btn-row-edit.btn-row-cancel {
+  background: #f59e0b;
+  color: #111827;
+}
+
+.btn-row-edit.btn-row-cancel:hover {
+  background: #d97706;
+  color: #111827;
+}
+
+.btn-row-edit.btn-row-reactivate {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.btn-row-edit.btn-row-reactivate:hover {
+  background: #15803d;
+  color: #ffffff;
 }
 
 /* -------------------------------------------Pagination------------------------------------------ */
@@ -514,5 +612,11 @@
     margin-top: 0.75rem;
     flex-direction: row;
     justify-content: flex-end;
+  }
+
+  .tab-faculties .admin-item-actions,
+  .tab-specializations .admin-item-actions,
+  .tab-courses .admin-item-actions {
+    justify-content: center;
   }
 }

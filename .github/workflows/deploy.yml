@@ -22,10 +22,24 @@ jobs:
 
             cd /var/www/html/tutoring-app
 
+            # Recover if the repo was left in an unfinished merge/rebase/cherry-pick state.
+            git merge --abort || true
+            git rebase --abort || true
+            git cherry-pick --abort || true
+
+            # Keep server-specific env values across repository hard reset.
+            if [ -f back-end/.env ]; then
+              cp back-end/.env /tmp/tutoring-app-backend.env
+            fi
+
             git fetch origin main
-            git checkout main
+            git checkout -f main
             git reset --hard origin/main
             git clean -fd
+
+            if [ -f /tmp/tutoring-app-backend.env ]; then
+              cp /tmp/tutoring-app-backend.env back-end/.env
+            fi
 
             cd back-end
             npm install

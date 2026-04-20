@@ -1,6 +1,53 @@
+const cron = require("node-cron");
 const { google } = require("googleapis");
 const { GoogleCalendarConnection, ConsultationCalendarSync, Consultation, Course, User, UserConsultation } = require("../models");
 const { calculateEndTime } = require("../utils/dateHelpers");
+
+let isGoogleCalendarJobRunning = false;
+let googleCalendarJobStartedAt = null;
+
+const GOOGLE_CALENDAR_SYNC_CRON = process.env.GOOGLE_CALENDAR_SYNC_CRON || "* * * * *";
+const GOOGLE_CALENDAR_MAX_CONCURRENCY = Math.max(1, Number(process.env.GOOGLE_CALENDAR_MAX_CONCURRENCY || 2));
+const GOOGLE_CALENDAR_USER_SYNC_TIMEOUT_MS = Math.max(
+  5000,
+  Number(process.env.GOOGLE_CALENDAR_USER_SYNC_TIMEOUT_MS || 30000),
+);
+const GOOGLE_CALENDAR_CYCLE_STALE_MS = Math.max(
+  60000,
+  Number(process.env.GOOGLE_CALENDAR_CYCLE_STALE_MS || 10 * 60 * 1000),
+);
+
+const withTimeout = async (promise, timeoutMs, label) => {
+  let timeoutId;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(new Error(`${label} timeout after ${timeoutMs}ms`));
+        }, timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+};
+
+const runWithConcurrency = async (items, concurrency, worker) => {
+  if (!Array.isArray(items) || !items.length) return;
+
+  let index = 0;
+  const workers = Array.from({ length: Math.min(concurrency, items.length) }, async () => {
+    while (true) {
+      const currentIndex = index;
+      index += 1;
+      if (currentIndex >= items.length) return;
+      await worker(items[currentIndex]);
+    }
+  });
+
+  await Promise.all(workers);
+};
 
 // Creează un client OAuth2 pentru Google Calendar
 const createOAuth2Client = () => {
@@ -313,6 +360,69 @@ const syncAllForUser = async (userId) => {
   }
 };
 
+const runConnectedUsersSyncCycle = async () => {
+  if (isGoogleCalendarJobRunning) {
+    const runningForMs = googleCalendarJobStartedAt ? Date.now() - googleCalendarJobStartedAt : 0;
+    if (runningForMs > GOOGLE_CALENDAR_CYCLE_STALE_MS) {
+      console.warn(
+        `[Google Calendar Scheduler] Lock stale detectat (${runningForMs}ms). Resetare lock pentru reluarea ciclului.`,
+      );
+      isGoogleCalendarJobRunning = false;
+      googleCalendarJobStartedAt = null;
+    } else {
+      console.log("[Google Calendar Scheduler] Skip: ciclul anterior este inca in executie.");
+      return;
+    }
+  }
+
+  if (isGoogleCalendarJobRunning) {
+    console.log("[Google Calendar Scheduler] Skip: ciclul anterior este inca in executie.");
+    return;
+  }
+
+  isGoogleCalendarJobRunning = true;
+  googleCalendarJobStartedAt = Date.now();
+  try {
+    const connections = await GoogleCalendarConnection.findAll({
+      where: { isActive: true },
+      attributes: ["userId"],
+    });
+
+    const userIds = [...new Set(connections.map((entry) => entry.userId))];
+    if (!userIds.length) {
+      return;
+    }
+
+    await runWithConcurrency(userIds, GOOGLE_CALENDAR_MAX_CONCURRENCY, async (userId) => {
+      try {
+        await withTimeout(
+          syncAllForUser(userId),
+          GOOGLE_CALENDAR_USER_SYNC_TIMEOUT_MS,
+          `syncAllForUser(${userId})`,
+        );
+      } catch (syncError) {
+        console.error(`[Google Calendar Scheduler] Eroare sync user ${userId}:`, syncError.message);
+      }
+    });
+  } catch (error) {
+    console.error("[Google Calendar Scheduler] Eroare ciclu sync:", error.message);
+  } finally {
+    isGoogleCalendarJobRunning = false;
+    googleCalendarJobStartedAt = null;
+  }
+};
+
+const startGoogleCalendarScheduler = () => {
+  runConnectedUsersSyncCycle();
+
+  cron.schedule(GOOGLE_CALENDAR_SYNC_CRON, () => {
+    console.log("[Google Calendar Scheduler] Verificare sincronizare...");
+    runConnectedUsersSyncCycle();
+  });
+
+  console.log(`[Google Calendar Scheduler] Scheduler pornit — cron: ${GOOGLE_CALENDAR_SYNC_CRON}.`);
+};
+
 module.exports = {
   createOAuth2Client,
   getAuthUrl,
@@ -322,5 +432,6 @@ module.exports = {
   deleteEvent,
   syncAllForConsultation,
   syncAllForUser,
+  startGoogleCalendarScheduler,
   revokeConnection,
 };

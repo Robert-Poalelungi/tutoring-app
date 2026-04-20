@@ -7,6 +7,7 @@ const passport = require("./config/auth");
 const sequelize = require("./config/db");
 const routes = require("./routes");
 const { startEmailScheduler } = require("./services/emailNotificationService");
+const { startGoogleCalendarScheduler } = require("./services/googleCalendarService");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -22,7 +23,7 @@ app.use(
   })
 );
 
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 app.use(cookieParser());
 
 app.use(
@@ -43,10 +44,11 @@ app.use("/api", routes);
 // ─── START SERVER ───
 
 sequelize
-  .sync({ alter: true })
+  .sync()
   .then(() => {
     console.log("Baza de date sincronizată.");
     startEmailScheduler();
+    startGoogleCalendarScheduler();
     app.listen(port, () => {
       console.log(`Serverul rulează la: http://localhost:${port}`);
     });

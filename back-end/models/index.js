@@ -5,6 +5,7 @@ const Course = require("./course");
 const Consultation = require("./consultation");
 const ProfessorCourse = require("./professorCourse");
 const UserConsultation = require("./userConsultation");
+const NotificationPreference = require("./notificationPreference");
 const GoogleCalendarConnection = require("./googleCalendarConnection");
 const ConsultationCalendarSync = require("./consultationCalendarSync");
 const CalendarSessions = require("./calendarSessions");
@@ -69,6 +70,10 @@ UserConsultation.belongsTo(Consultation, { foreignKey: "consultationId", as: "co
 User.hasOne(GoogleCalendarConnection, { foreignKey: "userId", as: "calendarConnection" });
 GoogleCalendarConnection.belongsTo(User, { foreignKey: "userId", as: "user" });
 
+// ─── User → Notification Preferences (one-to-one) ───
+User.hasOne(NotificationPreference, { foreignKey: "userId", as: "notificationPreference" });
+NotificationPreference.belongsTo(User, { foreignKey: "userId", as: "user" });
+
 // ─── Consultation Calendar Sync → Consultation + User ───
 ConsultationCalendarSync.belongsTo(Consultation, { foreignKey: "consultationId", as: "consultation" });
 Consultation.hasMany(ConsultationCalendarSync, { foreignKey: "consultationId", as: "calendarSyncs" });
@@ -87,6 +92,7 @@ module.exports = {
   Consultation,
   ProfessorCourse,
   UserConsultation,
+  NotificationPreference,
   GoogleCalendarConnection,
   ConsultationCalendarSync,
   CalendarSessions,

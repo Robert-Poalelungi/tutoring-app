@@ -9,6 +9,7 @@ const consultationRoutes = require("./consultation");
 const adminRoutes = require("./admin");
 const settingsRoutes = require("./settings");
 const googleCalendarRoutes = require("./googleCalendar");
+const driveRoutes = require("./drive");
 
 router.use("/auth", authRoutes);
 router.use("/user", userRoutes);
@@ -19,5 +20,6 @@ router.use("/consultations", consultationRoutes);
 router.use("/admin", adminRoutes);
 router.use("/settings", settingsRoutes);
 router.use("/google-calendar", googleCalendarRoutes);
+router.use("/drive", driveRoutes);
 
 module.exports = router;

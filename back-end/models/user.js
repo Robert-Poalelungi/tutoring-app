@@ -51,6 +51,14 @@ const User = sequelize.define("User", {
     allowNull: false,
     defaultValue: true,
   },
+  driveAccessToken: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
+  driveRefreshToken: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
 });
 
 module.exports = User;

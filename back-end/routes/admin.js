@@ -22,7 +22,14 @@ const {
   updateSession,
 } = require("../controllers/admin");
 const { getAllCourses } = require("../controllers/course");
-const { getAllConsultationsAdmin, createConsultation, cancelConsultation, deleteConsultation } = require("../controllers/consultation");
+const {
+  getAllConsultationsAdmin,
+  createConsultation,
+  cancelConsultation,
+  reactivateConsultation,
+  deleteConsultation,
+  backfillConsultationFolders,
+} = require("../controllers/consultation");
 const { isAuthenticated, hasRole } = require("../middleware/auth");
 
 // Toate rutele de admin necesită autentificare + rol admin
@@ -106,8 +113,14 @@ router.post("/consultations", createConsultation);
 // PUT /api/admin/consultations/cancel/:id — anulare
 router.put("/consultations/cancel/:id", cancelConsultation);
 
+// PUT /api/admin/consultations/reactivate/:id — reactivare
+router.put("/consultations/reactivate/:id", reactivateConsultation);
+
 // DELETE /api/admin/consultations/:id — ștergere permanentă
 router.delete("/consultations/:id", deleteConsultation);
+
+// POST /api/admin/consultations/backfill-folders — creează/aliniază folderele de materiale pentru toate consultațiile
+router.post("/consultations/backfill-folders", backfillConsultationFolders);
 
 // ─── SETTINGS ───
 

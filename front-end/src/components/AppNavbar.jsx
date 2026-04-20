@@ -15,8 +15,8 @@ export function AppNavbar({ active = 'calendar', profileMenuActive = false }) {
   const { isAuthenticated, user } = useAuth();
   const role = user?.role;
   const logoRoute = getLogoRouteByRole(role);
-  const dashboardRoute = getDashboardRouteByRole(role);
-  const dashboardLabel = getDashboardLabelByRole(role);
+  const studentRoute = getDashboardRouteByRole(role);
+  const studentLabel = getDashboardLabelByRole(role);
 
   return (
     <header className="site-header">
@@ -32,9 +32,9 @@ export function AppNavbar({ active = 'calendar', profileMenuActive = false }) {
             <span>Calendar</span>
           </Link>
           {isAuthenticated ? (
-            <Link to={dashboardRoute} className={active === 'dashboard' ? 'active' : ''}>
+            <Link to={studentRoute} className={active === 'student' ? 'active' : ''}>
               <i className="fa-solid fa-table-columns" />
-              <span>{dashboardLabel}</span>
+              <span>{studentLabel}</span>
             </Link>
           ) : null}
           <Link to="/drive" className={active === 'drive' ? 'active' : ''}>
@@ -51,8 +51,8 @@ export function AppNavbar({ active = 'calendar', profileMenuActive = false }) {
 export function AppBottomNav({ active = 'calendar' }) {
   const { isAuthenticated, user } = useAuth();
   const role = user?.role;
-  const dashboardRoute = getDashboardRouteByRole(role);
-  const dashboardLabel = getDashboardLabelByRole(role);
+  const studentRoute = getDashboardRouteByRole(role);
+  const studentLabel = getDashboardLabelByRole(role);
 
   return (
     <nav className="bottom-nav" aria-label="Navigare principală">
@@ -61,9 +61,9 @@ export function AppBottomNav({ active = 'calendar' }) {
         <span>Calendar</span>
       </Link>
       {isAuthenticated ? (
-        <Link to={dashboardRoute} className={`bottom-nav-item ${active === 'dashboard' ? 'active' : ''}`}>
+        <Link to={studentRoute} className={`bottom-nav-item ${active === 'student' ? 'active' : ''}`}>
           <i className="fa-solid fa-table-columns" />
-          <span>{dashboardLabel}</span>
+          <span>{studentLabel}</span>
         </Link>
       ) : null}
       <Link to="/drive" className={`bottom-nav-item ${active === 'drive' ? 'active' : ''}`}>

@@ -5,12 +5,14 @@ const {
   createConsultation,
   updateConsultation,
   cancelConsultation,
+  reactivateConsultation,
   completeConsultation,
   deleteConsultation,
   getMyConsultations,
   enrollConsultation,
   unenrollConsultation,
   getStudentConsultations,
+  backfillConsultationFolders,
 } = require("../controllers/consultation");
 const { isAuthenticated, hasRole, optionalAuth } = require("../middleware/auth");
 
@@ -39,11 +41,17 @@ router.put("/update/:id", isAuthenticated, hasRole("professor", "admin"), update
 // PUT /api/consultations/cancel/:id — anulează consultație
 router.put("/cancel/:id", isAuthenticated, hasRole("professor", "admin"), cancelConsultation);
 
+// PUT /api/consultations/reactivate/:id — reactivează consultație anulată
+router.put("/reactivate/:id", isAuthenticated, hasRole("professor", "admin"), reactivateConsultation);
+
 // PUT /api/consultations/complete/:id — finalizează consultație
 router.put("/complete/:id", isAuthenticated, hasRole("professor", "admin"), completeConsultation);
 
 // DELETE /api/consultations/delete/:id — șterge consultație (permanent din DB)
 router.delete("/delete/:id", isAuthenticated, hasRole("professor", "admin"), deleteConsultation);
+
+// POST /api/consultations/admin/sync-drive-folders — populează driveFolderId pentru toate consultațiile
+router.post("/admin/sync-drive-folders", isAuthenticated, hasRole("admin"), backfillConsultationFolders);
 
 // ─── PUBLIC (la final, /:id nu interceptează rutele de mai sus) ───
 

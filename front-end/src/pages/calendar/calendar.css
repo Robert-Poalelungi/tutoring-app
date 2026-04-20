@@ -513,7 +513,6 @@
 
 .calendar-today .calendar-day-number {
   font-weight: 800;
-  text-decoration: underline;
 }
 
 .calendar-selected::before {

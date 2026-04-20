@@ -24,12 +24,12 @@ const callback = async (req, res) => {
 
   if (oauthError || !code) {
     console.error("[GCal callback] OAuth error or missing code:", oauthError);
-    return res.redirect(`${process.env.ORIGIN_SITE}/dashboard?calendar=error`);
+    return res.redirect(`${process.env.ORIGIN_SITE}/profil?calendar=error`);
   }
 
   if (!userId || isNaN(userId)) {
     console.error("[GCal callback] Missing or invalid state/userId:", rawUserId);
-    return res.redirect(`${process.env.ORIGIN_SITE}/dashboard?calendar=error`);
+    return res.redirect(`${process.env.ORIGIN_SITE}/profil?calendar=error`);
   }
 
   try {
@@ -79,10 +79,10 @@ const callback = async (req, res) => {
       console.error("[GCal callback] syncAllForUser error:", err.message)
     );
 
-    res.redirect(`${process.env.ORIGIN_SITE}/dashboard?calendar=connected`);
+    res.redirect(`${process.env.ORIGIN_SITE}/profil?calendar=connected`);
   } catch (error) {
     console.error("[GCal callback] ERROR:", error.message, error.stack);
-    res.redirect(`${process.env.ORIGIN_SITE}/dashboard?calendar=error`);
+    res.redirect(`${process.env.ORIGIN_SITE}/profil?calendar=error`);
   }
 };
 

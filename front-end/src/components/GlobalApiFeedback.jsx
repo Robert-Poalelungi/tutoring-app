@@ -15,6 +15,11 @@ function GlobalApiFeedback() {
     };
 
     const onRequestError = (event) => {
+      const status = event.detail?.status;
+      if (status === 401 || status === 403) {
+        return;
+      }
+
       const message = event.detail?.message || 'A apărut o eroare de rețea.';
       setErrorMessage(message);
       if (hideErrorTimerRef.current) {

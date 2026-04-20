@@ -22,6 +22,7 @@ const sendEmail = async (to, subject, html) => {
     });
   } catch (error) {
     console.error(`Eroare la trimiterea emailului către ${to}:`, error.message);
+    throw error;
   }
 };
 
@@ -78,8 +79,39 @@ const sendCancellationEmail = async (studentEmail, consultation) => {
   await sendEmail(studentEmail, subject, html);
 };
 
+// Formatează emailul de reactivare
+const sendReactivationEmail = async (studentEmail, consultation) => {
+  const course = consultation.course;
+  const professor = consultation.professor;
+
+  const subject = `Reactivată: Consultație ${course.name}`;
+
+  const html = `
+    <h2>${subject}</h2>
+    <p>Consultația de mai jos a fost reactivată și este din nou disponibilă.</p>
+    <p><strong>Disciplina:</strong> ${course.name}</p>
+    <p><strong>Profesor:</strong> ${professor.firstName} ${professor.lastName}</p>
+    <p><strong>Data:</strong> ${consultation.date}</p>
+    <p><strong>Ora:</strong> ${consultation.time}</p>
+    <p><strong>Durata:</strong> ${consultation.duration} minute</p>
+    <p><strong>Tip:</strong> ${consultation.type === "online" ? "Online" : "Fizic"}</p>
+    ${consultation.type === "online" && consultation.meetingLink
+      ? `<p><strong>Link meeting:</strong> <a href="${consultation.meetingLink}">${consultation.meetingLink}</a></p>`
+      : ""}
+    ${consultation.type === "fizic" && consultation.room
+      ? `<p><strong>Sala:</strong> ${consultation.room}</p>`
+      : ""}
+    ${consultation.materialsLink
+      ? `<p><strong>Materiale:</strong> <a href="${consultation.materialsLink}">Deschide materiale</a></p>`
+      : ""}
+  `;
+
+  await sendEmail(studentEmail, subject, html);
+};
+
 module.exports = {
   sendEmail,
   sendReminderEmail,
   sendCancellationEmail,
+  sendReactivationEmail,
 };

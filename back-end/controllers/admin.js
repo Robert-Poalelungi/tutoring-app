@@ -393,9 +393,7 @@ const updateSession = async (req, res) => {
         updatedBy: req.user.id,
       });
     } else {
-      session.activeSession = activeSession;
-      session.updatedBy = req.user.id;
-      await session.save();
+      await session.update({ activeSession, updatedBy: req.user.id });
     }
 
     return res.status(200).json({ message: "Sesiune actualizată cu succes.", session });

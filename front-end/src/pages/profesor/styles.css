@@ -57,13 +57,39 @@
 
 /* -------------------------------------------Profesor card actions------------------------------------------ */
 
-.prof-card-actions {
+.prof-consultation-actions {
   display: flex;
   gap: 0.5rem;
   align-items: center;
   justify-content: flex-end;
+  flex-wrap: nowrap;
   grid-column: 3;
   grid-row: 1;
+}
+
+.prof-consultation-actions .btn-row-edit,
+.prof-consultation-actions .btn-row-delete {
+  white-space: nowrap;
+}
+
+.prof-consultation-actions .btn-row-edit.btn-row-cancel {
+  background: #f59e0b;
+  color: #111827;
+}
+
+.prof-consultation-actions .btn-row-edit.btn-row-cancel:hover {
+  background: #d97706;
+  color: #111827;
+}
+
+.prof-consultation-actions .btn-row-edit.btn-row-reactivate {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.prof-consultation-actions .btn-row-edit.btn-row-reactivate:hover {
+  background: #15803d;
+  color: #ffffff;
 }
 
 .button-icon {
@@ -129,7 +155,7 @@
 /* -------------------------------------------Responsive------------------------------------------ */
 
 @media (max-width: 640px) {
-  .prof-card-actions {
+  .prof-consultation-actions {
     grid-row: 2;
     grid-column: 1 / -1;
     flex-direction: row;

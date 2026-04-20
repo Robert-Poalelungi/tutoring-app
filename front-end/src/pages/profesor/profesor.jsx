@@ -7,7 +7,7 @@ import '../../css/components/navbar.css';
 import '../../css/components/section.css';
 import '../../css/components/forms.css';
 import '../../css/components/modal.css';
-import '../dashboard/dashboard.css';
+import '../student/student.css';
 import './styles.css';
 
 const MONTH_NAMES = [
@@ -42,6 +42,7 @@ const normalizeCourse = (course) => ({
   id: course.id,
   name: course.name,
   faculty: course.faculty?.abbreviation || '-',
+  specialization: course.specialization?.name || 'fara specializare',
   years: course.studyYear ? [course.studyYear] : [],
 });
 
@@ -61,10 +62,13 @@ const normalizeConsultation = (item) => ({
 
 function Profesor() {
   const [courses, setCourses] = useState([]);
+  const [allCourses, setAllCourses] = useState([]);
   const [consultations, setConsultations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [showPast, setShowPast] = useState(false);
+  const [showAssignCourseModal, setShowAssignCourseModal] = useState(false);
+  const [selectedAssignableCourseId, setSelectedAssignableCourseId] = useState('');
   const [consultationModal, setConsultationModal] = useState(null);
   const [deleteConsultationId, setDeleteConsultationId] = useState(null);
 
@@ -85,12 +89,14 @@ function Profesor() {
     setError('');
 
     try {
-      const [coursesResponse, consultationsResponse] = await Promise.all([
+      const [coursesResponse, allCoursesResponse, consultationsResponse] = await Promise.all([
         courseApi.getMyCourses(),
+        courseApi.getAllCourses(),
         consultationApi.getProfessorConsultations(),
       ]);
 
       setCourses((coursesResponse || []).map(normalizeCourse));
+      setAllCourses((allCoursesResponse || []).map(normalizeCourse));
       setConsultations((consultationsResponse || []).map(normalizeConsultation));
     } catch (loadError) {
       setError(loadError.message || 'Nu am putut încărca datele profesorului.');
@@ -118,6 +124,34 @@ function Profesor() {
         .sort((a, b) => toDateTime(b.data, b.ora) - toDateTime(a.data, a.ora)),
     [consultations],
   );
+
+  const assignableCourses = useMemo(() => {
+    const assignedIds = new Set(courses.map((entry) => entry.id));
+    return allCourses.filter((entry) => !assignedIds.has(entry.id));
+  }, [allCourses, courses]);
+
+  const openAssignCourseModal = () => {
+    if (!assignableCourses.length) {
+      return;
+    }
+
+    setSelectedAssignableCourseId(assignableCourses[0].id);
+    setShowAssignCourseModal(true);
+  };
+
+  const assignSelectedCourse = async () => {
+    if (!selectedAssignableCourseId) {
+      return;
+    }
+
+    try {
+      await courseApi.assignMyCourse(Number(selectedAssignableCourseId));
+      setShowAssignCourseModal(false);
+      await loadData();
+    } catch (assignError) {
+      setError(assignError.message || 'Nu am putut adauga materia.');
+    }
+  };
 
   const openAddConsultationModal = () => {
     setConsultationModal('create');
@@ -173,14 +207,35 @@ function Profesor() {
     }
 
     try {
+      const selectedCourse = courses.find((entry) => entry.id === Number(consultationForm.courseId));
+
       if (consultationModal === 'edit' && consultationForm.id) {
         await consultationApi.updateConsultation(consultationForm.id, payload);
+
+        setConsultations((current) =>
+          current.map((entry) =>
+            entry.id === consultationForm.id
+              ? {
+                ...entry,
+                courseId: Number(consultationForm.courseId),
+                materie: selectedCourse?.name || entry.materie,
+                data: consultationForm.data,
+                ora: consultationForm.ora,
+                durata: Number(consultationForm.durata) || 120,
+                tip: consultationForm.tip,
+                locatie: consultationForm.locatie || '',
+                materialsLink: consultationForm.materialsLink || '',
+                serie: consultationForm.serie.trim() || 'Toate',
+              }
+              : entry,
+          ),
+        );
       } else {
         await consultationApi.createConsultation(payload);
+        await loadData();
       }
 
       setConsultationModal(null);
-      await loadData();
     } catch (saveError) {
       setError(saveError.message || 'Nu am putut salva consultația.');
     }
@@ -198,16 +253,23 @@ function Profesor() {
     }
   };
 
+  const patchConsultationStatus = (consultationId, status) => {
+    setConsultations((current) =>
+      current.map((entry) =>
+        entry.id === consultationId
+          ? {
+            ...entry,
+            status,
+          }
+          : entry,
+      ),
+    );
+  };
+
   return (
     <div className="has-navbar app-background">
-      <AppNavbar active="dashboard" />
+      <AppNavbar active="student" />
       <div className="dashboard-container">
-        <div className="dashboard-header">
-          <div className="dashboard-header-left">
-            <h1 className="dashboard-title">Dashboard Profesor</h1>
-          </div>
-        </div>
-
         {isLoading ? <p>Se încarcă datele...</p> : null}
         {error ? <p>{error}</p> : null}
 
@@ -219,23 +281,30 @@ function Profesor() {
                   Materiile mele
                   <span className="section-badge">{courses.length}</span>
                 </h3>
+                <button
+                  className="button-edit button-wide"
+                  type="button"
+                  onClick={openAssignCourseModal}
+                  disabled={!assignableCourses.length}
+                >
+                  <i className="fa-solid fa-plus" />
+                  <span>Adauga materie</span>
+                </button>
               </div>
-              <p style={{ marginBottom: '1rem', color: 'rgba(255,255,255,0.8)' }}>
-                Atribuirea materiilor pentru profesori se gestionează din panoul Admin.
-              </p>
+
               <div className="courses-grid">
                 {courses.map((course) => (
                   <article className="course-card" key={course.id}>
                     <p className="course-card-name">{course.name}</p>
-                    <p className="course-card-faculty">{course.faculty}</p>
+                    <p className="course-card-faculty">{course.specialization}</p>
                     <div className="course-card-years">
                       {course.years.length
                         ? course.years.map((year) => (
                           <span className="course-card-year" key={`${course.id}-${year}`}>
-                            Anul {year}
+                            {course.faculty} | Anul {year}
                           </span>
                           ))
-                        : <span className="course-card-year">N/A</span>}
+                        : <span className="course-card-year">{course.faculty} | N/A</span>}
                     </div>
                   </article>
                 ))}
@@ -265,9 +334,23 @@ function Profesor() {
                         <p className="dash-card-time">{consultation.ora}</p>
                         <p className="dash-card-date">{formatDate(consultation.data)}</p>
                       </div>
-                      <div className="prof-card-actions">
+                      <div className="prof-consultation-actions">
                         <button className="btn-row-edit" type="button" onClick={() => openEditConsultationModal(consultation)}>
                           Editează
+                        </button>
+                        <button
+                          className="btn-row-edit btn-row-cancel"
+                          type="button"
+                          onClick={async () => {
+                            try {
+                              await consultationApi.cancelConsultation(consultation.id, 'Anulata de profesor');
+                              patchConsultationStatus(consultation.id, 'cancelled');
+                            } catch (cancelError) {
+                              setError(cancelError.message || 'Nu am putut anula consultația.');
+                            }
+                          }}
+                        >
+                          Anuleaza
                         </button>
                         <button className="btn-row-delete" type="button" onClick={() => setDeleteConsultationId(consultation.id)}>
                           Șterge
@@ -308,6 +391,24 @@ function Profesor() {
                           <p className="dash-card-time">{consultation.ora}</p>
                           <p className="dash-card-date">{formatDate(consultation.data)}</p>
                         </div>
+                        {consultation.status === 'cancelled' ? (
+                          <div className="prof-consultation-actions">
+                            <button
+                              className="btn-row-edit btn-row-reactivate"
+                              type="button"
+                              onClick={async () => {
+                                try {
+                                  await consultationApi.reactivateConsultation(consultation.id);
+                                  patchConsultationStatus(consultation.id, 'published');
+                                } catch (reactivateError) {
+                                  setError(reactivateError.message || 'Nu am putut reactiva consultația.');
+                                }
+                              }}
+                            >
+                              Re-activeaza
+                            </button>
+                          </div>
+                        ) : null}
                       </div>
                       ))
                     : (
@@ -325,12 +426,53 @@ function Profesor() {
 
       <div
         className="modal-overlay"
+        hidden={!showAssignCourseModal}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) setShowAssignCourseModal(false);
+        }}
+      >
+        <div className="modal-card" style={{ maxWidth: '560px' }}>
+          <div className="modal-header">
+            <h3>Adauga materie</h3>
+            <button className="modal-close" type="button" onClick={() => setShowAssignCourseModal(false)}>
+              <i className="fa-solid fa-xmark" />
+            </button>
+          </div>
+          <div className="modal-form-body">
+            <div className="form-group">
+              <label htmlFor="assign-course-select">Alege materia</label>
+              <select
+                id="assign-course-select"
+                value={selectedAssignableCourseId}
+                onChange={(event) => setSelectedAssignableCourseId(event.target.value)}
+              >
+                {assignableCourses.map((course) => (
+                  <option key={course.id} value={course.id}>
+                    {course.name} - {course.faculty}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="modal-actions">
+            <button className="button-cancel" type="button" onClick={() => setShowAssignCourseModal(false)}>
+              Anuleaza
+            </button>
+            <button className="button-confirm" type="button" onClick={assignSelectedCourse}>
+              Adauga
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        className="modal-overlay"
         hidden={!consultationModal}
         onClick={(event) => {
           if (event.target === event.currentTarget) setConsultationModal(null);
         }}
       >
-        <div className="modal-card modal-card-wide">
+        <div className={`modal-card ${consultationModal === 'edit' ? 'modal-card-wide' : ''}`}>
           <div className="modal-header">
             <h3>{consultationModal === 'edit' ? 'Editează consultația' : 'Consultație nouă'}</h3>
             <button className="modal-close" type="button" onClick={() => setConsultationModal(null)}>
@@ -452,7 +594,7 @@ function Profesor() {
         </div>
       </div>
 
-      <AppBottomNav active="dashboard" />
+      <AppBottomNav active="student" />
       <AppFooter />
     </div>
   );

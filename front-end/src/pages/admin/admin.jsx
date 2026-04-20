@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { adminApi, courseApi } from '../../api';
+import { adminApi, authApi, courseApi } from '../../api';
+import { useAuth } from '../../context/useAuth';
 import { AppNavbar } from '../../components/AppNavbar';
 import { getRoleLabel } from '../../utils/navigation';
 import '../../css/reset.css';
@@ -8,7 +9,7 @@ import '../../css/components/navbar.css';
 import '../../css/components/section.css';
 import '../../css/components/forms.css';
 import '../../css/components/modal.css';
-import '../dashboard/dashboard.css';
+import '../student/student.css';
 import './styles.css';
 
 const ADMIN_TABS = [
@@ -21,9 +22,15 @@ const ADMIN_TABS = [
   { key: 'settings', icon: 'fa-solid fa-gear', label: 'Setari' },
 ];
 
+const USERS_PAGE_SIZE = 12;
+const PROFESSORS_PAGE_SIZE = 8;
+const CONSULTATIONS_PAGE_SIZE = 10;
+const COURSES_PAGE_SIZE = 12;
+
 const EMPTY_MODAL = { open: false, type: '', mode: 'create', values: {}, entityId: null };
 
 function Admin() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('users');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -34,10 +41,18 @@ function Admin() {
   const [courses, setCourses] = useState([]);
   const [consultations, setConsultations] = useState([]);
   const [activeSession, setActiveSession] = useState('winter');
+  const [sessionError, setSessionError] = useState('');
   const [assignments, setAssignments] = useState({});
 
   const [userSearch, setUserSearch] = useState('');
+  const [courseSearch, setCourseSearch] = useState('');
   const [consultationSearch, setConsultationSearch] = useState('');
+  const [specializationFacultyFilter, setSpecializationFacultyFilter] = useState('');
+  const [assignmentSearch, setAssignmentSearch] = useState('');
+  const [userPage, setUserPage] = useState(1);
+  const [coursePage, setCoursePage] = useState(1);
+  const [professorPage, setProfessorPage] = useState(1);
+  const [consultationPage, setConsultationPage] = useState(1);
 
   const [modal, setModal] = useState(EMPTY_MODAL);
   const [modalErrors, setModalErrors] = useState({});
@@ -127,6 +142,118 @@ function Admin() {
     });
   }, [consultations, consultationSearch]);
 
+  const filteredCourses = useMemo(() => {
+    const query = courseSearch.trim().toLowerCase();
+    if (!query) return courses;
+
+    return courses.filter((entry) => {
+      const courseName = entry.name?.toLowerCase() || '';
+      const specializationName = entry.specialization?.name?.toLowerCase() || '';
+      const facultyAbbreviation = entry.faculty?.abbreviation?.toLowerCase() || '';
+      const facultyName = entry.faculty?.name?.toLowerCase() || '';
+      const yearText = String(entry.studyYear || '');
+
+      return courseName.includes(query)
+        || specializationName.includes(query)
+        || facultyAbbreviation.includes(query)
+        || facultyName.includes(query)
+        || yearText.includes(query);
+    });
+  }, [courseSearch, courses]);
+
+  const filteredSpecializations = useMemo(() => {
+    if (!specializationFacultyFilter) {
+      return specializations;
+    }
+
+    const facultyId = Number(specializationFacultyFilter);
+    return specializations.filter((entry) => Number(entry.facultyId) === facultyId);
+  }, [specializationFacultyFilter, specializations]);
+
+  const filteredAssignmentCourses = useMemo(() => {
+    const query = assignmentSearch.trim().toLowerCase();
+    if (!query) {
+      return courses;
+    }
+
+    return courses.filter((entry) => {
+      const name = (entry.name || '').toLowerCase();
+      const specialization = (entry.specialization?.name || '').toLowerCase();
+      const faculty = (entry.faculty?.abbreviation || '').toLowerCase();
+      const year = String(entry.studyYear || '');
+
+      return name.includes(query)
+        || specialization.includes(query)
+        || faculty.includes(query)
+        || year.includes(query);
+    });
+  }, [assignmentSearch, courses]);
+
+  const totalUserPages = Math.max(1, Math.ceil(filteredUsers.length / USERS_PAGE_SIZE));
+  const totalCoursePages = Math.max(1, Math.ceil(filteredCourses.length / COURSES_PAGE_SIZE));
+  const totalProfessorPages = Math.max(1, Math.ceil(professors.length / PROFESSORS_PAGE_SIZE));
+  const totalConsultationPages = Math.max(1, Math.ceil(filteredConsultations.length / CONSULTATIONS_PAGE_SIZE));
+
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (userPage - 1) * USERS_PAGE_SIZE;
+    return filteredUsers.slice(startIndex, startIndex + USERS_PAGE_SIZE);
+  }, [filteredUsers, userPage]);
+
+  const paginatedCourses = useMemo(() => {
+    const startIndex = (coursePage - 1) * COURSES_PAGE_SIZE;
+    return filteredCourses.slice(startIndex, startIndex + COURSES_PAGE_SIZE);
+  }, [coursePage, filteredCourses]);
+
+  const paginatedProfessors = useMemo(() => {
+    const startIndex = (professorPage - 1) * PROFESSORS_PAGE_SIZE;
+    return professors.slice(startIndex, startIndex + PROFESSORS_PAGE_SIZE);
+  }, [professorPage, professors]);
+
+  const paginatedConsultations = useMemo(() => {
+    const startIndex = (consultationPage - 1) * CONSULTATIONS_PAGE_SIZE;
+    return filteredConsultations.slice(startIndex, startIndex + CONSULTATIONS_PAGE_SIZE);
+  }, [consultationPage, filteredConsultations]);
+
+  useEffect(() => {
+    setUserPage(1);
+  }, [userSearch, users.length]);
+
+  useEffect(() => {
+    setCoursePage(1);
+  }, [courseSearch, courses.length]);
+
+  useEffect(() => {
+    setProfessorPage(1);
+  }, [users.length]);
+
+  useEffect(() => {
+    setConsultationPage(1);
+  }, [consultationSearch, consultations.length]);
+
+  useEffect(() => {
+    if (userPage > totalUserPages) {
+      setUserPage(totalUserPages);
+    }
+  }, [totalUserPages, userPage]);
+
+  useEffect(() => {
+    if (coursePage > totalCoursePages) {
+      setCoursePage(totalCoursePages);
+    }
+  }, [coursePage, totalCoursePages]);
+
+  useEffect(() => {
+    if (professorPage > totalProfessorPages) {
+      setProfessorPage(totalProfessorPages);
+    }
+  }, [professorPage, totalProfessorPages]);
+
+  useEffect(() => {
+    if (consultationPage > totalConsultationPages) {
+      setConsultationPage(totalConsultationPages);
+    }
+  }, [consultationPage, totalConsultationPages]);
+
   const openModal = (type, mode = 'create', values = {}, entityId = null) => {
     setModal({ open: true, type, mode, values, entityId });
     setModalErrors({});
@@ -135,6 +262,7 @@ function Admin() {
   const closeModal = () => {
     setModal(EMPTY_MODAL);
     setModalErrors({});
+    setAssignmentSearch('');
   };
 
   const onModalFieldChange = (field, value) => {
@@ -344,6 +472,7 @@ function Admin() {
   };
 
   const openAssignmentModal = (professorId) => {
+    setAssignmentSearch('');
     openModal(
       'assignment',
       'edit',
@@ -355,17 +484,24 @@ function Admin() {
     );
   };
 
+  const patchConsultationStatus = (consultationId, status) => {
+    setConsultations((current) =>
+      current.map((entry) =>
+        entry.id === consultationId
+          ? {
+            ...entry,
+            status,
+          }
+          : entry,
+      ),
+    );
+  };
+
   return (
     <div className="has-navbar app-background">
-      <AppNavbar active="dashboard" />
+      <AppNavbar active="student" />
 
       <div className="dashboard-container">
-        <div className="dashboard-header">
-          <div className="dashboard-header-left">
-            <h1 className="dashboard-title">Admin Panel</h1>
-          </div>
-        </div>
-
         {error ? <p className="error-text">{error}</p> : null}
         {isLoading ? <p className="empty-state">Se incarca datele...</p> : null}
 
@@ -431,7 +567,7 @@ function Admin() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.map((entry) => (
+                  {paginatedUsers.map((entry) => (
                     <tr key={entry.id}>
                       <td>{`${entry.firstName || ''} ${entry.lastName || ''}`.trim() || '-'}</td>
                       <td>{entry.email}</td>
@@ -459,10 +595,45 @@ function Admin() {
                 </tbody>
               </table>
             </div>
+            {totalUserPages > 1 ? (
+              <div className="pagination" aria-label="Paginare utilizatori">
+                <button
+                  className="button-pagination"
+                  type="button"
+                  onClick={() => setUserPage((current) => Math.max(1, current - 1))}
+                  disabled={userPage === 1}
+                >
+                  <i className="fa-solid fa-chevron-left" />
+                </button>
+
+                {Array.from({ length: totalUserPages }, (_, index) => {
+                  const page = index + 1;
+                  return (
+                    <button
+                      key={page}
+                      className={`button-pagination ${userPage === page ? 'active' : ''}`}
+                      type="button"
+                      onClick={() => setUserPage(page)}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+
+                <button
+                  className="button-pagination"
+                  type="button"
+                  onClick={() => setUserPage((current) => Math.min(totalUserPages, current + 1))}
+                  disabled={userPage === totalUserPages}
+                >
+                  <i className="fa-solid fa-chevron-right" />
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
 
-        <div className="admin-tab-content" hidden={activeTab !== 'faculties'}>
+        <div className="admin-tab-content tab-faculties" hidden={activeTab !== 'faculties'}>
           <div className="dashboard-section">
             <div className="section-header section-header-col section-header-center">
               <h3>Facultati</h3>
@@ -492,7 +663,7 @@ function Admin() {
           </div>
         </div>
 
-        <div className="admin-tab-content" hidden={activeTab !== 'specializations'}>
+        <div className="admin-tab-content tab-specializations" hidden={activeTab !== 'specializations'}>
           <div className="dashboard-section">
             <div className="section-header section-header-col section-header-center">
               <h3>Specializari</h3>
@@ -505,8 +676,25 @@ function Admin() {
                 <span>Adauga</span>
               </button>
             </div>
+
+            <div className="courses-filters">
+              <div className="form-group" style={{ minWidth: '240px' }}>
+                <label htmlFor="specializations-faculty-filter">Filtru facultate</label>
+                <select
+                  id="specializations-faculty-filter"
+                  value={specializationFacultyFilter}
+                  onChange={(event) => setSpecializationFacultyFilter(event.target.value)}
+                >
+                  <option value="">Toate facultatile</option>
+                  {faculties.map((entry) => (
+                    <option key={entry.id} value={entry.id}>{entry.abbreviation} - {entry.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
             <div className="admin-items-grid">
-              {specializations.map((entry) => (
+              {filteredSpecializations.map((entry) => (
                 <article className="admin-item-card" key={entry.id}>
                   <div className="admin-item-info">
                     <p className="admin-item-name">{entry.name}</p>
@@ -526,7 +714,7 @@ function Admin() {
           </div>
         </div>
 
-        <div className="admin-tab-content" hidden={activeTab !== 'courses'}>
+        <div className="admin-tab-content tab-courses" hidden={activeTab !== 'courses'}>
           <div className="dashboard-section">
             <div className="section-header section-header-col section-header-center">
               <h3>Materii</h3>
@@ -546,8 +734,22 @@ function Admin() {
                 <span>Adauga</span>
               </button>
             </div>
-            <div className="admin-items-grid">
-              {courses.map((entry) => (
+
+            <div className="courses-filters">
+              <div className="form-group" style={{ flex: 1 }}>
+                <label htmlFor="courses-search">Cauta</label>
+                <input
+                  id="courses-search"
+                  type="text"
+                  value={courseSearch}
+                  onChange={(event) => setCourseSearch(event.target.value)}
+                  placeholder="Materie, facultate, specializare sau an"
+                />
+              </div>
+            </div>
+
+            <div className="admin-items-grid admin-items-grid-courses">
+              {paginatedCourses.map((entry) => (
                 <article className="admin-item-card" key={entry.id}>
                   <div className="admin-item-info">
                     <p className="admin-item-name">{entry.name}</p>
@@ -564,6 +766,41 @@ function Admin() {
                 </article>
               ))}
             </div>
+            {totalCoursePages > 1 ? (
+              <div className="pagination" aria-label="Paginare materii">
+                <button
+                  className="button-pagination"
+                  type="button"
+                  onClick={() => setCoursePage((current) => Math.max(1, current - 1))}
+                  disabled={coursePage === 1}
+                >
+                  <i className="fa-solid fa-chevron-left" />
+                </button>
+
+                {Array.from({ length: totalCoursePages }, (_, index) => {
+                  const page = index + 1;
+                  return (
+                    <button
+                      key={page}
+                      className={`button-pagination ${coursePage === page ? 'active' : ''}`}
+                      type="button"
+                      onClick={() => setCoursePage(page)}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+
+                <button
+                  className="button-pagination"
+                  type="button"
+                  onClick={() => setCoursePage((current) => Math.min(totalCoursePages, current + 1))}
+                  disabled={coursePage === totalCoursePages}
+                >
+                  <i className="fa-solid fa-chevron-right" />
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -572,7 +809,7 @@ function Admin() {
             <div className="section-header section-header-col section-header-center">
               <h3>Asignari profesori</h3>
             </div>
-            {professors.map((entry) => (
+            {paginatedProfessors.map((entry) => (
               <article className="prof-assign-card" key={entry.id}>
                 <div>
                   <p className="prof-assign-name">{`${entry.firstName || ''} ${entry.lastName || ''}`.trim() || entry.email}</p>
@@ -590,6 +827,41 @@ function Admin() {
                 </div>
               </article>
             ))}
+            {totalProfessorPages > 1 ? (
+              <div className="pagination" aria-label="Paginare profesori">
+                <button
+                  className="button-pagination"
+                  type="button"
+                  onClick={() => setProfessorPage((current) => Math.max(1, current - 1))}
+                  disabled={professorPage === 1}
+                >
+                  <i className="fa-solid fa-chevron-left" />
+                </button>
+
+                {Array.from({ length: totalProfessorPages }, (_, index) => {
+                  const page = index + 1;
+                  return (
+                    <button
+                      key={page}
+                      className={`button-pagination ${professorPage === page ? 'active' : ''}`}
+                      type="button"
+                      onClick={() => setProfessorPage(page)}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+
+                <button
+                  className="button-pagination"
+                  type="button"
+                  onClick={() => setProfessorPage((current) => Math.min(totalProfessorPages, current + 1))}
+                  disabled={professorPage === totalProfessorPages}
+                >
+                  <i className="fa-solid fa-chevron-right" />
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -645,7 +917,7 @@ function Admin() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredConsultations.map((entry) => (
+                  {paginatedConsultations.map((entry) => (
                     <tr key={entry.id}>
                       <td>{entry.course?.name || '-'}</td>
                       <td>{`${entry.professor?.firstName || ''} ${entry.professor?.lastName || ''}`.trim() || '-'}</td>
@@ -682,14 +954,26 @@ function Admin() {
                           ) : null}
                           {entry.status === 'published' ? (
                             <button
-                              className="btn-row-edit"
+                              className="btn-row-edit btn-row-cancel"
                               type="button"
                               onClick={async () => {
                                 await adminApi.cancelConsultation(entry.id, 'Anulata de admin');
-                                await loadData();
+                                patchConsultationStatus(entry.id, 'cancelled');
                               }}
                             >
                               Anuleaza
+                            </button>
+                          ) : null}
+                          {entry.status === 'cancelled' ? (
+                            <button
+                              className="btn-row-edit btn-row-reactivate"
+                              type="button"
+                              onClick={async () => {
+                                await adminApi.reactivateConsultation(entry.id);
+                                patchConsultationStatus(entry.id, 'published');
+                              }}
+                            >
+                              Re-activeaza
                             </button>
                           ) : null}
                           <button
@@ -706,11 +990,46 @@ function Admin() {
                 </tbody>
               </table>
             </div>
+            {totalConsultationPages > 1 ? (
+              <div className="pagination" aria-label="Paginare consultatii">
+                <button
+                  className="button-pagination"
+                  type="button"
+                  onClick={() => setConsultationPage((current) => Math.max(1, current - 1))}
+                  disabled={consultationPage === 1}
+                >
+                  <i className="fa-solid fa-chevron-left" />
+                </button>
+
+                {Array.from({ length: totalConsultationPages }, (_, index) => {
+                  const page = index + 1;
+                  return (
+                    <button
+                      key={page}
+                      className={`button-pagination ${consultationPage === page ? 'active' : ''}`}
+                      type="button"
+                      onClick={() => setConsultationPage(page)}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+
+                <button
+                  className="button-pagination"
+                  type="button"
+                  onClick={() => setConsultationPage((current) => Math.min(totalConsultationPages, current + 1))}
+                  disabled={consultationPage === totalConsultationPages}
+                >
+                  <i className="fa-solid fa-chevron-right" />
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
 
         <div className="admin-tab-content" hidden={activeTab !== 'settings'}>
-          <div className="dashboard-section" style={{ maxWidth: '700px', margin: '0 auto' }}>
+          <div className="dashboard-section">
             <div className="section-header section-header-col section-header-center">
               <h3>Sesiune academica activa</h3>
             </div>
@@ -719,8 +1038,13 @@ function Admin() {
                 type="button"
                 className={`session-toggle-btn ${activeSession === 'winter' ? 'active' : ''}`}
                 onClick={async () => {
-                  await adminApi.updateSession('winter');
-                  setActiveSession('winter');
+                  setSessionError('');
+                  try {
+                    await adminApi.updateSession('winter');
+                    setActiveSession('winter');
+                  } catch (err) {
+                    setSessionError(err?.message || 'Eroare la schimbarea sesiunii.');
+                  }
                 }}
               >
                 <i className="fa-solid fa-snowflake" />
@@ -731,8 +1055,13 @@ function Admin() {
                 type="button"
                 className={`session-toggle-btn ${activeSession === 'summer' ? 'active' : ''}`}
                 onClick={async () => {
-                  await adminApi.updateSession('summer');
-                  setActiveSession('summer');
+                  setSessionError('');
+                  try {
+                    await adminApi.updateSession('summer');
+                    setActiveSession('summer');
+                  } catch (err) {
+                    setSessionError(err?.message || 'Eroare la schimbarea sesiunii.');
+                  }
                 }}
               >
                 <i className="fa-solid fa-sun" />
@@ -740,13 +1069,60 @@ function Admin() {
                 <small>Iunie - Iulie</small>
               </button>
             </div>
+            {sessionError ? <p className="error-text" style={{ marginTop: '0.75rem' }}>{sessionError}</p> : null}
+          </div>
+
+          <div className="dashboard-section" style={{ marginTop: '1.5rem' }}>
+            <div className="section-header section-header-col section-header-center">
+              <h3>Acces Google Drive</h3>
+              <p className="section-subtitle">
+                {user?.hasDriveAccess
+                  ? 'Drive-ul este conectat. Poți încărca și șterge fișiere.'
+                  : 'Conectează-ți contul Google cu acces Drive pentru a putea încărca și șterge fișiere.'}
+              </p>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+              <a
+                href={authApi.googleAdminLoginUrl()}
+                className="session-toggle-btn"
+                style={{ textDecoration: 'none', gap: '0.5rem' }}
+              >
+                <i className="fa-brands fa-google" />
+                <span>{user?.hasDriveAccess ? 'Reconectează Drive' : 'Conectează Drive'}</span>
+              </a>
+              {user?.hasDriveAccess ? (
+                <button
+                  type="button"
+                  className="session-toggle-btn"
+                  onClick={async () => {
+                    try {
+                      const result = await adminApi.syncDriveFolders();
+                      alert(`Sync finalizat: ${result.updated} consultații actualizate${result.failedCount ? `, ${result.failedCount} eșuate` : ''}.`);
+                    } catch (err) {
+                      alert(err?.message || 'Eroare la sincronizare.');
+                    }
+                  }}
+                >
+                  <i className="fa-solid fa-rotate" />
+                  <span>Sincronizează foldere</span>
+                </button>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
 
       <div className="modal-overlay" hidden={!modal.open} onClick={closeModal}>
-        <div className="modal-card modal-card-wide" onClick={(event) => event.stopPropagation()}>
-          <h3>{modal.mode === 'edit' ? 'Editeaza' : 'Adauga'}</h3>
+        <div
+          className={`modal-card ${modal.type === 'assignment' ? 'modal-card-assignment' : modal.mode === 'edit' ? 'modal-card-wide' : 'modal-card-create'}`}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="modal-header">
+            <h3>{modal.mode === 'edit' ? 'Editeaza' : 'Adauga'}</h3>
+            <button className="modal-close" type="button" onClick={closeModal}>
+              <i className="fa-solid fa-xmark" />
+            </button>
+          </div>
           <div className="modal-form-body">
             {modal.type === 'user' && modal.mode === 'create' ? (
               <>
@@ -802,11 +1178,22 @@ function Admin() {
             ) : null}
 
             {modal.type === 'assignment' ? (
-              <div className="years-checkboxes">
-                {courses.map((entry) => {
+              <>
+                <div className="assign-search-wrapper">
+                  <i className="fa-solid fa-magnifying-glass assign-search-icon" />
+                  <input
+                    className="assign-search-input"
+                    type="text"
+                    value={assignmentSearch}
+                    onChange={(event) => setAssignmentSearch(event.target.value)}
+                    placeholder="Cauta materie, specializare, facultate sau an"
+                  />
+                </div>
+                <div className="assignment-courses-list">
+                  {filteredAssignmentCourses.map((entry) => {
                   const selected = (modal.values.courseIds || []).includes(entry.id);
                   return (
-                    <label key={entry.id} className="checkbox-label">
+                    <label key={entry.id} className="assignment-course-option">
                       <input
                         type="checkbox"
                         checked={selected}
@@ -817,11 +1204,15 @@ function Admin() {
                           onModalFieldChange('courseIds', next);
                         }}
                       />
-                      {entry.name}
+                      <span>{entry.name}</span>
                     </label>
                   );
-                })}
-              </div>
+                  })}
+                  {filteredAssignmentCourses.length === 0 ? (
+                    <p className="empty-state">Nu exista materii pentru cautarea introdusa.</p>
+                  ) : null}
+                </div>
+              </>
             ) : null}
           </div>
 

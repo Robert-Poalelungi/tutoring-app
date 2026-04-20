@@ -62,6 +62,10 @@ const Consultation = sequelize.define("Consultation", {
     type: DataTypes.TEXT,
     allowNull: true,
   },
+  driveFolderId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 });
 
 module.exports = Consultation;

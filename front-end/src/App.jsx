@@ -4,11 +4,12 @@ import { useAuth } from './context/useAuth';
 import { getDashboardRouteByRole, normalizeRole } from './utils/navigation';
 import Admin from './pages/admin/admin.jsx';
 import Calendar from './pages/calendar/calendar.jsx';
-import Dashboard from './pages/dashboard/dashboard.jsx';
+import Student from './pages/student/student.jsx';
 import Drive from './pages/drive/drive.jsx';
 import Login from './pages/login/login.jsx';
 import Profesor from './pages/profesor/profesor.jsx';
 import Profil from './pages/profil/profil.jsx';
+import Setari from './pages/setari/setari.jsx';
 
 function ProtectedRoute({ children, allowedRoles = null }) {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -48,10 +49,10 @@ function App() {
       />
       <Route path="/calendar" element={<Calendar />} />
       <Route
-        path="/dashboard"
+        path="/student"
         element={(
           <ProtectedRoute allowedRoles={['student']}>
-            <Dashboard />
+            <Student />
           </ProtectedRoute>
         )}
       />
@@ -69,6 +70,14 @@ function App() {
         element={(
           <ProtectedRoute>
             <Profil />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/setari"
+        element={(
+          <ProtectedRoute>
+            <Setari />
           </ProtectedRoute>
         )}
       />

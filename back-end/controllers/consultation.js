@@ -1,8 +1,27 @@
 const { Consultation, Course, User, UserConsultation, Faculty, Specialization } = require("../models");
 const { Op } = require("sequelize");
 const { enrollMatchingStudentsInConsultation } = require("../services/autoEnrollmentService");
-const { sendCancellationEmails } = require("../services/emailNotificationService");
+const { sendCancellationEmails, sendReactivationEmails } = require("../services/emailNotificationService");
 const { createEvent, deleteEvent, syncAllForConsultation } = require("../services/googleCalendarService");
+const { ensureConsultationMaterialsFolder, deleteDriveItem, getWritableDriveClient } = require("../services/appDriveService");
+
+const shouldAutoCreateConsultationFolders = () =>
+  String(process.env.GOOGLE_APP_DRIVE_ENABLED || "false").toLowerCase() === "true"
+  && String(process.env.GOOGLE_APP_DRIVE_AUTO_CREATE_CONSULTATION_FOLDERS || "true").toLowerCase() === "true";
+
+const loadConsultationForDriveContext = async (consultationId) =>
+  Consultation.findByPk(consultationId, {
+    include: [
+      {
+        model: Course,
+        as: "course",
+        include: [
+          { model: Faculty, as: "faculty" },
+          { model: Specialization, as: "specialization" },
+        ],
+      },
+    ],
+  });
 
 // Returnează toate consultațiile (public - pentru calendar)
 const getAllConsultations = async (req, res) => {
@@ -112,6 +131,22 @@ const createConsultation = async (req, res) => {
       publishedAt: consultationStatus === "published" ? new Date() : null,
     });
 
+    if (shouldAutoCreateConsultationFolders()) {
+      try {
+        const consultationWithRelations = await loadConsultationForDriveContext(consultation.id);
+        const driveFolder = await ensureConsultationMaterialsFolder({ consultation: consultationWithRelations });
+        consultation.materialsLink = driveFolder.webViewLink || consultation.materialsLink;
+        consultation.driveFolderId = driveFolder.folderId || consultation.driveFolderId;
+        await consultation.save();
+      } catch (driveError) {
+        await consultation.destroy();
+        return res.status(500).json({
+          message: "Nu am putut crea folderul de materiale pentru consultație.",
+          error: driveError.message,
+        });
+      }
+    }
+
     // Auto-enrollment: înscrie studenții care se potrivesc
     if (consultationStatus === "published") {
       await enrollMatchingStudentsInConsultation(consultation.id, courseId);
@@ -140,7 +175,15 @@ const updateConsultation = async (req, res) => {
       return res.status(400).json({ message: "Nu poți edita o consultație anulată sau finalizată." });
     }
 
-    const { date, time, duration, type, room, meetingLink, materialsLink, serie } = req.body;
+    const { courseId, date, time, duration, type, room, meetingLink, materialsLink, serie } = req.body;
+
+    if (courseId) {
+      const nextCourse = await Course.findByPk(courseId);
+      if (!nextCourse) {
+        return res.status(404).json({ message: "Materia nu a fost găsită." });
+      }
+      consultation.courseId = courseId;
+    }
 
     if (date) consultation.date = date;
     if (time) consultation.time = time;
@@ -203,6 +246,41 @@ const cancelConsultation = async (req, res) => {
   }
 };
 
+// Reactivează o consultație anulată (profesor / admin)
+const reactivateConsultation = async (req, res) => {
+  try {
+    const consultation = await Consultation.findByPk(req.params.id);
+
+    if (!consultation) {
+      return res.status(404).json({ message: "Consultația nu a fost găsită." });
+    }
+
+    if (req.user.role === "professor" && consultation.professorId !== req.user.id) {
+      return res.status(403).json({ message: "Nu poți reactiva consultațiile altui profesor." });
+    }
+
+    if (consultation.status !== "cancelled") {
+      return res.status(400).json({ message: "Doar consultațiile anulate pot fi reactivate." });
+    }
+
+    consultation.status = "published";
+    consultation.publishedAt = new Date();
+    consultation.cancelledAt = null;
+    consultation.cancellationReason = null;
+    await consultation.save();
+
+    // Reînscrie automat studenții eligibili și recreează evenimentele calendar.
+    await enrollMatchingStudentsInConsultation(consultation.id, consultation.courseId);
+    // Trimite email de reactivare studenților înscriși (asincron)
+    sendReactivationEmails(consultation.id);
+    syncAllForConsultation(consultation.id, "create");
+
+    return res.status(200).json({ message: "Consultație reactivată cu succes.", consultation });
+  } catch (error) {
+    return res.status(500).json({ message: "Eroare server.", error: error.message });
+  }
+};
+
 // Finalizează o consultație (profesor / admin)
 const completeConsultation = async (req, res) => {
   try {
@@ -245,6 +323,17 @@ const deleteConsultation = async (req, res) => {
 
     // Sincronizare Google Calendar — șterge evenimentele înainte de ștergerea din DB
     await syncAllForConsultation(consultation.id, "delete");
+
+    // Șterge folderul Drive asociat (dacă există)
+    if (consultation.driveFolderId && shouldAutoCreateConsultationFolders()) {
+      try {
+        const drive = await getWritableDriveClient(req.user);
+        await deleteDriveItem({ drive, fileId: consultation.driveFolderId });
+      } catch (driveError) {
+        console.warn(`[Drive] Nu s-a putut șterge folderul ${consultation.driveFolderId}:`, driveError.message);
+        // Continuăm ștergerea consultației chiar dacă Drive eșuează
+      }
+    }
 
     await consultation.destroy();
 
@@ -356,10 +445,27 @@ const getStudentConsultations = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id);
 
-    // Filtru serie: "Toate" include toți studenții; o serie specifică include doar studenții din acea serie
+    // Filtru serie: dacă studentul are serie, include "Toate" + seria lui;
+    // dacă nu are serie setată, nu restricționăm după serie.
     const serieFilter = user.serie
-      ? { [Op.or]: [{ serie: "Toate" }, { serie: user.serie }] }
-      : { serie: "Toate" };
+      ? {
+        [Op.or]: [
+          { serie: "Toate" },
+          { serie: user.serie },
+          { serie: { [Op.like]: `%${user.serie}%` } },
+        ],
+      }
+      : {};
+
+    // Aplică filtrele de an/specializare doar când există în profil.
+    const courseWhere = {};
+    if (user.studyYear) courseWhere.studyYear = user.studyYear;
+    if (user.specializationId) {
+      courseWhere[Op.or] = [
+        { specializationId: user.specializationId },
+        { specializationId: null },
+      ];
+    }
 
     // Consultațiile automate — pe baza anului, specializării și seriei
     const autoConsultations = await Consultation.findAll({
@@ -368,7 +474,7 @@ const getStudentConsultations = async (req, res) => {
         {
           model: Course,
           as: "course",
-          where: { studyYear: user.studyYear, specializationId: user.specializationId },
+          where: Object.keys(courseWhere).length ? courseWhere : undefined,
           include: [
             { model: Faculty, as: "faculty" },
             { model: Specialization, as: "specialization" },
@@ -439,6 +545,60 @@ const getAllConsultationsAdmin = async (req, res) => {
   }
 };
 
+const backfillConsultationFolders = async (req, res) => {
+  if (!shouldAutoCreateConsultationFolders()) {
+    return res.status(400).json({
+      message: "Funcția este dezactivată. Activează GOOGLE_APP_DRIVE_ENABLED și GOOGLE_APP_DRIVE_AUTO_CREATE_CONSULTATION_FOLDERS.",
+    });
+  }
+
+  try {
+    const consultations = await Consultation.findAll({
+      include: [
+        {
+          model: Course,
+          as: "course",
+          include: [
+            { model: Faculty, as: "faculty" },
+            { model: Specialization, as: "specialization" },
+          ],
+        },
+      ],
+      order: [["id", "ASC"]],
+    });
+
+    let updated = 0;
+    const failed = [];
+
+    for (const consultation of consultations) {
+      try {
+        const driveFolder = await ensureConsultationMaterialsFolder({ consultation });
+        const needsUpdate =
+          (driveFolder.webViewLink && consultation.materialsLink !== driveFolder.webViewLink) ||
+          (driveFolder.folderId && consultation.driveFolderId !== driveFolder.folderId);
+        if (needsUpdate) {
+          consultation.materialsLink = driveFolder.webViewLink || consultation.materialsLink;
+          consultation.driveFolderId = driveFolder.folderId || consultation.driveFolderId;
+          await consultation.save();
+          updated += 1;
+        }
+      } catch (error) {
+        failed.push({ consultationId: consultation.id, error: error.message });
+      }
+    }
+
+    return res.status(200).json({
+      message: "Backfill foldere consultații finalizat.",
+      total: consultations.length,
+      updated,
+      failedCount: failed.length,
+      failed,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Eroare la backfill foldere consultații.", error: error.message });
+  }
+};
+
 module.exports = {
   getAllConsultations,
   getAllConsultationsAdmin,
@@ -446,10 +606,12 @@ module.exports = {
   createConsultation,
   updateConsultation,
   cancelConsultation,
+  reactivateConsultation,
   completeConsultation,
   deleteConsultation,
   getMyConsultations,
   enrollConsultation,
   unenrollConsultation,
   getStudentConsultations,
+  backfillConsultationFolders,
 };

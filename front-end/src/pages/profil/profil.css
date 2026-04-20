@@ -152,9 +152,9 @@
   align-items: center;
   justify-content: center;
   min-height: 1.9rem;
-  background: rgba(242, 240, 240, 0.14);
-  border: 1px solid rgba(242, 240, 240, 0.2);
-  color: var(--color-text-inverse);
+  background: #ffffff;
+  border: 1px solid rgba(22, 18, 48, 0.18);
+  color: var(--color-text);
   font-size: 0.82rem;
   font-weight: 600;
   padding: 0.2rem 0.9rem;
@@ -198,6 +198,99 @@
   color: var(--color-text-inverse);
 }
 
+.calendar-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+.button-calendar-disconnect {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+.button-calendar-disconnect:hover {
+  background: #b91c1c !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+}
+
+.google-calendar-last-sync {
+  margin-top: 0.75rem;
+  font-size: 0.82rem;
+  color: rgba(242, 240, 240, 0.75);
+}
+
+.notifications-section {
+  padding: 1.5rem 2rem;
+}
+
+.notifications-header {
+  align-items: center;
+}
+
+.notifications-body {
+  background: rgba(242, 240, 240, 0.08);
+  border-radius: 16px;
+  padding: 1.2rem 1.5rem;
+}
+
+.notification-type-grid {
+  margin-top: 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.6rem;
+}
+
+.notification-type-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--color-text-inverse);
+}
+
+.notification-type-item input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 50%;
+  border: 2px solid rgba(242, 240, 240, 0.55);
+  background: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 0;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notification-type-item input[type="checkbox"]:checked {
+  border-color: var(--color-accent);
+  background: radial-gradient(circle at center, var(--color-accent) 45%, #ffffff 46%);
+}
+
+.notification-type-item input[type="checkbox"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(247, 181, 0, 0.28);
+}
+
+.notification-type-item span {
+  line-height: 1.2;
+}
+
+.profile-inline-message {
+  margin-top: 0.8rem;
+  font-size: 0.82rem;
+  color: rgba(242, 240, 240, 0.88);
+}
+
 .profile-content .profile-section:nth-of-type(1) {
   grid-column: 2;
   grid-row: 1;
@@ -211,6 +304,11 @@
 .profile-content .profile-section:nth-of-type(3) {
   grid-column: 1 / -1;
   grid-row: 3;
+}
+
+.profile-content .profile-section:nth-of-type(4) {
+  grid-column: 1 / -1;
+  grid-row: 4;
 }
 
 /* -------------------------------------------Profile-specific button overrides------------------------------------------ */
@@ -366,7 +464,8 @@
 
   .profile-content .profile-section:nth-of-type(1),
   .profile-content .profile-section:nth-of-type(2),
-  .profile-content .profile-section:nth-of-type(3) {
+  .profile-content .profile-section:nth-of-type(3),
+  .profile-content .profile-section:nth-of-type(4) {
     grid-column: 1;
     grid-row: auto;
   }
@@ -396,6 +495,10 @@
   .google-calendar-text {
     font-size: 0.85rem;
     margin-bottom: 0.85rem;
+  }
+
+  .notification-type-grid {
+    grid-template-columns: 1fr;
   }
 
   .button-connect-calendar {

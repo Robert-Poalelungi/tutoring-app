@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { googleCalendarApi, profileApi } from '../../api';
+import { profileApi } from '../../api';
 import AppFooter from '../../components/AppFooter';
 import { AppBottomNav, AppNavbar } from '../../components/AppNavbar';
 import { useAuth } from '../../context/useAuth';
@@ -10,7 +10,7 @@ import '../../css/components/section.css';
 import '../../css/components/forms.css';
 import '../../css/components/chips.css';
 import '../../css/components/modal.css';
-import '../dashboard/dashboard.css';
+import '../student/student.css';
 import './profil.css';
 
 const mapProfileFromUser = (user) => ({
@@ -36,7 +36,6 @@ function Profil() {
   const [selectedNewFaculty, setSelectedNewFaculty] = useState(null);
   const [faculties, setFaculties] = useState([]);
   const [specializations, setSpecializations] = useState([]);
-  const [calendarConnected, setCalendarConnected] = useState(false);
   const [error, setError] = useState('');
 
   const profile = useMemo(() => (user ? mapProfileFromUser(user) : null), [user]);
@@ -87,30 +86,6 @@ function Profil() {
       isMounted = false;
     };
   }, [draftProfile?.facultyId, profile?.facultyId]);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadCalendarStatus = async () => {
-      if (!isStudent) {
-        if (isMounted) setCalendarConnected(false);
-        return;
-      }
-
-      try {
-        const status = await googleCalendarApi.getStatus();
-        if (isMounted) setCalendarConnected(Boolean(status?.connected));
-      } catch {
-        if (isMounted) setCalendarConnected(false);
-      }
-    };
-
-    loadCalendarStatus();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [isStudent]);
 
   const currentFaculty = useMemo(
     () => faculties.find((faculty) => faculty.abbreviation === activeProfile?.facultyAbbr),
@@ -188,11 +163,6 @@ function Profil() {
     setShowFacultyModal(false);
   };
 
-  const handleConnectCalendar = () => {
-    if (!isStudent) return;
-    window.location.assign(googleCalendarApi.connectUrl());
-  };
-
   if (!profile || !activeProfile) {
     return null;
   }
@@ -207,10 +177,7 @@ function Profil() {
 
   return (
     <div className="profile-body has-navbar app-background">
-      <AppNavbar active="dashboard" profileMenuActive />
-      <div className="dashboard-header" style={headerStyle}>
-        <h1 className="dashboard-title">Profil</h1>
-      </div>
+      <AppNavbar active="" profileMenuActive />
       <div className="profile-container">
         <div className="profile-sidebar">
           <div className="profile-avatar">
@@ -236,7 +203,7 @@ function Profil() {
                 type="button"
                 onClick={handleEditToggle}
               >
-                <span>{isEditing ? 'Salveaza' : 'Editeaza'}</span>
+                <span>{isEditing ? 'Salvează' : 'Editează'}</span>
               </button>
             </div>
             <div className="section-body">
@@ -308,7 +275,7 @@ function Profil() {
                           }}
                         >
                           <option value="" disabled>
-                            Selecteaza specializarea
+                            Selectează specializarea
                           </option>
                           {specializations.map((specialization) => (
                             <option key={specialization.id} value={specialization.id}>
@@ -361,30 +328,6 @@ function Profil() {
             </div>
           </div>
 
-          <div className="profile-section google-calendar-section">
-            <div className="section-header google-calendar-header">
-              <h3>Google Calendar</h3>
-              <span className="calendar-status-badge" id="calendar-status-badge">
-                {!isStudent ? 'Disponibil doar pentru studenti' : calendarConnected ? 'Conectat' : 'Neconectat'}
-              </span>
-            </div>
-            <div className="section-body google-calendar-body">
-              <p className="google-calendar-text">
-                {isStudent
-                  ? 'Conecteaza-ti Google Calendar pentru a primi consultatiile direct in calendar si a nu rata nicio sesiune.'
-                  : 'Sincronizarea Google Calendar este activa doar pentru conturile de student.'}
-              </p>
-              <button
-                className="button-connect-calendar"
-                id="button-connect-calendar"
-                type="button"
-                onClick={handleConnectCalendar}
-                disabled={!isStudent}
-              >
-                Conectează Google Calendar
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -407,8 +350,8 @@ function Profil() {
           </div>
           <p className="modal-warning">
             {isStudent
-              ? 'Schimbarea facultatii va reseta specializarea si disciplinele suplimentare.'
-              : 'Schimbarea facultatii va actualiza afilierea contului tau.'}
+              ? 'Schimbarea facultății va reseta specializarea și disciplinele suplimentare.'
+              : 'Schimbarea facultății va actualiza afilierea contului tău.'}
           </p>
           <div className="faculty-grid" id="faculty-grid">
             {faculties.map((faculty) => {
@@ -435,14 +378,14 @@ function Profil() {
                 >
                   <p className="faculty-grid-abbr">{faculty.abbreviation}</p>
                   <p className="faculty-grid-name">{faculty.name}</p>
-                  {isCurrent ? <span className="current-badge">Curenta</span> : null}
+                  {isCurrent ? <span className="current-badge">Curentă</span> : null}
                 </div>
               );
             })}
           </div>
           <div className="modal-actions">
             <button className="button-cancel" id="modal-faculty-cancel" type="button" onClick={() => setShowFacultyModal(false)}>
-              Anuleaza
+              Anulează
             </button>
             <button
               className="button-confirm"
@@ -451,13 +394,13 @@ function Profil() {
               disabled={!selectedNewFaculty}
               onClick={handleConfirmFacultyChange}
             >
-              Confirma schimbarea
+              Confirmă schimbarea
             </button>
           </div>
         </div>
       </div>
 
-      <AppBottomNav active="dashboard" />
+      <AppBottomNav active="" />
       <AppFooter />
     </div>
   );

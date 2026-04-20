@@ -2,10 +2,22 @@ const router = require("express").Router();
 const passport = require("passport");
 const { setAuthCookie } = require("../controllers/user");
 
-// Inițiază autentificarea cu Google
+// Autentificare Google standard (studenți, profesori)
 router.get(
   "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+  })
+);
+
+// Autentificare Google cu acces Drive (doar pentru admin)
+router.get(
+  "/google/admin",
+  passport.authenticate("google", {
+    scope: ["profile", "email", "https://www.googleapis.com/auth/drive"],
+    accessType: "offline",
+    prompt: "consent",
+  })
 );
 
 // Callback-ul de la Google OAuth
@@ -18,7 +30,7 @@ router.get(
 
     // Redirecționare în funcție de starea profilului
     if (!req.user.isProfileCompleted) {
-      return res.redirect(`${process.env.ORIGIN_SITE}/onboarding`);
+      return res.redirect(`${process.env.ORIGIN_SITE}/profil`);
     }
 
     // Redirecționare în funcție de rol
@@ -28,7 +40,7 @@ router.get(
       case "professor":
         return res.redirect(`${process.env.ORIGIN_SITE}/profesor`);
       default:
-        return res.redirect(`${process.env.ORIGIN_SITE}/dashboard`);
+        return res.redirect(`${process.env.ORIGIN_SITE}/student`);
     }
   }
 );

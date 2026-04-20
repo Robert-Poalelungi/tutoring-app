@@ -44,8 +44,8 @@ function ProfileMenuButton({ initials = 'PR', active = false, ariaLabel = 'Profi
 
   if (isLoading || !isAuthenticated) {
     return (
-      <Link to="/login" className="top-auth-btn" aria-label="Conecteaza-te">
-        Conecteaza-te
+      <Link to="/login" className="top-auth-btn" aria-label="Conectează-te">
+        Conectează-te
       </Link>
     );
   }
@@ -67,6 +67,9 @@ function ProfileMenuButton({ initials = 'PR', active = false, ariaLabel = 'Profi
       <div className="profile-popup" id={popupId} hidden={!isOpen} role="menu" aria-label="Meniu profil">
         <Link to="/profil" className="profile-popup-btn" role="menuitem" onClick={() => setIsOpen(false)}>
           Profil
+        </Link>
+        <Link to="/setari" className="profile-popup-btn" role="menuitem" onClick={() => setIsOpen(false)}>
+          Setări
         </Link>
         <Link
           to="/login"

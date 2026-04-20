@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { consultationApi } from '../../api';
+import { Link } from 'react-router-dom';
+import { consultationApi, settingsApi } from '../../api';
 import AppFooter from '../../components/AppFooter';
 import { AppBottomNav, AppNavbar } from '../../components/AppNavbar';
 import '../../css/reset.css';
 import '../../css/components/navbar.css';
 import '../../css/components/modal.css';
-import '../dashboard/dashboard.css';
+import '../student/student.css';
 import './calendar.css';
 
 const MONTH_NAMES = [
@@ -37,12 +38,57 @@ const getProfessorName = (consultation) => {
   return `${first} ${last}`.trim() || '-';
 };
 
+const normalizeExternalUrl = (value) => {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  if (/^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(raw)) {
+    return raw;
+  }
+  return `https://${raw}`;
+};
+
+const getLinkLabel = (url, fallback) => {
+  if (!url) return fallback;
+  try {
+    const parsed = new URL(url);
+    return parsed.hostname.replace(/^www\./, '');
+  } catch {
+    return fallback;
+  }
+};
+
+const extractDriveFolderId = (value) => {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+
+  if (/^[a-zA-Z0-9_-]{20,}$/.test(raw)) {
+    return raw;
+  }
+
+  try {
+    const parsed = new URL(raw);
+    const folderMatch = parsed.pathname.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+    if (folderMatch?.[1]) {
+      return folderMatch[1];
+    }
+
+    return parsed.searchParams.get('id') || '';
+  } catch {
+    return '';
+  }
+};
+
 const normalizeConsultation = (consultation) => ({
   id: consultation.id,
   date: consultation.date,
   ora: consultation.time?.slice(0, 5) || '-',
   profesor: getProfessorName(consultation),
   materie: consultation.course?.name || '-',
+  tip: consultation.type || 'fizic',
+  link: normalizeExternalUrl(consultation.meetingLink),
+  sala: consultation.room || '',
+  materialeLink: normalizeExternalUrl(consultation.materialsLink),
+  materialeFolderId: extractDriveFolderId(consultation.materialsLink),
   an: consultation.course?.studyYear ? String(consultation.course.studyYear) : '-',
   facultate: consultation.course?.faculty?.abbreviation || '-',
   serie: consultation.serie || 'Toate',
@@ -51,6 +97,7 @@ const normalizeConsultation = (consultation) => ({
 
 function Calendar() {
   const [consultations, setConsultations] = useState([]);
+  const [sessionMonths, setSessionMonths] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedDate, setSelectedDate] = useState(null);
@@ -61,14 +108,20 @@ function Calendar() {
   useEffect(() => {
     let isMounted = true;
 
-    const loadConsultations = async () => {
+    const loadData = async () => {
       setIsLoading(true);
       setError('');
       try {
-        const data = await consultationApi.getPublicConsultations();
+        const [data, sessionData] = await Promise.all([
+          consultationApi.getPublicConsultations(),
+          settingsApi.getActiveSession(),
+        ]);
         if (!isMounted) return;
         const normalized = Array.isArray(data) ? data.map(normalizeConsultation) : [];
         setConsultations(normalized);
+        // months din backend sunt 1-indexed (1=Ian), getMonth() e 0-indexed
+        const months = Array.isArray(sessionData?.months) ? sessionData.months.map((m) => m - 1) : [];
+        setSessionMonths(months);
       } catch (loadError) {
         if (!isMounted) return;
         setError(loadError.message || 'Nu am putut încărca consultațiile.');
@@ -77,7 +130,7 @@ function Calendar() {
       }
     };
 
-    loadConsultations();
+    loadData();
 
     return () => {
       isMounted = false;
@@ -85,9 +138,12 @@ function Calendar() {
   }, []);
 
   const availableMonths = useMemo(() => {
+    if (sessionMonths.length > 0) {
+      return [...sessionMonths].sort((a, b) => a - b);
+    }
     const months = [...new Set(consultations.map((item) => new Date(item.date).getMonth()))].sort((a, b) => a - b);
     return months.length ? months : [new Date().getMonth()];
-  }, [consultations]);
+  }, [consultations, sessionMonths]);
 
   const [activeMonth, setActiveMonth] = useState(new Date().getMonth());
 
@@ -160,7 +216,7 @@ function Calendar() {
   const selectedDateLabels = useMemo(() => {
     if (!selectedDate) {
       return {
-        main: 'Selecteaza o zi',
+        main: 'Selectează o zi',
         subtitle: 'din calendar',
       };
     }
@@ -192,9 +248,6 @@ function Calendar() {
   return (
     <div className="body-calendar has-navbar app-background">
       <AppNavbar active="calendar" />
-      <div className="dashboard-header">
-        <h1 className="dashboard-title">Calendar</h1>
-      </div>
       <div className="calendar-filters calendar-filters-top" aria-label="Filtre calendar">
         <div className="calendar-filter-group">
           <label>An</label>
@@ -221,7 +274,7 @@ function Calendar() {
             value={facultyFilter}
             onChange={(event) => setFacultyFilter(event.target.value)}
           >
-            <option value="all">Selecteaza facultatea</option>
+            <option value="all">Selectează facultatea</option>
             {faculties.map((faculty) => (
               <option key={faculty} value={faculty}>
                 {faculty}
@@ -287,7 +340,6 @@ function Calendar() {
             ) : null}
             {!isLoading && !error && !selectedDate ? (
               <div className="empty-calendar-state" aria-hidden="true">
-                <i className="fa-regular fa-calendar-days" />
                 <p>Alege o zi din calendar pentru a vedea consultațiile</p>
               </div>
             ) : null}
@@ -363,14 +415,14 @@ function Calendar() {
       >
         <div className="modal-card modal-card-wide">
           <div className="modal-header">
-            <h3 id="modal-details-title">{detailsConsultation?.materie || 'Detalii consultatie'}</h3>
+            <h3 id="modal-details-title">{detailsConsultation?.materie || 'Detalii consultație'}</h3>
             <button className="modal-close" id="modal-details-close" onClick={() => setDetailsConsultation(null)} type="button">
               <i className="fa-solid fa-xmark" />
             </button>
           </div>
           <div className="modal-details-body" id="modal-details-body">
             <div className="detail-row">
-              <span className="detail-label">Cadru didactic</span>
+              <span className="detail-label">Profesor</span>
               <span className="detail-value">{detailsConsultation?.profesor || '-'}</span>
             </div>
             <div className="detail-row">
@@ -388,6 +440,38 @@ function Calendar() {
             <div className="detail-row">
               <span className="detail-label">Facultate</span>
               <span className="detail-value">{detailsConsultation?.facultate || '-'}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">{detailsConsultation?.tip === 'online' ? 'Link întâlnire' : 'Sală'}</span>
+              <span className="detail-value">
+                {detailsConsultation?.tip === 'online' ? (
+                  detailsConsultation?.link ? (
+                    <a
+                      className="detail-link"
+                      href={detailsConsultation.link}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Link întâlnire
+                    </a>
+                  ) : '-'
+                ) : (detailsConsultation?.sala || '-')}
+              </span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Link materiale</span>
+              <span className="detail-value">
+                {detailsConsultation?.materialeLink ? (
+                  <Link
+                    className="detail-link"
+                    to={detailsConsultation.materialeFolderId
+                      ? `/drive?folderId=${encodeURIComponent(detailsConsultation.materialeFolderId)}`
+                      : '/drive'}
+                  >
+                    Link materiale
+                  </Link>
+                ) : '-'}
+              </span>
             </div>
           </div>
           <div className="modal-actions">
