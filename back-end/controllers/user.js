@@ -20,14 +20,14 @@ const getCurrentUser = async (req, res) => {
         { model: NotificationPreference, as: "notificationPreference" },
       ],
     });
-    if (!user.notificationPreference) {
-      await NotificationPreference.create({ userId: user.id });
-      user.notificationPreference = await NotificationPreference.findOne({ where: { userId: user.id } });
-    }
-
 
     if (!user) {
       return res.status(404).json({ message: "Utilizatorul nu a fost găsit." });
+    }
+
+    if (!user.notificationPreference) {
+      await NotificationPreference.create({ userId: user.id });
+      user.notificationPreference = await NotificationPreference.findOne({ where: { userId: user.id } });
     }
 
     const userData = user.toJSON();
