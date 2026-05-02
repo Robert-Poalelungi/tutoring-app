@@ -248,7 +248,7 @@ function Calendar() {
   return (
     <div className="body-calendar has-navbar app-background">
       <AppNavbar active="calendar" />
-      <div className="calendar-filters calendar-filters-top" aria-label="Filtre calendar">
+<div className="calendar-filters calendar-filters-top" aria-label="Filtre calendar">
         <div className="calendar-filter-group">
           <label>An</label>
           <div className="calendar-year-buttons" role="group" aria-label="Filtru an universitar">

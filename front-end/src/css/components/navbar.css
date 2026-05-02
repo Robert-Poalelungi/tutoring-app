@@ -13,15 +13,32 @@
   isolation: isolate;
 }
 
+.mobile-page-title {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-page-title {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--color-text-inverse);
+    letter-spacing: 1px;
+    background: #1d174b;
+    border-radius: 20px;
+    padding: 0.75rem 1.25rem;
+    width: fit-content;
+    margin: 0.75rem 0 1.5rem 1rem;
+  }
+}
+
 .app-background::before {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: url(../../assets/background.png);
+  background-image: url(../../assets/background.webp);
   background-size: cover;
   background-position: center;
-  filter: blur(2px);
-  transform: scale(1.03);
   pointer-events: none;
   z-index: -2;
 }
@@ -42,7 +59,20 @@
   left: 0;
   width: 100%;
   z-index: 1000;
-  padding: 1rem 0;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.navbar-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 1200px;
+  justify-content: center;
 }
 
 /* -------------------------------------------Footer------------------------------------------ */
@@ -68,11 +98,8 @@
 /* -------------------------------------------User button + profile popup------------------------------------------ */
 
 .top-user-btn {
-  position: fixed;
-  top: 3rem;
-  right: 1.5rem;
-  width: 3.2rem;
-  height: 3.2rem;
+  width: 2.6rem;
+  height: 2.6rem;
   border-radius: 50%;
   background: var(--color-accent);
   border: 1px solid rgba(14, 9, 50, 0.18);
@@ -80,17 +107,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
-  z-index: 1100;
-  transform: translateY(-50%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  flex-shrink: 0;
 }
 
 .top-auth-btn {
-  position: fixed;
-  top: 3rem;
-  right: 1.5rem;
-  min-height: 2.7rem;
+  min-height: 2.2rem;
   border-radius: 999px;
   background: var(--color-surface-soft);
   border: 2px solid var(--color-text);
@@ -98,19 +121,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 0.9rem;
+  padding: 0 1rem;
   font-size: 0.84rem;
   font-weight: 700;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
-  z-index: 1100;
-  transform: translateY(-50%);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition: transform 0.2s ease, background 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .top-auth-btn:hover {
   background: #e9e5e2;
-  transform: translateY(-50%) scale(1.02);
-  box-shadow: 0 10px 22px rgba(8, 7, 26, 0.24);
+  transform: scale(1.02);
 }
 
 .user-initials {
@@ -123,7 +144,7 @@
 .top-user-btn:hover {
   background: var(--color-accent);
   color: var(--color-text-inverse);
-  transform: translateY(-50%) scale(1.03);
+  transform: scale(1.05);
   box-shadow: 0 10px 22px rgba(247, 181, 0, 0.3);
 }
 
@@ -273,37 +294,13 @@
 
 /* -------------------------------------------Responsive------------------------------------------ */
 
-@media (max-width: 1300px) and (min-width: 769px) {
-  .navbar {
-    padding-right: 4.5rem;
+@media (max-width: 900px) and (min-width: 769px) {
+  .links a span {
+    display: none;
   }
 
-  .top-user-btn {
-    position: absolute;
-    top: 50%;
-    right: calc((100vw - min(1120px, 96vw)) / 2 + 0.65rem);
-    transform: translateY(-50%);
-  }
-
-  .top-user-btn:hover {
-    transform: translateY(-50%) scale(1.03);
-  }
-
-  .top-auth-btn {
-    position: absolute;
-    top: 50%;
-    right: calc((100vw - min(1120px, 96vw)) / 2 + 0.65rem);
-    transform: translateY(-50%);
-  }
-
-  .top-auth-btn:hover {
-    transform: translateY(-50%) scale(1.02);
-  }
-
-  .profile-popup {
-    position: absolute;
-    top: calc(100% - 0.5rem);
-    right: calc((100vw - min(1120px, 96vw)) / 2 + 0.65rem);
+  .links a {
+    padding: 0.5rem 0.8rem;
   }
 }
 
@@ -313,34 +310,13 @@
     padding-bottom: 5rem;
   }
 
-  .site-header .navbar {
+  .site-header {
     display: none;
   }
 
-  .has-navbar {
-    padding-top: 0;
-  }
-
+  .top-auth-btn,
   .top-user-btn {
-    top: 0.75rem;
-    right: 0.9rem;
-    width: 2.8rem;
-    height: 2.8rem;
-    transform: none;
-    z-index: 1100;
-  }
-
-  .top-user-btn:hover {
-    transform: scale(1.03);
-  }
-
-  .top-auth-btn {
     display: none;
-  }
-
-  .profile-popup {
-    top: 4rem;
-    right: 0.9rem;
   }
 
   .site-footer {

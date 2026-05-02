@@ -44,7 +44,7 @@ app.use("/api", routes);
 // ─── START SERVER ───
 
 sequelize
-  .sync({ alter: true })
+  .sync({ alter: process.env.SITE_MODE !== "dev" })
   .then(() => {
     console.log("Baza de date sincronizată.");
     startEmailScheduler();

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { adminApi, authApi, courseApi } from '../../api';
 import { useAuth } from '../../context/useAuth';
-import { AppNavbar } from '../../components/AppNavbar';
+import { AppBottomNav, AppNavbar } from '../../components/AppNavbar';
 import { getRoleLabel } from '../../utils/navigation';
 import '../../css/reset.css';
 import '../../css/components/navbar.css';
@@ -1233,6 +1233,7 @@ function Admin() {
           </div>
         </div>
       </div>
+      <AppBottomNav active="student" />
     </div>
   );
 }

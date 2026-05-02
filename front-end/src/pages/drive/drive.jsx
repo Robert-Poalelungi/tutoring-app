@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { consultationApi, driveApi } from '../../api';
 import AppFooter from '../../components/AppFooter';
-import { AppNavbar } from '../../components/AppNavbar';
+import { AppBottomNav, AppNavbar } from '../../components/AppNavbar';
 import { useAuth } from '../../context/useAuth';
 import '../../css/reset.css';
 import '../../css/components/navbar.css';
@@ -889,6 +889,7 @@ function Drive() {
         </section>
       </main>
       <AppFooter />
+      <AppBottomNav active="drive" />
     </div>
   );
 }

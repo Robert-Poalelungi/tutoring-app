@@ -19,32 +19,37 @@ export function AppNavbar({ active = 'calendar', profileMenuActive = false }) {
   const studentLabel = getDashboardLabelByRole(role);
 
   return (
-    <header className="site-header">
-      <nav className="navbar">
-        <div className="nav-logo">
-          <Link to={logoRoute} className="logo-text">
-            Tutoring App
-          </Link>
+    <>
+      <header className="site-header">
+        <div className="navbar-row">
+          <nav className="navbar">
+            <div className="nav-logo">
+              <Link to={logoRoute} className="logo-text">
+                Tutoring App
+              </Link>
+            </div>
+            <div className="links">
+              <Link to="/calendar" className={active === 'calendar' ? 'active' : ''}>
+                <i className="fa-regular fa-calendar" />
+                <span>Calendar</span>
+              </Link>
+              {isAuthenticated ? (
+                <Link to={studentRoute} className={active === 'student' ? 'active' : ''}>
+                  <i className="fa-solid fa-table-columns" />
+                  <span>{studentLabel}</span>
+                </Link>
+              ) : null}
+              <Link to="/drive" className={active === 'drive' ? 'active' : ''}>
+                <i className="fa-brands fa-google-drive" />
+                <span>Drive</span>
+              </Link>
+            </div>
+          </nav>
+          <ProfileMenuButton initials={getInitials(user)} active={profileMenuActive} ariaLabel="Profil utilizator" />
         </div>
-        <div className="links">
-          <Link to="/calendar" className={active === 'calendar' ? 'active' : ''}>
-            <i className="fa-regular fa-calendar" />
-            <span>Calendar</span>
-          </Link>
-          {isAuthenticated ? (
-            <Link to={studentRoute} className={active === 'student' ? 'active' : ''}>
-              <i className="fa-solid fa-table-columns" />
-              <span>{studentLabel}</span>
-            </Link>
-          ) : null}
-          <Link to="/drive" className={active === 'drive' ? 'active' : ''}>
-            <i className="fa-brands fa-google-drive" />
-            <span>Drive</span>
-          </Link>
-        </div>
-      </nav>
-      <ProfileMenuButton initials={getInitials(user)} active={profileMenuActive} ariaLabel="Profil utilizator" />
-    </header>
+      </header>
+      <div className="mobile-page-title">Tutoring App</div>
+    </>
   );
 }
 
