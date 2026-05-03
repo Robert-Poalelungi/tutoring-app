@@ -153,5 +153,6 @@ export const adminApi = {
 
   getSettings: () => apiGet('/admin/settings'),
   updateSession: (activeSession) => apiPut('/admin/settings/session', { activeSession }),
+  updateSeasonalTheme: (seasonalTheme) => apiPut('/admin/settings/session', { seasonalTheme }),
   syncDriveFolders: () => apiPost('/consultations/admin/sync-drive-folders'),
 };

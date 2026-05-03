@@ -75,9 +75,9 @@
 }
 
 .drive-btn {
-  border: 1px solid #ef8e1b;
+  border: 1px solid var(--color-accent);
   border-radius: 999px;
-  background: #f08a12;
+  background: var(--color-accent);
   color: #ffffff;
   font-size: 0.85rem;
   font-weight: 700;
@@ -88,7 +88,8 @@
 }
 
 .drive-btn:hover:not(:disabled) {
-  background: #db7a0c;
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
 }
 
 .drive-btn-link {
@@ -104,9 +105,9 @@
 }
 
 .drive-btn-active {
-  background: #ffad4f;
+  background: var(--color-accent-hover);
   color: #ffffff;
-  border-color: #ffad4f;
+  border-color: var(--color-accent-hover);
 }
 
 .drive-files {
@@ -173,8 +174,8 @@
 
 .drive-link {
   color: #ffffff;
-  background: #f08a12;
-  border: 1px solid #ef8e1b;
+  background: var(--color-accent);
+  border: 1px solid var(--color-accent);
   border-radius: 999px;
   padding: 0.35rem 0.65rem;
   font-size: 0.78rem;
@@ -183,7 +184,7 @@
 }
 
 .drive-link:hover {
-  background: #db7a0c;
+  background: var(--color-accent-hover);
 }
 
 .drive-link-static {
@@ -226,7 +227,7 @@
 }
 
 .button-pagination.active {
-  background: #f08a12;
+  background: var(--color-accent);
   color: #ffffff;
 }
 

@@ -8,7 +8,7 @@
   width: fit-content;
   max-width: calc(100% - 1rem);
   margin: 0 auto;
-  background: #1d174b;
+  background: var(--albastru-inchis-navy);
   border-radius: 50px;
   padding: 0.6rem 1.5rem;
   box-shadow: 0 14px 32px rgba(8, 7, 26, 0.34);
@@ -312,7 +312,7 @@
   border-color: var(--color-accent);
   color: var(--color-text);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(247, 181, 0, 0.35);
+  box-shadow: 0 8px 20px rgba(var(--color-accent-rgb), 0.35);
 }
 
 /* -------------------------------------------Modal form body (shared with profesor)------------------------------------------ */
@@ -367,7 +367,7 @@
 
 .assign-search-input:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(255, 159, 47, 0.18);
+  box-shadow: 0 0 0 3px rgba(var(--color-accent-rgb), 0.18);
 }
 
 .assign-search-input::placeholder {
@@ -402,7 +402,7 @@
 
 .search-input:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(255, 159, 47, 0.18);
+  box-shadow: 0 0 0 3px rgba(var(--color-accent-rgb), 0.18);
 }
 
 .search-input::placeholder {
@@ -473,14 +473,14 @@
 }
 
 .assignment-course-option:hover {
-  border-color: rgba(247, 181, 0, 0.45);
-  background: rgba(247, 181, 0, 0.12);
+  border-color: rgba(var(--color-accent-rgb), 0.45);
+  background: rgba(var(--color-accent-rgb), 0.12);
   transform: translateY(-1px);
 }
 
 .assignment-course-option:has(input:checked) {
-  border-color: rgba(247, 181, 0, 0.75);
-  background: rgba(247, 181, 0, 0.2);
+  border-color: rgba(var(--color-accent-rgb), 0.75);
+  background: rgba(var(--color-accent-rgb), 0.2);
 }
 
 .assignment-course-option input[type="checkbox"] {
@@ -553,13 +553,13 @@
 }
 
 .btn-row-edit.btn-row-cancel {
-  background: #f59e0b;
-  color: #111827;
+  background: var(--color-accent);
+  color: #ffffff;
 }
 
 .btn-row-edit.btn-row-cancel:hover {
-  background: #d97706;
-  color: #111827;
+  background: var(--color-accent-hover);
+  color: #ffffff;
 }
 
 .btn-row-edit.btn-row-reactivate {

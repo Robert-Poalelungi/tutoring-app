@@ -1,4 +1,5 @@
 const { User, Course, ProfessorCourse, Faculty, Specialization, CalendarSessions } = require("../models");
+const sequelize = require("../config/db");
 
 // ─── USERS ───
 
@@ -367,7 +368,15 @@ const getSettings = async (req, res) => {
       });
     }
 
-    return res.status(200).json({ session });
+    let seasonalTheme = true;
+    try {
+      const [rows] = await sequelize.query(
+        "SELECT `seasonalTheme` FROM `CalendarSessions` WHERE `id` = 1;"
+      );
+      if (rows.length > 0) seasonalTheme = rows[0].seasonalTheme !== 0;
+    } catch (_) {}
+
+    return res.status(200).json({ session: { ...session.toJSON(), seasonalTheme } });
   } catch (error) {
     return res.status(500).json({ message: "Eroare server.", error: error.message });
   }
@@ -376,9 +385,9 @@ const getSettings = async (req, res) => {
 // Schimbă sesiunea activă
 const updateSession = async (req, res) => {
   try {
-    const { activeSession } = req.body;
+    const { activeSession, seasonalTheme } = req.body;
 
-    if (!["winter", "summer"].includes(activeSession)) {
+    if (activeSession !== undefined && !["winter", "summer"].includes(activeSession)) {
       return res.status(400).json({ message: "Sesiunea trebuie să fie 'winter' sau 'summer'." });
     }
 
@@ -387,16 +396,26 @@ const updateSession = async (req, res) => {
     if (!session) {
       session = await CalendarSessions.create({
         id: 1,
-        activeSession,
+        activeSession: activeSession || "winter",
         winterMonths: [1, 2],
         summerMonths: [6, 7],
         updatedBy: req.user.id,
       });
-    } else {
+    } else if (activeSession !== undefined) {
       await session.update({ activeSession, updatedBy: req.user.id });
     }
 
-    return res.status(200).json({ message: "Sesiune actualizată cu succes.", session });
+    // seasonalTheme via raw query (coloana nu e în model)
+    if (seasonalTheme !== undefined) {
+      try {
+        await sequelize.query(
+          "UPDATE `CalendarSessions` SET `seasonalTheme` = ? WHERE `id` = 1;",
+          { replacements: [seasonalTheme ? 1 : 0] }
+        );
+      } catch (_) {}
+    }
+
+    return res.status(200).json({ message: "Sesiune actualizată cu succes." });
   } catch (error) {
     return res.status(500).json({ message: "Eroare server.", error: error.message });
   }

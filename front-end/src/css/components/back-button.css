@@ -15,7 +15,7 @@
   background: var(--color-accent);
   border-color: var(--color-accent);
   transform: translateX(-3px);
-  box-shadow: 0 4px 16px rgba(247, 181, 0, 0.3);
+  box-shadow: 0 4px 16px rgba(var(--color-accent-rgb), 0.3);
 }
 
 .back-content {

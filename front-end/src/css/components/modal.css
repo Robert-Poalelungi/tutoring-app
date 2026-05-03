@@ -113,7 +113,7 @@
 }
 
 .faculty-grid-card:hover {
-  border-color: rgba(247, 181, 0, 0.4);
+  border-color: rgba(var(--color-accent-rgb), 0.4);
   transform: translateY(-2px);
 }
 
@@ -197,7 +197,7 @@
 }
 
 .discipline-option:hover {
-  border-color: rgba(247, 181, 0, 0.4);
+  border-color: rgba(var(--color-accent-rgb), 0.4);
 }
 
 .discipline-option.selected {

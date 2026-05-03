@@ -21,6 +21,7 @@
   --color-accent: #ff9f2f;
   --color-accent-hover: #ffaf54;
   --color-accent-soft: rgb(247, 114, 57);
+  --color-accent-rgb: 255, 159, 47;
   --color-success: #2e6cb5;
   --color-success-hover: #204d83;
   --color-link: #bdaff8;
@@ -30,6 +31,40 @@
   --alb-pur: #f2f0f0;
   --galben-deschis: #ffaf54;
   --light-gray: #f6f4f4;
+  --season-overlay: rgba(255, 255, 255, 0.02);
+  --season-weekday-bg: #2a2060;
+  --season-bg: url(../assets/background.webp);
+  --season-topbar-bg: url(../assets/backgrounddark.webp);
+}
+
+/* ------------------------------------------- Seasonal themes ------------------------------------------ */
+
+body.season-winter {
+  --color-accent: #60a5fa;
+  --color-accent-hover: #93c5fd;
+  --color-accent-rgb: 96, 165, 250;
+  --color-accent-soft: #bfdbfe;
+  --albastru-inchis-navy: #0f1f3d;
+  --color-bg: #0f1f3d;
+  --galben-deschis: #93c5fd;
+  --season-overlay: rgba(96, 165, 250, 0.07);
+  --season-weekday-bg: #07111f;
+  --season-bg: linear-gradient(160deg, #0f1f3d 0%, #1a3a6b 50%, #0d2a5e 100%);
+  --season-topbar-bg: linear-gradient(135deg, #07111f 0%, #0f1f3d 40%, #1a3a6b 100%);
+}
+
+body.season-summer {
+  --color-accent: #f97316;
+  --color-accent-hover: #fb923c;
+  --color-accent-rgb: 249, 115, 22;
+  --color-accent-soft: #fdba74;
+  --albastru-inchis-navy: #0f2d4a;
+  --color-bg: #0f2d4a;
+  --galben-deschis: #fb923c;
+  --season-overlay: rgba(249, 115, 22, 0.05);
+  --season-weekday-bg: #071a29;
+  --season-bg: linear-gradient(160deg, #0f2d4a 0%, #1a5276 50%, #0e3d5c 100%);
+  --season-topbar-bg: linear-gradient(135deg, #071a29 0%, #0f2d4a 40%, #1a5276 100%);
 }
 
 /* -------------------------------------------Scrollbar------------------------------------------ */
@@ -56,4 +91,5 @@
 
 body {
   background-color: var(--color-bg);
+  transition: background-color 0.6s ease;
 }

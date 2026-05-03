@@ -333,8 +333,7 @@ function Calendar() {
                 ))
               ) : (
                 <div className="no-consultations">
-                  <p className="info-title">nicio consultatie</p>
-                  <p className="info-date">pentru aceasta zi.</p>
+                  <p className="info-title">Nicio consultație programată în această zi</p>
                 </div>
               )
             ) : null}

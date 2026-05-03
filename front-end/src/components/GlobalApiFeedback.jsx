@@ -56,7 +56,7 @@ function GlobalApiFeedback() {
           left: 0,
           width: '100%',
           height: '4px',
-          background: 'linear-gradient(90deg, #ff9f2f, #1d174b)',
+          background: `linear-gradient(90deg, ${getComputedStyle(document.body).getPropertyValue('--color-accent').trim()}, ${getComputedStyle(document.body).getPropertyValue('--albastru-inchis-navy').trim()})`,
           opacity: showLoading ? 1 : 0,
           transition: 'opacity 0.2s ease',
           zIndex: 2000,

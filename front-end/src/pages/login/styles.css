@@ -29,7 +29,7 @@
 }
 
 .login-card {
-  background: #1d174b;
+  background: var(--albastru-inchis-navy);
   border-radius: 28px;
   padding: 3rem 2.5rem;
   display: flex;
@@ -52,7 +52,7 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 0.5rem;
-  box-shadow: 0 8px 40px rgba(247, 181, 0, 0.3);
+  box-shadow: 0 8px 40px rgba(var(--color-accent-rgb), 0.3);
 }
 
 .login-logo i {
@@ -170,7 +170,7 @@
   background: var(--color-accent);
   border-color: var(--color-accent);
   color: var(--color-text-inverse);
-  box-shadow: 0 4px 16px rgba(247, 181, 0, 0.4);
+  box-shadow: 0 4px 16px rgba(var(--color-accent-rgb), 0.4);
 }
 
 .progress-step.active .progress-label {

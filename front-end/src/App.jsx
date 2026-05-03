@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, Routes, Route } from 'react-router-dom';
 import { useAuth } from './context/useAuth';
+import { settingsApi } from './api/index';
 import { getDashboardRouteByRole, normalizeRole } from './utils/navigation';
 import Admin from './pages/admin/admin.jsx';
 import Calendar from './pages/calendar/calendar.jsx';
@@ -35,6 +36,17 @@ function ProtectedRoute({ children, allowedRoles = null }) {
 }
 
 function App() {
+  useEffect(() => {
+    settingsApi.getActiveSession()
+      .then(({ activeSession, seasonalTheme }) => {
+        document.body.classList.remove('season-winter', 'season-summer');
+        if (seasonalTheme !== false) {
+          document.body.classList.add(`season-${activeSession}`);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <Routes>
       <Route path="/" element={<Calendar />} />

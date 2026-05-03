@@ -45,8 +45,18 @@ app.use("/api", routes);
 
 sequelize
   .sync({ alter: process.env.SITE_MODE !== "dev" })
-  .then(() => {
+  .then(async () => {
     console.log("Baza de date sincronizată.");
+    try {
+      const [cols] = await sequelize.query(
+        "SHOW COLUMNS FROM `CalendarSessions` LIKE 'seasonalTheme';"
+      );
+      if (cols.length === 0) {
+        await sequelize.query(
+          "ALTER TABLE `CalendarSessions` ADD COLUMN `seasonalTheme` TINYINT(1) NOT NULL DEFAULT 1;"
+        );
+      }
+    } catch (_) {}
     startEmailScheduler();
     startGoogleCalendarScheduler();
     app.listen(port, () => {

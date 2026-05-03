@@ -41,6 +41,7 @@ function Admin() {
   const [courses, setCourses] = useState([]);
   const [consultations, setConsultations] = useState([]);
   const [activeSession, setActiveSession] = useState('winter');
+  const [seasonalTheme, setSeasonalTheme] = useState(true);
   const [sessionError, setSessionError] = useState('');
   const [assignments, setAssignments] = useState({});
 
@@ -87,6 +88,7 @@ function Admin() {
       setCourses(Array.isArray(coursesData) ? coursesData : []);
       setConsultations(Array.isArray(consultationsData) ? consultationsData : []);
       setActiveSession(settingsData?.session?.activeSession || 'winter');
+      setSeasonalTheme(settingsData?.session?.seasonalTheme !== false);
 
       const assignmentMap = {};
       await Promise.all(
@@ -589,7 +591,7 @@ function Admin() {
                             type="button"
                             onClick={() => openModal('user', 'edit', { role: entry.role }, entry.id)}
                           >
-                            Rol
+                            Modifică rol
                           </button>
                           <button
                             className="btn-row-delete"
@@ -1052,8 +1054,35 @@ function Admin() {
 
         <div className="admin-tab-content" hidden={activeTab !== 'settings'}>
           <div className="dashboard-section">
-            <div className="section-header section-header-col section-header-center">
+            <div className="section-header section-header-col section-header-center" style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3>Sesiune academica activa</h3>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.84rem', fontWeight: 600, color: 'var(--color-text-inverse)' }}>
+                <span>Design sezonier</span>
+                <span
+                  role="switch"
+                  aria-checked={seasonalTheme}
+                  onClick={async () => {
+                    const next = !seasonalTheme;
+                    try {
+                      await adminApi.updateSeasonalTheme(next);
+                      setSeasonalTheme(next);
+                      document.body.classList.remove('season-winter', 'season-summer');
+                      if (next) document.body.classList.add(`season-${activeSession}`);
+                    } catch { setSessionError('Eroare la actualizarea temei.'); }
+                  }}
+                  style={{
+                    display: 'inline-block', width: '2.4rem', height: '1.35rem',
+                    borderRadius: '999px', background: seasonalTheme ? 'var(--color-accent)' : 'rgba(255,255,255,0.25)',
+                    position: 'relative', cursor: 'pointer', transition: 'background 0.25s ease', flexShrink: 0,
+                  }}
+                >
+                  <span style={{
+                    position: 'absolute', top: '50%', transform: `translateY(-50%) translateX(${seasonalTheme ? '1.1rem' : '0.15rem'})`,
+                    width: '1rem', height: '1rem', borderRadius: '50%', background: '#fff',
+                    transition: 'transform 0.25s ease', display: 'block',
+                  }} />
+                </span>
+              </label>
             </div>
             <div className="session-toggle-group">
               <button
@@ -1064,6 +1093,10 @@ function Admin() {
                   try {
                     await adminApi.updateSession('winter');
                     setActiveSession('winter');
+                    if (seasonalTheme) {
+                      document.body.classList.remove('season-winter', 'season-summer');
+                      document.body.classList.add('season-winter');
+                    }
                   } catch (err) {
                     setSessionError(err?.message || 'Eroare la schimbarea sesiunii.');
                   }
@@ -1081,6 +1114,10 @@ function Admin() {
                   try {
                     await adminApi.updateSession('summer');
                     setActiveSession('summer');
+                    if (seasonalTheme) {
+                      document.body.classList.remove('season-winter', 'season-summer');
+                      document.body.classList.add('season-summer');
+                    }
                   } catch (err) {
                     setSessionError(err?.message || 'Eroare la schimbarea sesiunii.');
                   }
