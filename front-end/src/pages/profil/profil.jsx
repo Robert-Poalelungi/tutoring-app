@@ -30,6 +30,15 @@ const getInitials = (profile) => `${profile.prenume?.[0] || ''}${profile.nume?.[
 function Profil() {
   const { user, refreshUser } = useAuth();
   const isStudent = user?.role === 'student';
+  const isProfessor = user?.role === 'professor';
+
+  const professorFaculties = useMemo(() => {
+    if (!isProfessor || !user?.courses) return [];
+    const seen = new Set();
+    return user.courses
+      .map((c) => c.faculty)
+      .filter((f) => f && !seen.has(f.id) && seen.add(f.id));
+  }, [isProfessor, user?.courses]);
   const [draftProfile, setDraftProfile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showFacultyModal, setShowFacultyModal] = useState(false);
@@ -186,7 +195,15 @@ function Profil() {
           <h2 className="profile-name">{`${activeProfile.prenume} ${activeProfile.nume}`}</h2>
           <p className="profile-role">{getRoleLabel(user?.role)}</p>
           <p className="profile-email-sidebar">{activeProfile.email}</p>
-          <p className="profile-email-sidebar profile-sidebar-badge">{activeProfile.facultyAbbr}</p>
+          {isProfessor ? (
+            professorFaculties.length > 0
+              ? professorFaculties.map((f) => (
+                <p key={f.id} className="profile-email-sidebar profile-sidebar-badge">{f.abbreviation}</p>
+              ))
+              : null
+          ) : isStudent && activeProfile.facultyAbbr ? (
+            <p className="profile-email-sidebar profile-sidebar-badge">{activeProfile.facultyAbbr}</p>
+          ) : null}
           {isStudent ? (
             <p className="profile-email-sidebar profile-sidebar-badge">
               Anul <span>{activeProfile.an}</span>
@@ -311,22 +328,24 @@ function Profil() {
             </div>
           </div>
 
-          <div className="profile-section">
-            <div className="section-header">
-              <h3>Facultate</h3>
-              <button className="button-edit" id="button-change-faculty" type="button" onClick={handleOpenFacultyModal}>
-                <span>Schimbă</span>
-              </button>
-            </div>
-            <div className="section-body">
-              <div className="faculty-card">
-                <div className="faculty-info">
-                  <p className="faculty-name">{currentFaculty?.name || '-'}</p>
-                  <p className="faculty-abbr">{currentFaculty?.abbreviation || '-'}</p>
+          {isStudent ? (
+            <div className="profile-section">
+              <div className="section-header">
+                <h3>Facultate</h3>
+                <button className="button-edit" id="button-change-faculty" type="button" onClick={handleOpenFacultyModal}>
+                  <span>Schimbă</span>
+                </button>
+              </div>
+              <div className="section-body">
+                <div className="faculty-card">
+                  <div className="faculty-info">
+                    <p className="faculty-name">{currentFaculty?.name || '-'}</p>
+                    <p className="faculty-abbr">{currentFaculty?.abbreviation || '-'}</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          ) : null}
 
         </div>
       </div>

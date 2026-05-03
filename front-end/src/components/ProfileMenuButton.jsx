@@ -4,7 +4,7 @@ import { useAuth } from '../context/useAuth';
 
 function ProfileMenuButton({ initials = 'PR', active = false, ariaLabel = 'Profil utilizator' }) {
   const [isOpen, setIsOpen] = useState(false);
-  const { isAuthenticated, isLoading, logout } = useAuth();
+  const { isAuthenticated, isLoading, logout, user } = useAuth();
   const menuRef = useRef(null);
   const popupId = useId();
 
@@ -68,9 +68,11 @@ function ProfileMenuButton({ initials = 'PR', active = false, ariaLabel = 'Profi
         <Link to="/profil" className="profile-popup-btn" role="menuitem" onClick={() => setIsOpen(false)}>
           Profil
         </Link>
-        <Link to="/setari" className="profile-popup-btn" role="menuitem" onClick={() => setIsOpen(false)}>
-          Setări
-        </Link>
+        {user?.role === 'student' ? (
+          <Link to="/setari" className="profile-popup-btn" role="menuitem" onClick={() => setIsOpen(false)}>
+            Setări
+          </Link>
+        ) : null}
         <Link
           to="/login"
           className="profile-popup-btn"

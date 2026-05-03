@@ -76,7 +76,7 @@ function App() {
       <Route
         path="/setari"
         element={(
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['student']}>
             <Setari />
           </ProtectedRoute>
         )}

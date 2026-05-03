@@ -374,6 +374,41 @@
   color: rgba(22, 18, 48, 0.35);
 }
 
+.search-bar-wrapper {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.filter-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(242, 240, 240, 0.78);
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border: 2px solid rgba(22, 18, 48, 0.12);
+  border-radius: 50px;
+  font-size: 0.88rem;
+  font-family: "Poppins", sans-serif;
+  background: #ffffff;
+  color: var(--color-text);
+  box-sizing: border-box;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(255, 159, 47, 0.18);
+}
+
+.search-input::placeholder {
+  color: rgba(22, 18, 48, 0.35);
+}
+
 /* -------------------------------------------Years checkboxes------------------------------------------ */
 
 .years-checkboxes {
@@ -402,7 +437,7 @@
 
 .label-optional {
   font-size: 0.75rem;
-  font-weight: 400;
+  font-weight: 500;
   color: rgba(22, 18, 48, 0.45);
   margin-left: 0.25rem;
 }

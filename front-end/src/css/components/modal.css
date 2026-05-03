@@ -244,6 +244,23 @@
   background: #4b5563;
 }
 
+.button-delete {
+  padding: 0.6rem 1.5rem;
+  border: none;
+  border-radius: 50px;
+  background: #dc2626;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+  transition: background 0.2s ease;
+}
+
+.button-delete:hover {
+  background: #b91c1c;
+}
+
 .button-confirm {
   padding: 0.6rem 1.5rem;
   border: none;

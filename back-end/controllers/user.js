@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { User, Faculty, Specialization, NotificationPreference } = require("../models");
+const { User, Faculty, Specialization, NotificationPreference, Course } = require("../models");
 const detectStudyYear = require("../utils/detectStudyYear");
 const { enrollStudentInMatchingConsultations, recalculateAutoEnrollments } = require("../services/autoEnrollmentService");
 
@@ -18,6 +18,13 @@ const getCurrentUser = async (req, res) => {
         { model: Faculty, as: "faculty" },
         { model: Specialization, as: "specialization" },
         { model: NotificationPreference, as: "notificationPreference" },
+        {
+          model: Course,
+          as: "courses",
+          through: { attributes: [] },
+          include: [{ model: Faculty, as: "faculty", attributes: ["id", "name", "abbreviation"] }],
+          attributes: ["id", "facultyId"],
+        },
       ],
     });
 

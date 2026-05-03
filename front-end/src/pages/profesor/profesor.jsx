@@ -493,6 +493,11 @@ function Profesor() {
                   </option>
                 ))}
               </select>
+              {(() => {
+                const selected = courses.find((c) => c.id === Number(consultationForm.courseId));
+                const year = selected?.years?.[0];
+                return year ? <small className="label-optional" style={{ fontWeight: 600 }}>Anul {year}</small> : null;
+              })()}
             </div>
             <div className="form-row">
               <div className="form-group">
@@ -555,7 +560,9 @@ function Profesor() {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="form-materials">Link materiale (opțional)</label>
+              <label htmlFor="form-materials">
+                Link materiale <span className="label-optional">(opțional — se adaugă automat)</span>
+              </label>
               <input
                 id="form-materials"
                 value={consultationForm.materialsLink}

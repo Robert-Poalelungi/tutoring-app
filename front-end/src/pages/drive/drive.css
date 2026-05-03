@@ -272,4 +272,25 @@
   .pagination {
     flex-wrap: wrap;
   }
+
+  .drive-filter-group {
+    margin-bottom: 1.4rem;
+  }
+
+  .drive-filter-buttons {
+    gap: 0.7rem;
+  }
+
+  .drive-filter-buttons .drive-btn {
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  .drive-filter-label {
+    margin-bottom: 0.55rem;
+  }
+
+  .drive-toolbar {
+    margin-top: 0.5rem;
+  }
 }

@@ -6,6 +6,7 @@ import { AppBottomNav, AppNavbar } from '../../components/AppNavbar';
 import { useAuth } from '../../context/useAuth';
 import '../../css/reset.css';
 import '../../css/components/navbar.css';
+import '../../css/components/modal.css';
 import '../student/student.css';
 import './drive.css';
 
@@ -92,6 +93,7 @@ function Drive() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ done: 0, total: 0 });
   const [deletingId, setDeletingId] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [error, setError] = useState('');
 
   const professorFolderIds = useMemo(
@@ -532,10 +534,13 @@ function Drive() {
     }
   };
 
-  const handleDeleteItem = async (file) => {
-    const label = file.name || 'acest element';
-    if (!window.confirm(`Ștergi "${label}"? Această acțiune este ireversibilă.`)) return;
+  const handleDeleteItem = (file) => {
+    setDeleteConfirm(file);
+  };
 
+  const confirmDelete = async () => {
+    const file = deleteConfirm;
+    setDeleteConfirm(null);
     setDeletingId(file.id);
     setError('');
     try {
@@ -890,6 +895,32 @@ function Drive() {
       </main>
       <AppFooter />
       <AppBottomNav active="drive" />
+
+      <div
+        className="modal-overlay"
+        hidden={!deleteConfirm}
+        onClick={(e) => { if (e.target === e.currentTarget) setDeleteConfirm(null); }}
+      >
+        <div className="modal-card">
+          <div className="modal-header">
+            <h3>Șterge fișier</h3>
+            <button className="modal-close" type="button" onClick={() => setDeleteConfirm(null)}>
+              <i className="fa-solid fa-xmark" />
+            </button>
+          </div>
+          <p className="modal-hint">
+            Ștergi <strong>"{deleteConfirm?.name}"</strong>? Această acțiune este ireversibilă.
+          </p>
+          <div className="modal-actions">
+            <button className="button-cancel" type="button" onClick={() => setDeleteConfirm(null)}>
+              Anulează
+            </button>
+            <button className="button-delete" type="button" onClick={confirmDelete}>
+              Șterge
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -48,7 +48,10 @@ export function AppNavbar({ active = 'calendar', profileMenuActive = false }) {
           <ProfileMenuButton initials={getInitials(user)} active={profileMenuActive} ariaLabel="Profil utilizator" />
         </div>
       </header>
-      <div className="mobile-page-title">Tutoring App</div>
+      <div className="mobile-header">
+        <div className="mobile-page-title">Tutoring App</div>
+        <ProfileMenuButton initials={getInitials(user)} active={profileMenuActive} ariaLabel="Profil utilizator" />
+      </div>
     </>
   );
 }

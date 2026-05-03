@@ -47,6 +47,7 @@ function Admin() {
   const [userSearch, setUserSearch] = useState('');
   const [courseSearch, setCourseSearch] = useState('');
   const [consultationSearch, setConsultationSearch] = useState('');
+  const [professorSearch, setProfessorSearch] = useState('');
   const [specializationFacultyFilter, setSpecializationFacultyFilter] = useState('');
   const [assignmentSearch, setAssignmentSearch] = useState('');
   const [userPage, setUserPage] = useState(1);
@@ -120,6 +121,15 @@ function Admin() {
     [users],
   );
 
+  const filteredProfessors = useMemo(() => {
+    const query = professorSearch.trim().toLowerCase();
+    if (!query) return professors;
+    return professors.filter((entry) => {
+      const fullName = `${entry.firstName || ''} ${entry.lastName || ''}`.toLowerCase();
+      return fullName.includes(query) || (entry.email || '').toLowerCase().includes(query);
+    });
+  }, [professors, professorSearch]);
+
   const filteredUsers = useMemo(() => {
     const query = userSearch.trim().toLowerCase();
     if (!query) return users;
@@ -191,7 +201,7 @@ function Admin() {
 
   const totalUserPages = Math.max(1, Math.ceil(filteredUsers.length / USERS_PAGE_SIZE));
   const totalCoursePages = Math.max(1, Math.ceil(filteredCourses.length / COURSES_PAGE_SIZE));
-  const totalProfessorPages = Math.max(1, Math.ceil(professors.length / PROFESSORS_PAGE_SIZE));
+  const totalProfessorPages = Math.max(1, Math.ceil(filteredProfessors.length / PROFESSORS_PAGE_SIZE));
   const totalConsultationPages = Math.max(1, Math.ceil(filteredConsultations.length / CONSULTATIONS_PAGE_SIZE));
 
   const paginatedUsers = useMemo(() => {
@@ -206,7 +216,7 @@ function Admin() {
 
   const paginatedProfessors = useMemo(() => {
     const startIndex = (professorPage - 1) * PROFESSORS_PAGE_SIZE;
-    return professors.slice(startIndex, startIndex + PROFESSORS_PAGE_SIZE);
+    return filteredProfessors.slice(startIndex, startIndex + PROFESSORS_PAGE_SIZE);
   }, [professorPage, professors]);
 
   const paginatedConsultations = useMemo(() => {
@@ -679,7 +689,7 @@ function Admin() {
 
             <div className="courses-filters">
               <div className="form-group" style={{ minWidth: '240px' }}>
-                <label htmlFor="specializations-faculty-filter">Filtru facultate</label>
+                <label htmlFor="specializations-faculty-filter">Facultate</label>
                 <select
                   id="specializations-faculty-filter"
                   value={specializationFacultyFilter}
@@ -808,6 +818,18 @@ function Admin() {
           <div className="dashboard-section">
             <div className="section-header section-header-col section-header-center">
               <h3>Asignari profesori</h3>
+            </div>
+            <div className="courses-filters">
+              <div className="form-group" style={{ flex: 1 }}>
+                <label htmlFor="professor-search">Cauta</label>
+                <input
+                  id="professor-search"
+                  type="text"
+                  value={professorSearch}
+                  onChange={(e) => { setProfessorSearch(e.target.value); setProfessorPage(1); }}
+                  placeholder="Nume sau email"
+                />
+              </div>
             </div>
             {paginatedProfessors.map((entry) => (
               <article className="prof-assign-card" key={entry.id}>

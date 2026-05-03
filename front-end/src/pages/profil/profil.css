@@ -21,7 +21,7 @@
   align-self: center;
   margin: 1.5rem auto 2rem;
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: 320px minmax(0, 1fr);
   gap: 2rem;
   padding-left: 0;
   color: var(--color-text-inverse);
@@ -29,8 +29,8 @@
 
 /* Sidebar stânga */
 .profile-sidebar {
-  width: 260px;
-  min-width: 260px;
+  width: 320px;
+  min-width: 320px;
   background: var(--albastru-inchis-navy);
   border-radius: 30px;
   padding: 2rem 1.5rem;
@@ -38,7 +38,7 @@
   flex-direction: column;
   align-items: center;
   gap: 0.4rem;
-  height: fit-content;
+  align-self: stretch;
   grid-column: 1;
   grid-row: 1;
 }
